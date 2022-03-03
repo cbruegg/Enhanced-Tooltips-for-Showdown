@@ -1,6 +1,6 @@
 {
 	"update_url": "https://clients2.google.com/service/update2/crx",
-	"name": "Pokemon Showdown Enhanced Tooltips",
+	"name": "Enhanced Tooltips for Showdown",
 	"description": "Displays additional information on tooltips of Pokémon Showdown.",
 	"version": "1.2.1.0",
 	"manifest_version": 2,

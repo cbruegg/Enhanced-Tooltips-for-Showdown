@@ -13,8 +13,8 @@
 		A1AB7C2E2798AEFA00725B12 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C2C2798AEFA00725B12 /* Main.storyboard */; };
 		A1AB7C372798AEFA00725B12 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AB7C362798AEFA00725B12 /* AppDelegate.swift */; };
 		A1AB7C3A2798AEFA00725B12 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C382798AEFA00725B12 /* Main.storyboard */; };
-		A1AB7C422798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1AB7C412798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		A1AB7C4C2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1AB7C4B2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1AB7C422798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1AB7C412798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1AB7C4C2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1AB7C4B2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A1AB7C522798AEFA00725B12 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C152798AEFA00725B12 /* Main.html */; };
 		A1AB7C532798AEFA00725B12 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C152798AEFA00725B12 /* Main.html */; };
 		A1AB7C542798AEFA00725B12 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C172798AEFA00725B12 /* Icon.png */; };
@@ -73,7 +73,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A1AB7C422798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex in Embed App Extensions */,
+				A1AB7C422798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,7 +84,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A1AB7C4C2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex in Embed App Extensions */,
+				A1AB7C4C2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -99,20 +99,20 @@
 		A1AB7C1A2798AEFA00725B12 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		A1AB7C1B2798AEFA00725B12 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1AB7C1D2798AEFA00725B12 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
-		A1AB7C222798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pokemon Showdown Enhanced Tooltips.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AB7C222798AEFA00725B12 /* Enhanced Tooltips for Showdown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Enhanced Tooltips for Showdown.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AB7C252798AEFA00725B12 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A1AB7C272798AEFA00725B12 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		A1AB7C2A2798AEFA00725B12 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A1AB7C2D2798AEFA00725B12 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A1AB7C2F2798AEFA00725B12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1AB7C342798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pokemon Showdown Enhanced Tooltips.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AB7C342798AEFA00725B12 /* Enhanced Tooltips for Showdown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Enhanced Tooltips for Showdown.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AB7C362798AEFA00725B12 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A1AB7C392798AEFA00725B12 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A1AB7C3B2798AEFA00725B12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1AB7C3C2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Pokemon Showdown Enhanced Tooltips.entitlements"; sourceTree = "<group>"; };
-		A1AB7C412798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Pokemon Showdown Enhanced Tooltips Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AB7C412798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Enhanced Tooltips for Showdown Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AB7C462798AEFA00725B12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1AB7C4B2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Pokemon Showdown Enhanced Tooltips Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1AB7C4B2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Enhanced Tooltips for Showdown Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AB7C502798AEFA00725B12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1AB7C512798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Pokemon Showdown Enhanced Tooltips.entitlements"; sourceTree = "<group>"; };
 		A1AB7C752798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Pokemon Showdown Enhanced Tooltips"; sourceTree = SOURCE_ROOT; };
@@ -200,10 +200,10 @@
 		A1AB7C232798AEFA00725B12 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1AB7C222798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.app */,
-				A1AB7C342798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.app */,
-				A1AB7C412798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex */,
-				A1AB7C4B2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex */,
+				A1AB7C222798AEFA00725B12 /* Enhanced Tooltips for Showdown.app */,
+				A1AB7C342798AEFA00725B12 /* Enhanced Tooltips for Showdown.app */,
+				A1AB7C412798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */,
+				A1AB7C4B2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -264,9 +264,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A1AB7C212798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips (iOS) */ = {
+		A1AB7C212798AEFA00725B12 /* Enhanced Tooltips for Showdown (iOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1AB7C662798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Pokemon Showdown Enhanced Tooltips (iOS)" */;
+			buildConfigurationList = A1AB7C662798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Enhanced Tooltips for Showdown (iOS)" */;
 			buildPhases = (
 				A1AB7C1E2798AEFA00725B12 /* Sources */,
 				A1AB7C1F2798AEFA00725B12 /* Frameworks */,
@@ -278,14 +278,14 @@
 			dependencies = (
 				A1AB7C442798AEFA00725B12 /* PBXTargetDependency */,
 			);
-			name = "Pokemon Showdown Enhanced Tooltips (iOS)";
+			name = "Enhanced Tooltips for Showdown (iOS)";
 			productName = "Pokemon Showdown Enhanced Tooltips (iOS)";
-			productReference = A1AB7C222798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.app */;
+			productReference = A1AB7C222798AEFA00725B12 /* Enhanced Tooltips for Showdown.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A1AB7C332798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips (macOS) */ = {
+		A1AB7C332798AEFA00725B12 /* Enhanced Tooltips for Showdown (macOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1AB7C6D2798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Pokemon Showdown Enhanced Tooltips (macOS)" */;
+			buildConfigurationList = A1AB7C6D2798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Enhanced Tooltips for Showdown (macOS)" */;
 			buildPhases = (
 				A1AB7C302798AEFA00725B12 /* Sources */,
 				A1AB7C312798AEFA00725B12 /* Frameworks */,
@@ -297,14 +297,14 @@
 			dependencies = (
 				A1AB7C4E2798AEFA00725B12 /* PBXTargetDependency */,
 			);
-			name = "Pokemon Showdown Enhanced Tooltips (macOS)";
+			name = "Enhanced Tooltips for Showdown (macOS)";
 			productName = "Pokemon Showdown Enhanced Tooltips (macOS)";
-			productReference = A1AB7C342798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.app */;
+			productReference = A1AB7C342798AEFA00725B12 /* Enhanced Tooltips for Showdown.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A1AB7C402798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension (iOS) */ = {
+		A1AB7C402798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension (iOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1AB7C622798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Pokemon Showdown Enhanced Tooltips Extension (iOS)" */;
+			buildConfigurationList = A1AB7C622798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Enhanced Tooltips for Showdown Extension (iOS)" */;
 			buildPhases = (
 				A1AB7C3D2798AEFA00725B12 /* Sources */,
 				A1AB7C3E2798AEFA00725B12 /* Frameworks */,
@@ -314,14 +314,14 @@
 			);
 			dependencies = (
 			);
-			name = "Pokemon Showdown Enhanced Tooltips Extension (iOS)";
+			name = "Enhanced Tooltips for Showdown Extension (iOS)";
 			productName = "Pokemon Showdown Enhanced Tooltips Extension (iOS)";
-			productReference = A1AB7C412798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex */;
+			productReference = A1AB7C412798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		A1AB7C4A2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension (macOS) */ = {
+		A1AB7C4A2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension (macOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1AB7C692798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Pokemon Showdown Enhanced Tooltips Extension (macOS)" */;
+			buildConfigurationList = A1AB7C692798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Enhanced Tooltips for Showdown Extension (macOS)" */;
 			buildPhases = (
 				A1AB7C472798AEFA00725B12 /* Sources */,
 				A1AB7C482798AEFA00725B12 /* Frameworks */,
@@ -331,9 +331,9 @@
 			);
 			dependencies = (
 			);
-			name = "Pokemon Showdown Enhanced Tooltips Extension (macOS)";
+			name = "Enhanced Tooltips for Showdown Extension (macOS)";
 			productName = "Pokemon Showdown Enhanced Tooltips Extension (macOS)";
-			productReference = A1AB7C4B2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension.appex */;
+			productReference = A1AB7C4B2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -360,7 +360,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A1AB7C122798AEFA00725B12 /* Build configuration list for PBXProject "Pokemon Showdown Enhanced Tooltips" */;
+			buildConfigurationList = A1AB7C122798AEFA00725B12 /* Build configuration list for PBXProject "Enhanced Tooltips for Showdown" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -373,10 +373,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A1AB7C212798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips (iOS) */,
-				A1AB7C332798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips (macOS) */,
-				A1AB7C402798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension (iOS) */,
-				A1AB7C4A2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension (macOS) */,
+				A1AB7C212798AEFA00725B12 /* Enhanced Tooltips for Showdown (iOS) */,
+				A1AB7C332798AEFA00725B12 /* Enhanced Tooltips for Showdown (macOS) */,
+				A1AB7C402798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension (iOS) */,
+				A1AB7C4A2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension (macOS) */,
 			);
 		};
 /* End PBXProject section */
@@ -484,12 +484,12 @@
 /* Begin PBXTargetDependency section */
 		A1AB7C442798AEFA00725B12 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A1AB7C402798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension (iOS) */;
+			target = A1AB7C402798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension (iOS) */;
 			targetProxy = A1AB7C432798AEFA00725B12 /* PBXContainerItemProxy */;
 		};
 		A1AB7C4E2798AEFA00725B12 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A1AB7C4A2798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips Extension (macOS) */;
+			target = A1AB7C4A2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension (macOS) */;
 			targetProxy = A1AB7C4D2798AEFA00725B12 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -648,7 +648,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Pokemon Showdown Enhanced Tooltips Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = "Enhanced Tooltips for Showndown";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -661,8 +661,8 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips.Extension";
-				PRODUCT_NAME = "Pokemon Showdown Enhanced Tooltips Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_NAME = "Enhanced Tooltips for Showdown Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -678,7 +678,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Pokemon Showdown Enhanced Tooltips Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = "Enhanced Tooltips for Showndown";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -691,8 +691,8 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips.Extension";
-				PRODUCT_NAME = "Pokemon Showdown Enhanced Tooltips Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_NAME = "Enhanced Tooltips for Showdown Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -712,7 +712,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Pokemon Showdown Enhanced Tooltips";
+				INFOPLIST_KEY_CFBundleDisplayName = "Enhanced Tooltips for Showndown";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -730,8 +730,8 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips";
-				PRODUCT_NAME = "Pokemon Showdown Enhanced Tooltips";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_NAME = "Enhanced Tooltips for Showdown";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -749,7 +749,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Pokemon Showdown Enhanced Tooltips";
+				INFOPLIST_KEY_CFBundleDisplayName = "Enhanced Tooltips for Showndown";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -767,8 +767,8 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips";
-				PRODUCT_NAME = "Pokemon Showdown Enhanced Tooltips";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_NAME = "Enhanced Tooltips for Showdown";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -799,8 +799,8 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips.Extension";
-				PRODUCT_NAME = "Pokemon Showdown Enhanced Tooltips Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_NAME = "Enhanced Tooltips for Showdown Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -830,8 +830,8 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips.Extension";
-				PRODUCT_NAME = "Pokemon Showdown Enhanced Tooltips Extension";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_NAME = "Enhanced Tooltips for Showdown Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -866,8 +866,8 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips";
-				PRODUCT_NAME = "Pokemon Showdown Enhanced Tooltips";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_NAME = "Enhanced Tooltips for Showdown";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -901,8 +901,8 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips";
-				PRODUCT_NAME = "Pokemon Showdown Enhanced Tooltips";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_NAME = "Enhanced Tooltips for Showdown";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -912,7 +912,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1AB7C122798AEFA00725B12 /* Build configuration list for PBXProject "Pokemon Showdown Enhanced Tooltips" */ = {
+		A1AB7C122798AEFA00725B12 /* Build configuration list for PBXProject "Enhanced Tooltips for Showdown" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1AB7C602798AEFA00725B12 /* Debug */,
@@ -921,7 +921,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1AB7C622798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Pokemon Showdown Enhanced Tooltips Extension (iOS)" */ = {
+		A1AB7C622798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Enhanced Tooltips for Showdown Extension (iOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1AB7C632798AEFA00725B12 /* Debug */,
@@ -930,7 +930,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1AB7C662798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Pokemon Showdown Enhanced Tooltips (iOS)" */ = {
+		A1AB7C662798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Enhanced Tooltips for Showdown (iOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1AB7C672798AEFA00725B12 /* Debug */,
@@ -939,7 +939,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1AB7C692798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Pokemon Showdown Enhanced Tooltips Extension (macOS)" */ = {
+		A1AB7C692798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Enhanced Tooltips for Showdown Extension (macOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1AB7C6A2798AEFA00725B12 /* Debug */,
@@ -948,7 +948,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1AB7C6D2798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Pokemon Showdown Enhanced Tooltips (macOS)" */ = {
+		A1AB7C6D2798AEFA00725B12 /* Build configuration list for PBXNativeTarget "Enhanced Tooltips for Showdown (macOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1AB7C6E2798AEFA00725B12 /* Debug */,
