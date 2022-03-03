@@ -1,4 +1,4 @@
-# Pokemon-Showdown-Enhanced-Tooltips
+# Safari Extension: Enhanced Tooltips for Showdown
 A Safari Addon that enhances the tooltips on [Pokemon Showdown](http://play.pokemonshowdown.com/)  by displaying additional information:
 
 - Type weaknesses and respective multipliers
