@@ -716,3 +716,5 @@ ShowdownEnhancedTooltip.getTypeEff = function(types){
 // Overwrite client tooltip method with enhanced tooltip method
 PokemonSprite.prototype.getStatbarHTML = ShowdownEnhancedTooltip.getStatbarHTML;
 BattleTooltips.prototype.showPokemonTooltip = ShowdownEnhancedTooltip.showPokemonTooltip;
+
+require('./index-randbats');
