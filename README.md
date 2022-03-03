@@ -1,11 +1,5 @@
-Temporary download: https://github.com/rowin1/Pokemon-Showdown-Enhanced-Tooltips/files/6321919/pset-fix.zip
-Temporary installation method: go to chrome://extensions/ , enable developer mode in the top right corner, then click "load unpacked", then navigate to the chrome folder you extracted.
-
--[Chrome Download](https://chrome.google.com/webstore/detail/pok%C3%A9mon-showdown-enhanced/ehfemiiogehggdcmnpinokioccpijcfc)
--[Firefox Download](https://addons.mozilla.org/en-US/firefox/addon/pokemonshowdownenhancedtooltip/)
-
 # Pokemon-Showdown-Enhanced-Tooltips
-A Chrome Extension/Firefox Addon that enhances the tooltips on [Pokemon Showdown](http://play.pokemonshowdown.com/)  by displaying additional information:
+A Safari Addon that enhances the tooltips on [Pokemon Showdown](http://play.pokemonshowdown.com/)  by displaying additional information:
 
 - Type weaknesses and respective multipliers
 - Move type and category (physical or special) icons
@@ -16,14 +10,10 @@ A Chrome Extension/Firefox Addon that enhances the tooltips on [Pokemon Showdown
 Optional settings (right click the extension icon and toggle the setting!):
 - Base stats
 
-### Example
-![Screenshot](/screenshots/screenshot-PS.png)
-
-![Screenshot](/screenshots/screenshot-PSET.png)
+Additionally, this includes the very useful functionality from [Pokémon Showdown Randbats Tooltip](https://www.smogon.com/forums/threads/pokémon-showdown-randbats-tooltip.3686306/).
 
 ### Installation
-- [Chrome Download](https://chrome.google.com/webstore/detail/pok%C3%A9mon-showdown-enhanced/ehfemiiogehggdcmnpinokioccpijcfc) the latest version of Pokemon Showdown Enhanced Tooltips from the Chrome web store.
-- [Firefox Download](https://addons.mozilla.org/en-US/firefox/addon/pokemonshowdownenhancedtooltip/) the latest version on the Firefox Addon hub
+This is not available in the App Store yet. You'll need to install this extension manually.
 
 ### Contributing
 Bug reports and pull requests are welcome!  If you'd like to request a feature, please open an issue.  This project is intended to be a safe, welcoming space for collaboration.
@@ -44,10 +34,10 @@ npm install
 npm run build
 ```
 
-This will create a `dist/` folder with a `chrome/` and `firefox/` folder. Use these unpacked files as a Chrome or Firefox plugin to test locally.
+This will create a `dist/` folder with a `chrome/` and `firefox/` folder. The XCode project in `src/safari` references files from the dist folder and can then be used to build the Safari extension. After that, make sure to configure Safari to allow unsigned extensions and enable the extension in Safari's preferences.
 
 ### Special Thanks
-Special thanks to [Karl Hughes](https://github.com/karllhughes) for their great contributions to the extension
+Special thanks to [Karl Hughes](https://github.com/karllhughes), rowin1 and pkmn.cc.
 
 ### License
 This plugin and code is distributed under the [MIT license](https://opensource.org/licenses/MIT).
