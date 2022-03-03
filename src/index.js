@@ -717,4 +717,8 @@ ShowdownEnhancedTooltip.getTypeEff = function(types){
 PokemonSprite.prototype.getStatbarHTML = ShowdownEnhancedTooltip.getStatbarHTML;
 BattleTooltips.prototype.showPokemonTooltip = ShowdownEnhancedTooltip.showPokemonTooltip;
 
-require('./index-randbats');
+// index-randbats.js can be obtained by downloading this XPI:
+// https://addons.mozilla.org/en-US/firefox/addon/pkmn-randbats-tooltip/
+// The index.js in it corresponds to index-randbats.js
+//import 'script-loader!./index-randbats.js';
+require("./index-randbats");
