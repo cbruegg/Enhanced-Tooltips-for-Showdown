@@ -640,6 +640,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Enhanced Tooltips for Showndown";
@@ -655,7 +656,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown.ext;
 				PRODUCT_NAME = "Enhanced Tooltips for Showdown Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -670,6 +671,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Enhanced Tooltips for Showndown";
@@ -685,7 +687,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown.ext;
 				PRODUCT_NAME = "Enhanced Tooltips for Showdown Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -704,6 +706,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Enhanced Tooltips for Showndown";
@@ -741,6 +744,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Enhanced Tooltips for Showndown";
@@ -777,6 +781,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/Pokemon Showdown Enhanced Tooltips.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
@@ -793,7 +798,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown.ext;
 				PRODUCT_NAME = "Enhanced Tooltips for Showdown Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -808,6 +813,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/Pokemon Showdown Enhanced Tooltips.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
@@ -824,7 +830,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cbruegg.enhancedtooltipsforshowdown.ext;
 				PRODUCT_NAME = "Enhanced Tooltips for Showdown Extension";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -842,6 +848,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/Pokemon Showdown Enhanced Tooltips.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (App)/Info.plist";
@@ -877,6 +884,7 @@
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/Pokemon Showdown Enhanced Tooltips.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (App)/Info.plist";
