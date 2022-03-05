@@ -29,8 +29,6 @@
 		A1AB7C5D2798AEFA00725B12 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C1B2798AEFA00725B12 /* Assets.xcassets */; };
 		A1AB7C5E2798AEFA00725B12 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AB7C1D2798AEFA00725B12 /* SafariWebExtensionHandler.swift */; };
 		A1AB7C5F2798AEFA00725B12 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AB7C1D2798AEFA00725B12 /* SafariWebExtensionHandler.swift */; };
-		A1AB7C7A2798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C752798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips */; };
-		A1AB7C7F2798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C752798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips */; };
 		A1ABECB327D128460043CAB3 /* js in Resources */ = {isa = PBXBuildFile; fileRef = A1ABECAF27D128460043CAB3 /* js */; };
 		A1ABECB427D128460043CAB3 /* js in Resources */ = {isa = PBXBuildFile; fileRef = A1ABECAF27D128460043CAB3 /* js */; };
 		A1ABECB527D128460043CAB3 /* js in Resources */ = {isa = PBXBuildFile; fileRef = A1ABECAF27D128460043CAB3 /* js */; };
@@ -115,7 +113,6 @@
 		A1AB7C4B2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Enhanced Tooltips for Showdown Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1AB7C502798AEFA00725B12 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1AB7C512798AEFA00725B12 /* Pokemon Showdown Enhanced Tooltips.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Pokemon Showdown Enhanced Tooltips.entitlements"; sourceTree = "<group>"; };
-		A1AB7C752798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Pokemon Showdown Enhanced Tooltips"; sourceTree = SOURCE_ROOT; };
 		A1ABECAF27D128460043CAB3 /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = ../../../../dist/chrome/js; sourceTree = "<group>"; };
 		A1ABECB027D128460043CAB3 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = ../../../../dist/chrome/icons; sourceTree = "<group>"; };
 		A1ABECB127D128460043CAB3 /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = manifest.json; path = ../../../../dist/chrome/manifest.json; sourceTree = "<group>"; };
@@ -255,7 +252,6 @@
 				A1ABECB027D128460043CAB3 /* icons */,
 				A1ABECAF27D128460043CAB3 /* js */,
 				A1ABECB127D128460043CAB3 /* manifest.json */,
-				A1AB7C752798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips */,
 			);
 			name = Resources;
 			path = "Shared (Extension)";
@@ -424,7 +420,6 @@
 				A1ABECC127D128460043CAB3 /* css in Resources */,
 				A1ABECBD27D128460043CAB3 /* manifest.json in Resources */,
 				A1ABECB927D128460043CAB3 /* icons in Resources */,
-				A1AB7C7F2798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips in Resources */,
 				A1ABECB527D128460043CAB3 /* js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -436,7 +431,6 @@
 				A1ABECC227D128460043CAB3 /* css in Resources */,
 				A1ABECBE27D128460043CAB3 /* manifest.json in Resources */,
 				A1ABECBA27D128460043CAB3 /* icons in Resources */,
-				A1AB7C7A2798AEFB00725B12 /* Pokemon Showdown Enhanced Tooltips in Resources */,
 				A1ABECB627D128460043CAB3 /* js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
