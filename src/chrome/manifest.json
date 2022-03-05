@@ -19,7 +19,7 @@
 		]
 	},
 	"browser_action":{
-		"default_icon": "/icons/icon.png"
+		"default_icon": "/icons/icon128.png"
 	},
 	"permissions": [
 		"contextMenus",
