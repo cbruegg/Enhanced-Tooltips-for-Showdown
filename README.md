@@ -14,6 +14,7 @@ Additionally, this includes the very useful functionality from [Pokémon Showdow
 
 ### Installation
 Available for iPhone, iPad and Mac.
+
 [![Download on the App Store](screenshots/download-on-the-app-store.svg)](https://apps.apple.com/de/app/enhanced-tooltips-for-showdown/id1612964050?l=en)
 
 ### Contributing
