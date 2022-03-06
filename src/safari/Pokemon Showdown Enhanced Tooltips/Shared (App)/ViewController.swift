@@ -16,7 +16,7 @@ import SafariServices
 typealias PlatformViewController = NSViewController
 #endif
 
-let extensionBundleIdentifier = "com.yourCompany.Pokemon-Showdown-Enhanced-Tooltips.Extension"
+let extensionBundleIdentifier = "com.cbruegg.enhancedtooltipsforshowdown.ext"
 
 class ViewController: PlatformViewController, WKNavigationDelegate, WKScriptMessageHandler {
 

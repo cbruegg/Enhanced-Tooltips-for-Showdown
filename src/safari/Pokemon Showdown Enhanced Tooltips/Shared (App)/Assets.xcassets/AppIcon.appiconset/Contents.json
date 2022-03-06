@@ -125,6 +125,7 @@
       "size" : "76x76"
     },
     {
+      "filename" : "AppIcon@2x~ipad.png",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "76x76"
@@ -291,6 +292,7 @@
       "size" : "512x512"
     },
     {
+      "filename" : "icon-1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
