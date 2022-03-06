@@ -13,7 +13,8 @@ Optional settings (right click the extension icon and toggle the setting!):
 Additionally, this includes the very useful functionality from [Pokémon Showdown Randbats Tooltip](https://www.smogon.com/forums/threads/pokémon-showdown-randbats-tooltip.3686306/).
 
 ### Installation
-This is not available in the App Store yet. You'll need to install this extension manually.
+Available for iPhone, iPad and Mac.
+[![Download on the App Store](screenshots/download-on-the-app-store.svg)](https://apps.apple.com/de/app/enhanced-tooltips-for-showdown/id1612964050?l=en)
 
 ### Contributing
 Bug reports and pull requests are welcome!  If you'd like to request a feature, please open an issue.  This project is intended to be a safe, welcoming space for collaboration.
@@ -37,7 +38,7 @@ npm run build
 This will create a `dist/` folder with a `chrome/` and `firefox/` folder. The XCode project in `src/safari` references files from the dist folder and can then be used to build the Safari extension. After that, make sure to configure Safari to allow unsigned extensions and enable the extension in Safari's preferences.
 
 ### Special Thanks
-Special thanks to [Karl Hughes](https://github.com/karllhughes), rowin1 and pkmn.cc.
+Special thanks to [Karl Hughes](https://github.com/karllhughes), [rowin1](https://github.com/rowin1/Pokemon-Showdown-Enhanced-Tooltips) and pkmn.cc.
 
 ### License
 This plugin and code is distributed under the [MIT license](https://opensource.org/licenses/MIT).
