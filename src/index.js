@@ -517,7 +517,8 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
     // ***********
     // Show base stats
     var template = clientPokemon ? clientPokemon.getSpecies() : null;
-    if (ShowdownEnhancedTooltip.Settings.showBaseStats === "ON" && template) {
+    // Removed condition 'showBaseStats', we just always show it.
+    if (template) {
       text += '<br /><small>Base stats:' + '<br />';
       text += 'HP: ' + template.baseStats.hp + ' ';
       text += 'Atk: ' + template.baseStats.atk + ' ';
