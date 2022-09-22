@@ -6,9 +6,7 @@ A Safari Addon that enhances the tooltips on [Pokemon Showdown](http://play.poke
 - Move base power
 - Click Pokemon name to open their Smogon page in a new tab
 - Height and weight
-- On Desktop: Damage calculator, courtesy of [Showdex](https://github.com/doshidak/showdex)
-
-Optional settings (right click the extension icon and toggle the setting!):
+- Damage calculator, courtesy of [Showdex](https://github.com/doshidak/showdex)
 - Base stats
 
 Additionally, this includes the very useful functionality from [Pokémon Showdown Randbats Tooltip](https://www.smogon.com/forums/threads/pokémon-showdown-randbats-tooltip.3686306/).
