@@ -1,0 +1,136 @@
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/flex';
+@use 'mixins/spacing';
+
+.container {
+  .row:not(:first-child) {
+    @include spacing.margin($top: 5px);
+  }
+}
+
+.row {
+  @include flex.row-between;
+
+  .rowItem {
+    flex: 1;
+    @include spacing.margin-xy($x: 5px);
+
+    &:first-child {
+      @include spacing.margin($left: 0);
+    }
+
+    &:last-child {
+      @include spacing.margin($right: 0);
+    }
+  }
+}
+
+.small {
+  font-size: 8px;
+}
+
+.label {
+  font-weight: 500;
+  text-transform: uppercase;
+  user-select: none;
+
+  &.dropdownLabel {
+    @include spacing.margin($bottom: 1px, $left: 5px);
+  }
+
+  .light & {
+    color: color.alpha(colors.$black, 0.75);
+  }
+
+  .dark & {
+    color: color.alpha(colors.$white, 0.75);
+  }
+}
+
+.infoContainer {
+  flex: 1.25;
+}
+
+.firstLine {
+  max-width: 100%;
+  @include spacing.margin($bottom: 1px);
+}
+
+.piconContainer {
+  flex: 0 0 40px;
+  transform: translateY(-2px);
+}
+
+.pokemonName {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 45%;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.toggleButtonLabel {
+  .light &.inactive {
+    color: colors.$black;
+  }
+
+  .dark &.inactive {
+    color: colors.$white;
+  }
+}
+
+.infoButton {
+  vertical-align: middle;
+
+  .infoButtonLabel {
+    font-size: 8px;
+    text-transform: uppercase;
+  }
+}
+
+.secondLine {
+  min-height: 15px;
+  user-select: none;
+}
+
+.hpBar {
+  @include spacing.margin($bottom: 2px);
+}
+
+.currentHp {
+  .light & {
+    color: color.alpha(colors.$black, 0.75);
+  }
+
+  .dark & {
+    color: color.alpha(colors.$white, 0.75);
+  }
+}
+
+.presetContainer {
+  flex: 1;
+}
+
+.autoPresetButton {
+  @include spacing.margin($bottom: 2px);
+}
+
+.abilityButton {
+  @include spacing.margin($bottom: 1px);
+}
+
+.descTooltip {
+  max-width: 175px;
+  text-align: center;
+  white-space: normal;
+  user-select: none;
+}
+
+.itemTooltip {
+  font-size: 8px;
+  // text-align: center;
+  // user-select: none;
+}

@@ -1,0 +1,38 @@
+@use 'config/colors';
+@use 'functions/color';
+
+.container {
+  display: grid;
+  align-items: center;
+}
+
+.item {
+  grid-area: span 1 / span 1;
+  text-align: center;
+
+  &.left {
+    text-align: left;
+  }
+
+  &.right {
+    text-align: right;
+  }
+
+  &.small {
+    font-size: 8px;
+  }
+}
+
+.header {
+  font-weight: 500;
+  text-transform: uppercase;
+  user-select: none;
+
+  &.light {
+    color: color.alpha(colors.$black, 0.75);
+  }
+
+  &.dark {
+    color: color.alpha(colors.$white, 0.75);
+  }
+}

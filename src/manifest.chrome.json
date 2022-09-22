@@ -1,0 +1,104 @@
+{
+  "manifest_version": 3,
+
+  "name": "Enhanced Tooltips for Showdown",
+  "version": "<-- auto-filled; do not edit -->",
+  "description": "<-- auto-filled; do not edit -->",
+  "author": "<-- auto-filled; do not edit -->",
+  "homepage_url": "<-- auto-filled; do not edit -->",
+
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "*://play.pokemonshowdown.com/*",
+    "*://*.psim.us/*"
+  ],
+
+  "host_permissions": [
+    "https://pkmn.github.io/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "/js/settingsMenu.js"
+    ],
+    "persistent": false
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "*://play.pokemonshowdown.com/*",
+        "*://dawn.psim.us/*",
+        "*://smogtours.psim.us/*",
+        "*://sports.psim.us/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "*://play.pokemonshowdown.com/*",
+        "*://dawn.psim.us/*",
+        "*://smogtours.psim.us/*",
+        "*://sports.psim.us/*"
+      ],
+      "resources": [
+        "bug.svg",
+        "clipboard-heart.svg",
+        "donate-mask.svg",
+        "github-face.svg",
+        "info-circle.svg",
+        "main.js",
+        "pkmn.2c27923b.js",
+        "pkmn.356b2d28.js",
+        "remove-circle.svg",
+        "showdex.svg",
+        "signpost.svg",
+        "sparkle.svg",
+        "sword.svg",
+        "tize.svg"
+      ]
+    }
+  ],
+
+  "icons": {
+    "16": "icon.png",
+    "19": "icon19.png",
+    "32": "icon32.png",
+    "38": "icon38.png",
+    "48": "icon48.png",
+    "64": "icon64.png",
+    "128": "icon128.png"
+  },
+
+  "action": {
+    "default_title": "Enhanced Tooltips for Showdown",
+    "default_icon": {
+      "16": "icon.png",
+      "19": "icon19.png",
+      "32": "icon32.png",
+      "38": "icon38.png",
+      "48": "icon48.png",
+      "64": "icon64.png",
+      "128": "icon128.png"
+    }
+  },
+
+  "externally_connectable": {
+    "ids": [
+      "*"
+    ],
+    "matches": [
+      "*://play.pokemonshowdown.com/*",
+      "*://dawn.psim.us/*",
+      "*://smogtours.psim.us/*",
+      "*://sports.psim.us/*"
+    ]
+  }
+}

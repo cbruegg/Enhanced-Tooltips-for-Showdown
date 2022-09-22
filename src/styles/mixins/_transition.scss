@@ -1,0 +1,38 @@
+////
+/// @group transition
+/// @author Keith Choison
+////
+
+@use 'sass:list';
+@use 'sass:meta';
+@use 'config/animations';
+
+@mixin apply($props...) {
+  $transitions: ();
+
+  @for $i from 1 through list.length($props) {
+    $prop: list.nth($props, $i);
+
+    $name: $prop;
+    $duration: animations.$transition-duration;
+    $function: animations.$transition-function;
+
+    @if meta.type-of($prop) == 'list' and list.length($prop) > 1 {
+      $name: list.nth($prop, 1);
+
+      @if list.nth($prop, 2) {
+        $duration: list.nth($prop, 2);
+      }
+
+      @if list.length($prop) > 2 and list.nth($prop, 3) {
+        $function: list.nth($prop, 3);
+      }
+    }
+
+    $transitions: list.append($transitions, '#{$name} #{$duration} #{$function}');
+  }
+
+  @if list.length($transitions) > 0 {
+    transition: #{list.zip($transitions)};
+  }
+}

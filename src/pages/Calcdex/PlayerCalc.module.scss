@@ -1,0 +1,111 @@
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/flex';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+.container {
+  width: 100%;
+}
+
+.playerBar {
+  @include flex.row-between;
+  width: 100%;
+}
+
+.playerInfo {
+  // @include flex.column;
+  width: 100%;
+}
+
+button.usernameButton {
+  justify-content: initial;
+  // max-width: 78px;
+  max-width: 80%;
+}
+
+.usernameButtonLabel {
+  font-weight: 500;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+
+  .light & {
+    color: color.alpha(colors.$black, 0.75);
+  }
+
+  .dark & {
+    color: color.alpha(colors.$white, 0.75);
+  }
+}
+
+.toggleButtonLabel {
+  font-size: 8px;
+  text-transform: uppercase;
+
+  .light &.inactive {
+    color: colors.$black;
+  }
+
+  .dark &.inactive {
+    color: colors.$white;
+  }
+}
+
+.teamList {
+  @include flex.row($justify: flex-end);
+}
+
+.piconButton {
+  align-self: center;
+
+  &:not(:last-of-type) {
+    @include spacing.margin($right: 5px);
+  }
+}
+
+.picon {
+  @include transition.apply(opacity, filter);
+
+  .fainted & {
+    opacity: 0.3;
+    filter: grayscale(1);
+  }
+}
+
+.piconTooltip {
+  max-width: 175px;
+  text-align: center;
+  white-space: normal;
+  user-select: none;
+}
+
+.background {
+  // @include position.absolute-anchor($x: -3px, $y: -6px);
+  // @include position.absolute-anchor($x: 0px, $y: -3px);
+  @include position.absolute-center;
+  width: 39px;
+  height: 39px;
+  border: 2px solid colors.$transparent;
+  border-radius: 45px;
+  @include transition.apply(background-color, border-color);
+  // z-index: -1;
+  // user-select: none;
+  pointer-events: none;
+
+  .active & {
+    // border-color: color.alpha(color.tint(colors.$red, 15%), 0.15);
+    background-color: color.alpha(colors.$blue, 0.25);
+  }
+
+  .selected & {
+    border-color: color.alpha(colors.$blue, 0.75);
+  }
+}
+
+.pokeCalc {
+  @include spacing.padding($top: 5px);
+  // z-index: 1;
+}

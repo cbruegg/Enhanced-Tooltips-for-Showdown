@@ -1,0 +1,119 @@
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/flex';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+.container {
+  grid-template-columns: minmax(35px, 1fr) repeat(6, minmax(45px, 1.25fr));
+  column-gap: 7px;
+  // row-gap: 3px;
+}
+
+.small {
+  font-size: 8px;
+}
+
+.statHeader {
+  font-weight: 500;
+  @include transition.apply(color);
+
+  &.up {
+    color: color.alpha(colors.$red, 0.75);
+  }
+
+  &.down {
+    color: color.alpha(colors.$blue, 0.75);
+  }
+}
+
+.valueFieldContainer {
+  @include flex.row($justify: center);
+}
+
+.valueField {
+  // by defaults, applies -$padding-x and -$padding-y in ValueField's styles,
+  // so we reset the absolute positions to 0 with position.absolute-fill()
+  &::before {
+    @include position.absolute-fill;
+  }
+}
+
+.valueFieldInput {
+  &.missingSpread {
+    color: colors.$orange;
+  }
+}
+
+.ivsHeader {
+  @include transition.apply(color);
+
+  &.missingSpread {
+    color: colors.$orange;
+  }
+}
+
+.ivField {
+  max-width: 30px;
+}
+
+.evsHeader {
+  @include transition.apply(color);
+
+  // not possible for evsHeader to have both missingSpread and illegal
+  // (since illegal would only applied if there are any EVs at all!)
+  &.missingSpread {
+    color: colors.$orange;
+  }
+
+  &.illegal {
+    color: colors.$red;
+  }
+}
+
+.evField {
+  max-width: 30px;
+}
+
+.statValue {
+  @include transition.apply(color);
+
+  &.positive {
+    color: colors.$green;
+  }
+
+  &.negative {
+    color: colors.$red;
+  }
+}
+
+.stageValue {
+  @include flex.row-center;
+}
+
+.boostButton {
+  @include spacing.margin-xy($x: 3px);
+
+  &.pristine {
+    color: inherit;
+
+    .boostButtonLabel {
+      color: inherit;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.65; // default 0.3 opacity is too faded
+  }
+}
+
+.boostModButtonLabel {
+  .light & {
+    color: colors.$black;
+  }
+
+  .dark & {
+    color: colors.$white;
+  }
+}

@@ -1,7 +1,14 @@
-node_modules
+node_modules/
 package-lock.json
 dist/
+build/
+cache/
 .DS_Store
+Thumbs.db
+
+npm-debug.*
+yarn-debug.*
+yarn-error.*
 
 ## Xcode User settings
 xcuserdata/
@@ -10,3 +17,4 @@ xcuserdata/
 *.xcscmblueprint
 *.xccheckout
 /.idea
+/.vscode

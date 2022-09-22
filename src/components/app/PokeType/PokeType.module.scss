@@ -1,0 +1,63 @@
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/spacing';
+
+$type-unknown-color: #424242;
+$type-colors: (
+  normal: #90905D,
+  fighting: #81201B,
+  flying: #8563EA,
+  poison: #7C317C,
+  ground: #D1A42B,
+  rock: #917E2C,
+  bug: #808D18,
+  ghost: #584578,
+  steel: #9999BC,
+  fire: #DD6510,
+  water: #3A6EEB,
+  grass: #549B31,
+  electric: darken(#FDD835, 15%),
+  psychic: darken(#F62765, 10%),
+  ice: darken(#73CACA, 10%),
+  dragon: #4D09F4,
+  dark: #41332A,
+  fairy: #E76D88,
+);
+
+$label-light-opacity: 1;
+$label-dark-opacity: 0.75;
+$background-opacity-light: 0.5;
+$background-opacity-dark: 0.3;
+
+.container {
+  display: inline-block;
+  width: 36px;
+  @include spacing.padding-xy($y: 1px);
+  font-size: 8px;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 color.alpha(colors.$black, 0.3);
+  border-radius: 5px;
+  user-select: none;
+  pointer-events: none;
+
+  &.light {
+    color: color.alpha(colors.$white, $label-light-opacity);
+    background-color: color.alpha($type-unknown-color, $background-opacity-light);
+  }
+
+  &.dark {
+    color: color.alpha(colors.$white, $label-dark-opacity);
+    background-color: color.alpha($type-unknown-color, $background-opacity-dark);
+  }
+
+  @each $type, $color in $type-colors {
+    &.light.type-#{$type} {
+      background-color: color.alpha($color, $background-opacity-light);
+    }
+
+    &.dark.type-#{$type} {
+      background-color: color.alpha($color, $background-opacity-dark);
+    }
+  }
+}
