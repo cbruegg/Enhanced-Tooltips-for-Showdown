@@ -158,9 +158,11 @@ const copyPatterns = [{
 
     const {
       applications,
-      permissions: matches = [],
+      permissions = [],
       web_accessible_resources,
     } = parsed;
+
+    const matches = permissions.filter((m) => m.indexOf("//") > 0);
 
     switch (buildTarget) {
       case 'chrome': {
@@ -171,7 +173,8 @@ const copyPatterns = [{
         delete parsed.applications;
 
         // remove MV2-specific background properties
-        delete parsed.background.persistent;
+        // Commented out the line below as Safari needs this field on iOS (and we're abusing the Chrome target to build for Safari)
+        // delete parsed.background.persistent;
         delete parsed.background.scripts;
 
         // auto-fill in matches for content_scripts, web_accessible_resources,
@@ -181,7 +184,8 @@ const copyPatterns = [{
         parsed.externally_connectable.matches = [...matches];
 
         // no permissions are needed on Chrome
-        parsed.permissions = [];
+        // Commented out as permissions are needed for Safari
+        // parsed.permissions = [];
 
         // auto-fill action properties
         parsed.action.default_title = parsed.name;

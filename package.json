@@ -2,7 +2,9 @@
   "name": "pokemon-showdown-enhanced-tooltips-safari",
   "version": "3.0.0.0",
   "description": "Displays additional information on tooltips of Pokémon Showdown. Additionally it provides a damage calculator.",
+  "author": "Various Authors",
   "license": "AGPL-3.0",
+  "homepage": "https://github.com/cbruegg/Enhanced-Tooltips-for-Showdown",
   "private": true,
   "engines": {
     "node": ">=18.0.0",

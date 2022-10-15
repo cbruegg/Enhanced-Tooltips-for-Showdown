@@ -2824,9 +2824,9 @@ can-use-dom@^0.1.0:
   integrity sha512-ceOhN1DL7Y4O6M0j9ICgmTYziV89WMd96SvSl0REd8PMgrY0B/WBOPoed5S1KUmJqXgUXh8gzSe6E3ae27upsQ==
 
 caniuse-lite@^1.0.30001286, caniuse-lite@^1.0.30001317, caniuse-lite@^1.0.30001370, caniuse-lite@^1.0.30001399:
-  version "1.0.30001418"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001418.tgz"
-  integrity sha512-oIs7+JL3K9JRQ3jPZjlH6qyYDp+nBTCais7hjh0s+fuBwufc7uZ7hPYMXrDOJhV360KGMTcczMRObk0/iMqZRg==
+  version "1.0.30001419"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001419.tgz"
+  integrity sha512-aFO1r+g6R7TW+PNQxKzjITwLOyDhVRLjW0LcwS/HCZGUUKTGNp9+IwLC4xyDSZBygVL/mxaFR3HIV6wEKQuSzw==
 
 capital-case@^1.0.4:
   version "1.0.4"
