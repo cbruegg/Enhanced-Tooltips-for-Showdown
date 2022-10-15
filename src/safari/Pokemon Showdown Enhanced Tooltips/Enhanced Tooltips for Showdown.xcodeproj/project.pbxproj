@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A193CE6A28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */; };
+		A193CE6B28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */; };
+		A193CE6C28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */; };
+		A193CE6D28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */; };
+		A193CE6E28FB2CC800A3E5C2 /* cog.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6828FB2CC800A3E5C2 /* cog.svg */; };
+		A193CE6F28FB2CC800A3E5C2 /* cog.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6828FB2CC800A3E5C2 /* cog.svg */; };
+		A193CE7028FB2CC800A3E5C2 /* cog.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6828FB2CC800A3E5C2 /* cog.svg */; };
+		A193CE7128FB2CC800A3E5C2 /* cog.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6828FB2CC800A3E5C2 /* cog.svg */; };
+		A193CE7228FB2CC800A3E5C2 /* close-circle.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6928FB2CC800A3E5C2 /* close-circle.svg */; };
+		A193CE7328FB2CC800A3E5C2 /* close-circle.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6928FB2CC800A3E5C2 /* close-circle.svg */; };
+		A193CE7428FB2CC800A3E5C2 /* close-circle.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6928FB2CC800A3E5C2 /* close-circle.svg */; };
+		A193CE7528FB2CC800A3E5C2 /* close-circle.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6928FB2CC800A3E5C2 /* close-circle.svg */; };
 		A1AB7C262798AEFA00725B12 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AB7C252798AEFA00725B12 /* AppDelegate.swift */; };
 		A1AB7C282798AEFA00725B12 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AB7C272798AEFA00725B12 /* SceneDelegate.swift */; };
 		A1AB7C2B2798AEFA00725B12 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C292798AEFA00725B12 /* LaunchScreen.storyboard */; };
@@ -69,18 +81,10 @@
 		A1BBC50128DCA1F0006216ED /* bug.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D028DCA1EF006216ED /* bug.svg */; };
 		A1BBC50228DCA1F0006216ED /* bug.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D028DCA1EF006216ED /* bug.svg */; };
 		A1BBC50328DCA1F0006216ED /* bug.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D028DCA1EF006216ED /* bug.svg */; };
-		A1BBC50428DCA1F0006216ED /* pkmn.2c27923b.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D128DCA1EF006216ED /* pkmn.2c27923b.js */; };
-		A1BBC50528DCA1F0006216ED /* pkmn.2c27923b.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D128DCA1EF006216ED /* pkmn.2c27923b.js */; };
-		A1BBC50628DCA1F0006216ED /* pkmn.2c27923b.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D128DCA1EF006216ED /* pkmn.2c27923b.js */; };
-		A1BBC50728DCA1F0006216ED /* pkmn.2c27923b.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D128DCA1EF006216ED /* pkmn.2c27923b.js */; };
 		A1BBC50828DCA1F0006216ED /* icon64.png in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D228DCA1EF006216ED /* icon64.png */; };
 		A1BBC50928DCA1F0006216ED /* icon64.png in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D228DCA1EF006216ED /* icon64.png */; };
 		A1BBC50A28DCA1F0006216ED /* icon64.png in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D228DCA1EF006216ED /* icon64.png */; };
 		A1BBC50B28DCA1F0006216ED /* icon64.png in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D228DCA1EF006216ED /* icon64.png */; };
-		A1BBC50C28DCA1F0006216ED /* pkmn.356b2d28.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D328DCA1EF006216ED /* pkmn.356b2d28.js */; };
-		A1BBC50D28DCA1F0006216ED /* pkmn.356b2d28.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D328DCA1EF006216ED /* pkmn.356b2d28.js */; };
-		A1BBC50E28DCA1F0006216ED /* pkmn.356b2d28.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D328DCA1EF006216ED /* pkmn.356b2d28.js */; };
-		A1BBC50F28DCA1F0006216ED /* pkmn.356b2d28.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D328DCA1EF006216ED /* pkmn.356b2d28.js */; };
 		A1BBC51028DCA1F0006216ED /* tize.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D428DCA1EF006216ED /* tize.svg */; };
 		A1BBC51128DCA1F0006216ED /* tize.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D428DCA1EF006216ED /* tize.svg */; };
 		A1BBC51228DCA1F0006216ED /* tize.svg in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4D428DCA1EF006216ED /* tize.svg */; };
@@ -174,6 +178,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "error-circle-outline.svg"; path = "../../../../dist/chrome/error-circle-outline.svg"; sourceTree = "<group>"; };
+		A193CE6828FB2CC800A3E5C2 /* cog.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cog.svg; path = ../../../../dist/chrome/cog.svg; sourceTree = "<group>"; };
+		A193CE6928FB2CC800A3E5C2 /* close-circle.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "close-circle.svg"; path = "../../../../dist/chrome/close-circle.svg"; sourceTree = "<group>"; };
 		A1AB7C162798AEFA00725B12 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = ../Base.lproj/Main.html; sourceTree = "<group>"; };
 		A1AB7C172798AEFA00725B12 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		A1AB7C182798AEFA00725B12 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
@@ -207,9 +214,7 @@
 		A1BBC4CE28DCA1EF006216ED /* main.js.LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.js.LICENSE.txt; path = ../../../../dist/chrome/main.js.LICENSE.txt; sourceTree = "<group>"; };
 		A1BBC4CF28DCA1EF006216ED /* main.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = main.js; path = ../../../../dist/chrome/main.js; sourceTree = "<group>"; };
 		A1BBC4D028DCA1EF006216ED /* bug.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = bug.svg; path = ../../../../dist/chrome/bug.svg; sourceTree = "<group>"; };
-		A1BBC4D128DCA1EF006216ED /* pkmn.2c27923b.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = pkmn.2c27923b.js; path = ../../../../dist/chrome/pkmn.2c27923b.js; sourceTree = "<group>"; };
 		A1BBC4D228DCA1EF006216ED /* icon64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon64.png; path = ../../../../dist/chrome/icon64.png; sourceTree = "<group>"; };
-		A1BBC4D328DCA1EF006216ED /* pkmn.356b2d28.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = pkmn.356b2d28.js; path = ../../../../dist/chrome/pkmn.356b2d28.js; sourceTree = "<group>"; };
 		A1BBC4D428DCA1EF006216ED /* tize.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = tize.svg; path = ../../../../dist/chrome/tize.svg; sourceTree = "<group>"; };
 		A1BBC4D528DCA1EF006216ED /* icon38.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon38.png; path = ../../../../dist/chrome/icon38.png; sourceTree = "<group>"; };
 		A1BBC4D628DCA1EF006216ED /* content.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../../../dist/chrome/content.js; sourceTree = "<group>"; };
@@ -353,6 +358,9 @@
 		A1AB7C702798AEFB00725B12 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A193CE6928FB2CC800A3E5C2 /* close-circle.svg */,
+				A193CE6828FB2CC800A3E5C2 /* cog.svg */,
+				A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */,
 				A1BBC4DE28DCA1F0006216ED /* apple-touch-icon.png */,
 				A1BBC4CA28DCA1EF006216ED /* background.js */,
 				A1BBC4D028DCA1EF006216ED /* bug.svg */,
@@ -369,8 +377,6 @@
 				A1BBC4DF28DCA1F0006216ED /* info-circle.svg */,
 				A1BBC4CF28DCA1EF006216ED /* main.js */,
 				A1BBC4CE28DCA1EF006216ED /* main.js.LICENSE.txt */,
-				A1BBC4D128DCA1EF006216ED /* pkmn.2c27923b.js */,
-				A1BBC4D328DCA1EF006216ED /* pkmn.356b2d28.js */,
 				A1BBC4DD28DCA1F0006216ED /* remove-circle.svg */,
 				A1BBC4D928DCA1EF006216ED /* showdex.svg */,
 				A1BBC4DB28DCA1F0006216ED /* signpost.svg */,
@@ -524,13 +530,12 @@
 				A1BBC52428DCA1F0006216ED /* showdex.svg in Resources */,
 				A1BBC51028DCA1F0006216ED /* tize.svg in Resources */,
 				A1BBC53828DCA1F0006216ED /* apple-touch-icon.png in Resources */,
+				A193CE6A28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */,
 				A1AB7C582798AEFA00725B12 /* Script.js in Resources */,
 				A1BBC4F828DCA1F0006216ED /* main.js.LICENSE.txt in Resources */,
-				A1BBC50428DCA1F0006216ED /* pkmn.2c27923b.js in Resources */,
 				A1BBC52828DCA1F0006216ED /* sparkle.svg in Resources */,
 				A1AB7C5C2798AEFA00725B12 /* Assets.xcassets in Resources */,
 				A1AB7C2E2798AEFA00725B12 /* Main.storyboard in Resources */,
-				A1BBC50C28DCA1F0006216ED /* pkmn.356b2d28.js in Resources */,
 				A1BBC4F428DCA1F0006216ED /* icon128.png in Resources */,
 				A1BBC4E028DCA1F0006216ED /* sword.svg in Resources */,
 				A1BBC52C28DCA1F0006216ED /* signpost.svg in Resources */,
@@ -539,6 +544,8 @@
 				A1BBC50828DCA1F0006216ED /* icon64.png in Resources */,
 				A1BBC53428DCA1F0006216ED /* remove-circle.svg in Resources */,
 				A1BBC50028DCA1F0006216ED /* bug.svg in Resources */,
+				A193CE7228FB2CC800A3E5C2 /* close-circle.svg in Resources */,
+				A193CE6E28FB2CC800A3E5C2 /* cog.svg in Resources */,
 				A1BBC51428DCA1F0006216ED /* icon38.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -549,8 +556,9 @@
 			files = (
 				A1BBC53D28DCA1F0006216ED /* info-circle.svg in Resources */,
 				A1BBC51528DCA1F0006216ED /* icon38.png in Resources */,
+				A193CE6B28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */,
+				A193CE7328FB2CC800A3E5C2 /* close-circle.svg in Resources */,
 				A1BBC51D28DCA1F0006216ED /* icon19.png in Resources */,
-				A1BBC50528DCA1F0006216ED /* pkmn.2c27923b.js in Resources */,
 				A1AB7C552798AEFA00725B12 /* Icon.png in Resources */,
 				A1BBC4F528DCA1F0006216ED /* icon128.png in Resources */,
 				A1BBC52128DCA1F0006216ED /* icon32.png in Resources */,
@@ -567,9 +575,9 @@
 				A1BBC4E528DCA1F0006216ED /* icon.png in Resources */,
 				A1BBC4ED28DCA1F0006216ED /* clipboard-heart.svg in Resources */,
 				A1BBC50128DCA1F0006216ED /* bug.svg in Resources */,
+				A193CE6F28FB2CC800A3E5C2 /* cog.svg in Resources */,
 				A1AB7C5D2798AEFA00725B12 /* Assets.xcassets in Resources */,
 				A1AB7C532798AEFA00725B12 /* Main.html in Resources */,
-				A1BBC50D28DCA1F0006216ED /* pkmn.356b2d28.js in Resources */,
 				A1BBC4FD28DCA1F0006216ED /* main.js in Resources */,
 				A1BBC53928DCA1F0006216ED /* apple-touch-icon.png in Resources */,
 				A1BBC4E128DCA1F0006216ED /* sword.svg in Resources */,
@@ -595,9 +603,10 @@
 				A1BBC4FE28DCA1F0006216ED /* main.js in Resources */,
 				A1BBC4EA28DCA1F0006216ED /* background.js in Resources */,
 				A1BBC4E628DCA1F0006216ED /* icon.png in Resources */,
-				A1BBC50628DCA1F0006216ED /* pkmn.2c27923b.js in Resources */,
 				A1BBC4E228DCA1F0006216ED /* sword.svg in Resources */,
+				A193CE7428FB2CC800A3E5C2 /* close-circle.svg in Resources */,
 				A1BBC53A28DCA1F0006216ED /* apple-touch-icon.png in Resources */,
+				A193CE7028FB2CC800A3E5C2 /* cog.svg in Resources */,
 				A1BBC53628DCA1F0006216ED /* remove-circle.svg in Resources */,
 				A1BBC51228DCA1F0006216ED /* tize.svg in Resources */,
 				A1BBC51A28DCA1F0006216ED /* content.js in Resources */,
@@ -606,10 +615,10 @@
 				A1BBC52228DCA1F0006216ED /* icon32.png in Resources */,
 				A1BBC4F228DCA1F0006216ED /* icon48.png in Resources */,
 				A1BBC53228DCA1F0006216ED /* github-face.svg in Resources */,
+				A193CE6C28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */,
 				A1BBC53E28DCA1F0006216ED /* info-circle.svg in Resources */,
 				A1BBC4FA28DCA1F0006216ED /* main.js.LICENSE.txt in Resources */,
 				A1BBC50A28DCA1F0006216ED /* icon64.png in Resources */,
-				A1BBC50E28DCA1F0006216ED /* pkmn.356b2d28.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -627,9 +636,10 @@
 				A1BBC4FF28DCA1F0006216ED /* main.js in Resources */,
 				A1BBC4EB28DCA1F0006216ED /* background.js in Resources */,
 				A1BBC4E728DCA1F0006216ED /* icon.png in Resources */,
-				A1BBC50728DCA1F0006216ED /* pkmn.2c27923b.js in Resources */,
 				A1BBC4E328DCA1F0006216ED /* sword.svg in Resources */,
+				A193CE7528FB2CC800A3E5C2 /* close-circle.svg in Resources */,
 				A1BBC53B28DCA1F0006216ED /* apple-touch-icon.png in Resources */,
+				A193CE7128FB2CC800A3E5C2 /* cog.svg in Resources */,
 				A1BBC53728DCA1F0006216ED /* remove-circle.svg in Resources */,
 				A1BBC51328DCA1F0006216ED /* tize.svg in Resources */,
 				A1BBC51B28DCA1F0006216ED /* content.js in Resources */,
@@ -638,10 +648,10 @@
 				A1BBC52328DCA1F0006216ED /* icon32.png in Resources */,
 				A1BBC4F328DCA1F0006216ED /* icon48.png in Resources */,
 				A1BBC53328DCA1F0006216ED /* github-face.svg in Resources */,
+				A193CE6D28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */,
 				A1BBC53F28DCA1F0006216ED /* info-circle.svg in Resources */,
 				A1BBC4FB28DCA1F0006216ED /* main.js.LICENSE.txt in Resources */,
 				A1BBC50B28DCA1F0006216ED /* icon64.png in Resources */,
-				A1BBC50F28DCA1F0006216ED /* pkmn.356b2d28.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
