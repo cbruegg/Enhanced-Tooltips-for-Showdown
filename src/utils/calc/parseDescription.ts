@@ -1,6 +1,7 @@
 import { PokemonStatNames } from '@showdex/consts/pokemon';
 import { logger } from '@showdex/utils/debug';
 import type { Result } from '@smogon/calc';
+import { replace } from '../battle/regex';
 
 /**
  * Parsed matchup description from the calculated `result.desc()`.
@@ -148,7 +149,7 @@ export const parseDescription = (result: Result): CalcdexMatchupParsedDescriptio
     : null;
 
   if (output.koChance) {
-    output.koChance = output.koChance.replace(/(?<=\s+)and(?=\s+)/, '&');
+    output.koChance = replace(output.koChance, '(?<=\s+)and(?=\s+)', '&');
   }
 
   return output;

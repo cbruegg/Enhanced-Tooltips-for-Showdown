@@ -1,4 +1,7 @@
 import { times } from '@showdex/consts/core';
+import { V } from '@use-gesture/core/dist/declarations/src/utils/maths';
+import { getQuickJSSync } from 'quickjs-emscripten';
+import { replace } from './regex';
 
 /**
  * Internally-used list of `replace()` formatters, where `regex` corresponds to the first argument and
@@ -8,27 +11,27 @@ import { times } from '@showdex/consts/core';
  *
  * @since 1.0.3
  */
-const DexDescriptionFormatters: { regex: RegExp; replacement: string; }[] = [
-  { regex: /Abilit(y|ies)/, replacement: 'abilit$1' },
-  { regex: /Nature(s)?/, replacement: 'nature$1' },
-  { regex: /Item(s)?/, replacement: 'item$1' },
-  { regex: /KOes/, replacement: 'KOs' },
-  { regex: /supereffective/, replacement: 'super effective' },
-  { regex: /(?<=\s+)and(?=\s+)/, replacement: '&' },
-  { regex: /(?<=\d)x(?=[.,:;!?\s])/i, replacement: times },
-  { regex: /1\/2[\w\s]+max\s+HP/, replacement: '50% HP' },
-  { regex: /1\/3[\w\s]+max\s+HP/, replacement: '33% HP' },
-  { regex: /1\/4[\w\s]+max\s+HP/, replacement: '25% HP' },
-  { regex: /1\/5[\w\s]+max\s+HP/, replacement: '20% HP' },
-  { regex: /1\/6[\w\s]+max\s+HP/, replacement: '16% HP' },
-  { regex: /1\/8[\w\s]+max\s+HP/, replacement: '12% HP' },
-  { regex: /1\/10[\w\s]+max\s+HP/, replacement: '10% HP' },
-  { regex: /1\/16[\w\s]+max\s+HP/, replacement: '6% HP' },
-  { regex: /(?:Attack(?!s)|(?<=[-+])Atk(?=[.,:;!?\s]))/, replacement: 'ATK' },
-  { regex: /(?:Defense(?!s)|(?<=[-+])Def(?=[.,:;!?\s]))/, replacement: 'DEF' },
-  { regex: /(?:Sp\.?\s+Atk|(?<=[-+])SpA(?=[.,:;!?\s]))/, replacement: 'SPA' },
-  { regex: /(?:Sp\.?\s+Def|(?<=[-+])SpD(?=[.,:;!?\s]))/, replacement: 'SPD' },
-  { regex: /(?:Speed(?!s)|(?<=[-+])Spe(?=[.,:;!?\s]))/, replacement: 'SPE' },
+const DexDescriptionFormatters: { regex: string; replacement: string; }[] = [
+  { regex: 'Abilit(y|ies)', replacement: 'abilit$1' },
+  { regex: 'Nature(s)?', replacement: 'nature$1' },
+  { regex: 'Item(s)?', replacement: 'item$1' },
+  { regex: 'KOes', replacement: 'KOs' },
+  { regex: 'supereffective', replacement: 'super effective' },
+  { regex: '(?<=\s+)and(?=\s+)', replacement: '&' },
+  { regex: '(?<=\d)x(?=[.,:;!?\s])/i', replacement: times },
+  { regex: '1\/2[\w\s]+max\s+HP', replacement: '50% HP' },
+  { regex: '1\/3[\w\s]+max\s+HP', replacement: '33% HP' },
+  { regex: '1\/4[\w\s]+max\s+HP', replacement: '25% HP' },
+  { regex: '1\/5[\w\s]+max\s+HP', replacement: '20% HP' },
+  { regex: '1\/6[\w\s]+max\s+HP', replacement: '16% HP' },
+  { regex: '1\/8[\w\s]+max\s+HP', replacement: '12% HP' },
+  { regex: '1\/10[\w\s]+max\s+HP', replacement: '10% HP' },
+  { regex: '1\/16[\w\s]+max\s+HP', replacement: '6% HP' },
+  { regex: '(?:Attack(?!s)|(?<=[-+])Atk(?=[.,:;!?\s]))', replacement: 'ATK' },
+  { regex: '(?:Defense(?!s)|(?<=[-+])Def(?=[.,:;!?\s]))', replacement: 'DEF' },
+  { regex: '(?:Sp\.?\s+Atk|(?<=[-+])SpA(?=[.,:;!?\s]))', replacement: 'SPA' },
+  { regex: '(?:Sp\.?\s+Def|(?<=[-+])SpD(?=[.,:;!?\s]))', replacement: 'SPD' },
+  { regex: '(?:Speed(?!s)|(?<=[-+])Spe(?=[.,:;!?\s]))', replacement: 'SPE' },
 ];
 
 /**
@@ -43,12 +46,12 @@ export const formatDexDescription = (description: string): string => {
     return null;
   }
 
-  return DexDescriptionFormatters.reduce((prev, formatter) => {
+  return DexDescriptionFormatters.reduce((prev: string, formatter) => {
     const {
       regex,
       replacement,
     } = formatter;
 
-    return prev.replace(regex, replacement);
+    return replace(prev, regex, replacement);
   }, description);
 };

@@ -3,6 +3,7 @@ import type { GenerationNum } from '@smogon/calc';
 import type { CalcdexPokemon } from '@showdex/redux/store';
 import { getDexForFormat } from './getDexForFormat';
 import { hasNickname } from './hasNickname';
+import { replace } from './regex';
 
 /**
  * Internally-used helper function to export a `Showdown.StatsTable` to the PokePaste syntax.
@@ -186,7 +187,7 @@ export const exportPokePaste = (
     // (though, the Teambuilder will accept the former, i.e., 'Hidden Power Fire')
     output.push(...moves.map((moveName) => '- ' + (
       moveName?.includes('Hidden Power')
-        ? moveName.replace(/(?<=Hidden\sPower\s)(\w+)$/, '[$1]')
+        ? replace(moveName, '(?<=Hidden\sPower\s)(\w+)$', '[$1]')
         : moveName
     )));
   }

@@ -125,6 +125,7 @@ const moduleRules = [{
 }];
 
 const resolve = {
+  fallback: { 'path': false, 'crypto': false, 'fs': false },
   alias: {
     // 'react-dom': '@hot-loader/react-dom',
     '@showdex': path.join(__dirname, 'src'),
@@ -240,6 +241,9 @@ const copyPatterns = [{
 }];
 
 const plugins = [
+  new webpack.ProvidePlugin({
+    process: 'process/browser',
+}),
   new webpack.ProgressPlugin(),
   new webpack.DefinePlugin(env),
   new CopyWebpackPlugin({ patterns: copyPatterns }),
