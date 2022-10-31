@@ -1,13 +1,16 @@
 import * as React from 'react';
+import Svg from 'react-inlinesvg';
 import cx from 'classnames';
 import { PiconButton } from '@showdex/components/app';
 import { Button, ToggleButton } from '@showdex/components/ui';
+import { ShowdexVerifiedTesters } from '@showdex/consts/app';
 import { eacute } from '@showdex/consts/core';
 import { useCalcdexSettings, useColorScheme } from '@showdex/redux/store';
 import { openUserPopup } from '@showdex/utils/app';
 import { hasNickname } from '@showdex/utils/battle';
-import { env } from '@showdex/utils/core';
+import { getResourceUrl } from '@showdex/utils/core';
 import type { GenerationNum } from '@smogon/calc';
+import type { ElementSizeLabel } from '@showdex/utils/hooks';
 import type {
   CalcdexBattleField,
   CalcdexBattleRules,
@@ -29,6 +32,7 @@ interface PlayerCalcProps {
   opponent: CalcdexPlayer;
   field?: CalcdexBattleField;
   defaultName?: string;
+  containerSize?: ElementSizeLabel;
   onPokemonChange?: (playerKey: CalcdexPlayerKey, pokemon: DeepPartial<CalcdexPokemon>) => void;
   onIndexSelect?: (index: number) => void;
   onAutoSelectChange?: (autoSelect: boolean) => void;
@@ -45,6 +49,7 @@ export const PlayerCalc = ({
   opponent,
   field,
   defaultName = '--',
+  containerSize,
   onPokemonChange,
   onIndexSelect,
   onAutoSelectChange,
@@ -58,7 +63,8 @@ export const PlayerCalc = ({
     rating,
     pokemon,
     // pokemonOrder,
-    activeIndex,
+    // activeIndex,
+    activeIndices,
     selectionIndex: playerIndex,
     autoSelect,
   } = player || {};
@@ -69,7 +75,7 @@ export const PlayerCalc = ({
     selectionIndex: opponentIndex,
   } = opponent || {};
 
-  const activePokemon = pokemon[activeIndex];
+  // const activePokemon = pokemon[activeIndex];
   const playerPokemon = pokemon[playerIndex];
   const opponentPokemon = opponentPokemons[opponentIndex];
 
@@ -82,18 +88,29 @@ export const PlayerCalc = ({
       )}
       style={style}
     >
-      <div className={styles.playerBar}>
+      <div
+        className={cx(
+          styles.playerBar,
+          containerSize === 'xs' && styles.verySmol,
+        )}
+      >
         <div className={styles.playerInfo}>
-          {/* <div className={styles.username}>
-            {name || defaultName}
-          </div> */}
-
           <Button
-            className={styles.usernameButton}
+            className={cx(
+              styles.usernameButton,
+              !!name && ShowdexVerifiedTesters.includes(name) && styles.tester,
+            )}
             labelClassName={styles.usernameButtonLabel}
             label={name || defaultName}
             tooltip={(
               <div className={styles.tooltipContent}>
+                {
+                  (!!name && ShowdexVerifiedTesters.includes(name)) &&
+                  <>
+                    <em>Verified Showdex Tester</em>
+                    <br />
+                  </>
+                }
                 Open{' '}
                 {name ? (
                   <>
@@ -103,16 +120,28 @@ export const PlayerCalc = ({
                 Profile
               </div>
             )}
+            tooltipDisabled={!settings?.showUiTooltips}
+            hoverScale={1}
             absoluteHover
             disabled={!name}
             onPress={() => openUserPopup(name)}
-          />
+          >
+            {
+              (!!name && ShowdexVerifiedTesters.includes(name)) &&
+              <Svg
+                className={styles.usernameButtonIcon}
+                description="Flask Icon"
+                src={getResourceUrl('flask.svg')}
+              />
+            }
+          </Button>
 
           <div className={styles.playerActions}>
             <ToggleButton
               className={styles.toggleButton}
               label="Auto"
               tooltip={`${autoSelect ? 'Manually ' : 'Auto-'}Select Pok${eacute}mon`}
+              tooltipDisabled={!settings?.showUiTooltips}
               absoluteHover
               active={autoSelect}
               disabled={!pokemon?.length}
@@ -132,12 +161,27 @@ export const PlayerCalc = ({
           </div>
         </div>
 
-        <div className={styles.teamList}>
-          {Array(env.int('calcdex-player-max-pokemon', 6)).fill(null).map((_, i) => {
+        <div
+          className={styles.teamList}
+          style={{
+            gridTemplateColumns: `repeat(${['xs', 'sm'].includes(containerSize) ? 6 : 12}, min-content)`,
+          }}
+        >
+          {Array(player?.maxPokemon || 0).fill(null).map((_, i) => {
             const mon = pokemon?.[i];
 
-            const pokemonKey = mon?.calcdexId || mon?.ident || defaultName || '???';
-            const friendlyPokemonName = mon?.speciesForme || mon?.name || pokemonKey;
+            const pokemonKey = mon?.calcdexId
+              || mon?.ident
+              || mon?.searchid
+              || mon?.details
+              || mon?.name
+              || mon?.speciesForme
+              || defaultName
+              || '???';
+
+            const friendlyPokemonName = mon?.speciesForme
+              || mon?.name
+              || pokemonKey;
 
             const nickname = hasNickname(mon) && settings?.showNicknames
               ? mon.name
@@ -147,13 +191,22 @@ export const PlayerCalc = ({
             const speciesForme = mon?.speciesForme; // don't show transformedForme here, as requested by camdawgboi
             const item = mon?.dirtyItem ?? mon?.item;
 
+            const pokemonActive = !!mon?.calcdexId
+              // && !!activePokemon?.calcdexId
+              // && activePokemon.calcdexId === mon.calcdexId;
+              && activeIndices.includes(i);
+
+            const pokemonSelected = !!mon?.calcdexId
+              && !!playerPokemon?.calcdexId
+              && playerPokemon.calcdexId === mon.calcdexId;
+
             return (
               <PiconButton
                 key={`PlayerCalc:Picon:${playerKey}:${pokemonKey}:${i}`}
                 className={cx(
                   styles.piconButton,
-                  !!activePokemon?.calcdexId && (activePokemon?.calcdexId === mon?.calcdexId) && styles.active,
-                  !!playerPokemon?.calcdexId && (playerPokemon?.calcdexId === mon?.calcdexId) && styles.selected,
+                  pokemonActive && styles.active,
+                  pokemonSelected && styles.selected,
                   !mon?.hp && styles.fainted,
                 )}
                 piconClassName={styles.picon}
@@ -161,19 +214,17 @@ export const PlayerCalc = ({
                 aria-label={`Select ${friendlyPokemonName}`}
                 pokemon={mon ? {
                   ...mon,
-                  speciesForme,
+                  speciesForme: speciesForme?.replace(mon?.useMax ? '' : '-Gmax', ''),
                   item,
                 } : 'pokeball-none'}
                 tooltip={mon ? (
                   <div className={styles.piconTooltip}>
-                    {
-                      !!nickname &&
+                    {nickname ? (
                       <>
-                        <em>{nickname}</em>
-                        {' '}aka.{' '}
+                        {nickname}{' '}
+                        (<strong>{friendlyPokemonName}</strong>)
                       </>
-                    }
-                    <strong>{friendlyPokemonName}</strong>
+                    ) : <strong>{friendlyPokemonName}</strong>}
                     {
                       !!item &&
                       <>
@@ -183,7 +234,7 @@ export const PlayerCalc = ({
                     }
                   </div>
                 ) : undefined}
-                disabled={!mon}
+                disabled={!mon?.speciesForme}
                 onPress={() => onIndexSelect?.(i)}
               >
                 <div className={styles.background} />
@@ -206,6 +257,7 @@ export const PlayerCalc = ({
           attackerSide: playerSideId === playerKey ? field?.attackerSide : field?.defenderSide,
           defenderSide: playerSideId === playerKey ? field?.defenderSide : field?.attackerSide,
         }}
+        containerSize={containerSize}
         onPokemonChange={(p) => onPokemonChange?.(playerKey, p)}
       />
     </div>

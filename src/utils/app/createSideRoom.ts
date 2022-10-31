@@ -17,10 +17,23 @@ export interface SideRoomOptions {
    * @since 0.1.0
    */
   focus?: boolean;
-}
 
-const minWidth = 320;
-const maxWidth = 1024;
+  /**
+   * Minimum width of the room, in **pixels**, presumably.
+   *
+   * @default 320
+   * @since 1.0.5
+   */
+  minWidth?: number;
+
+  /**
+   * Maxmimum width of the room, in **pixels**, presumably.
+   *
+   * @default 1024
+   * @since 1.0.5
+   */
+  maxWidth?: number;
+}
 
 const l = logger('@src/utils/app/createSideRoom');
 
@@ -28,7 +41,7 @@ export const createSideRoom = (
   id: string,
   title: string,
   options?: SideRoomOptions,
-): HtmlRoom => {
+): Showdown.HtmlRoom => {
   if (typeof app?._addRoom !== 'function') {
     l.error(
       'Cannot make side room since app._addRoom() is currently unavailable',
@@ -41,17 +54,19 @@ export const createSideRoom = (
   const {
     icon,
     focus,
+    minWidth = 320,
+    maxWidth = 1024,
   } = options || {};
 
-  let room: HtmlRoom;
+  let room: Showdown.HtmlRoom;
 
   if (id in app.rooms) {
-    room = <HtmlRoom> app.rooms[id];
+    room = <Showdown.HtmlRoom> app.rooms[id];
 
     l.debug('Found existing side room with matching room.id', id);
   } else {
     // create a new side room
-    room = app._addRoom<HtmlRoom>(id, 'html', true, title);
+    room = app._addRoom<Showdown.HtmlRoom>(id, 'html', true, title);
     room.isSideRoom = true;
 
     // remove the initial "Page unavailable" HTML
@@ -70,13 +85,16 @@ export const createSideRoom = (
   }
 
   // double-check the room's width params
-  if (room.minWidth !== minWidth) {
-    room.minWidth = minWidth;
-  }
+  // if (room.minWidth !== minWidth) {
+  //   room.minWidth = minWidth;
+  // }
 
-  if (room.maxWidth !== maxWidth) {
-    room.maxWidth = maxWidth;
-  }
+  // if (room.maxWidth !== maxWidth) {
+  //   room.maxWidth = maxWidth;
+  // }
+
+  room.minWidth = minWidth;
+  room.maxWidth = maxWidth;
 
   if (icon) {
     // hook directly into renderRoomTab(), which is hacky as hell, but necessary since it gets called pretty frequently

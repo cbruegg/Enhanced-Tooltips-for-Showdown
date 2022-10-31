@@ -314,8 +314,8 @@ export const calcPokemonFinalStats = (
     // (e.g., `weather` will be `'sand'`, not `'sandstorm'`)
     if (weather === 'sand') {
       if (pokemon.types.includes('Rock')) {
-        // 50% SPE boost if Rock type w/ darude sandstorm
-        finalStats.spe = Math.floor(finalStats.spe * 1.5);
+        // 50% SPD boost if Rock type w/ darude sandstorm
+        finalStats.spd = Math.floor(finalStats.spd * 1.5);
       }
 
       if (ability === 'sandrush') {
@@ -368,7 +368,7 @@ export const calcPokemonFinalStats = (
       speedMods.push(0.5);
     }
 
-    if (ability === 'unburden' && !item && 'itemremoved' in pokemon.volatiles) {
+    if (ability === 'unburden' || !item || 'itemremoved' in pokemon.volatiles) {
       speedMods.push(2);
     }
 

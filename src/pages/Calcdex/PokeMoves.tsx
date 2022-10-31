@@ -10,11 +10,13 @@ import {
 } from '@showdex/components/ui';
 import { useCalcdexSettings, useColorScheme } from '@showdex/redux/store';
 import { buildMoveOptions } from '@showdex/utils/battle';
+import { formatDamageAmounts } from '@showdex/utils/calc';
 import { upsizeArray } from '@showdex/utils/core';
 import type { GenerationNum } from '@smogon/calc';
 import type { MoveName } from '@smogon/calc/dist/data/interface';
 import type { BadgeInstance } from '@showdex/components/ui';
 import type { CalcdexBattleRules, CalcdexPokemon } from '@showdex/redux/store';
+import type { ElementSizeLabel } from '@showdex/utils/hooks';
 import type { SmogonMatchupHookCalculator } from './useSmogonMatchup';
 import { PokeMoveOptionTooltip } from './PokeMoveOptionTooltip';
 import styles from './PokeMoves.module.scss';
@@ -27,6 +29,7 @@ export interface PokeMovesProps {
   rules?: CalcdexBattleRules;
   pokemon: CalcdexPokemon;
   movesCount?: number;
+  containerSize?: ElementSizeLabel;
   calculateMatchup: SmogonMatchupHookCalculator;
   onPokemonChange?: (pokemon: DeepPartial<CalcdexPokemon>) => void;
 }
@@ -39,6 +42,7 @@ export const PokeMoves = ({
   rules,
   pokemon,
   movesCount = 4,
+  containerSize,
   calculateMatchup,
   onPokemonChange,
 }: PokeMovesProps): JSX.Element => {
@@ -116,6 +120,8 @@ export const PokeMoves = ({
     <TableGrid
       className={cx(
         styles.container,
+        containerSize === 'xs' && styles.verySmol,
+        // ['md', 'lg', 'xl'].includes(containerSize) && styles.veryThicc,
         !!colorScheme && styles[colorScheme],
         className,
       )}
@@ -146,6 +152,7 @@ export const PokeMoves = ({
             className={cx(styles.toggleButton, styles.ultButton)}
             label="Z"
             tooltip={`${pokemon?.useZ ? 'Deactivate' : 'Activate'} Z-Moves`}
+            tooltipDisabled={!settings?.showUiTooltips}
             primary
             active={pokemon?.useZ}
             disabled={!pokemon?.speciesForme}
@@ -166,6 +173,7 @@ export const PokeMoves = ({
             )}
             label="Max"
             tooltip={`${pokemon?.useMax ? 'Deactivate' : 'Activate'} Max Moves`}
+            tooltipDisabled={!settings?.showUiTooltips}
             primary
             active={pokemon?.useMax}
             disabled={!pokemon?.speciesForme}
@@ -189,6 +197,7 @@ export const PokeMoves = ({
           className={styles.toggleButton}
           label="Crit"
           tooltip={`${pokemon?.criticalHit ? 'Hide' : 'Show'} Critical Hit Damages`}
+          tooltipDisabled={!settings?.showUiTooltips}
           primary
           active={pokemon?.criticalHit}
           disabled={!pokemon?.speciesForme}
@@ -296,7 +305,12 @@ export const PokeMoves = ({
               showDamageAmounts &&
               <>
                 <br />
-                ({description.damageAmounts})
+                <br />
+                {settings?.formatMatchupDamageAmounts ? (
+                  <>({formatDamageAmounts(description.damageAmounts)})</>
+                ) : (
+                  <>({description.damageAmounts})</>
+                )}
               </>
             }
           </div>
@@ -425,7 +439,7 @@ export const PokeMoves = ({
                     offset={[0, 10]}
                     delay={[1000, 50]}
                     trigger="mouseenter"
-                    touch="hold"
+                    touch={['hold', 500]}
                     disabled={!settings?.showMatchupTooltip}
                   >
                     <div

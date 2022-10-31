@@ -18,7 +18,7 @@ export const createCalcdexRoom = (
   battleId: string,
   focus?: boolean,
   store?: RootStore,
-): HtmlRoom => {
+): Showdown.HtmlRoom => {
   if (!battleId) {
     return null;
   }
@@ -26,6 +26,7 @@ export const createCalcdexRoom = (
   const calcdexRoom = createSideRoom(getCalcdexRoomId(battleId), 'Calcdex', {
     icon: 'calculator',
     focus,
+    maxWidth: 650,
   });
 
   if (!calcdexRoom?.el) {

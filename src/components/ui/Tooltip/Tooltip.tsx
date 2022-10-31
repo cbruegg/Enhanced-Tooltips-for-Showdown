@@ -38,7 +38,7 @@ export interface TooltipProps extends Omit<TooltipTippyProps, 'trigger'> {
 
 const springConfig = {
   mass: 1,
-  tension: 250,
+  tension: 300,
   friction: 27,
 };
 
@@ -113,10 +113,10 @@ export const Tooltip = ({
       animation
       popperOptions={{
         ...popperOptions,
-        modifiers: [...popperModifiers, {
+        modifiers: [...popperModifiers, mounted && !!arrow && {
           name: 'arrow',
           options: { element: arrow },
-        }],
+        }].filter(Boolean),
       }}
       trigger={Array.isArray(trigger) ? trigger.join(' ') : trigger}
       zIndex={99}

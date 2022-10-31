@@ -14,11 +14,14 @@ export interface ButtonProps<
   labelStyle?: React.CSSProperties;
   label?: string;
   tooltip?: React.ReactNode;
+  tooltipOffset?: TooltipProps['offset'];
+  tooltipDelay?: TooltipProps['delay'];
   tooltipTrigger?: TooltipProps['trigger'];
   tooltipTouch?: TooltipProps['touch'];
   tooltipDisabled?: boolean;
   highlight?: boolean;
   absoluteHover?: boolean;
+  childrenFirst?: boolean;
 }
 
 /* eslint-disable @typescript-eslint/indent -- this rule is broken af. see Issue #1824 in the typescript-eslint GitHub repo. */
@@ -32,11 +35,14 @@ export const Button = React.forwardRef<ButtonElement, ButtonProps>(<
   labelStyle,
   label,
   tooltip,
+  tooltipOffset = [0, 10],
+  tooltipDelay = [1000, 50],
   tooltipTrigger = 'mouseenter',
-  tooltipTouch = 'hold',
+  tooltipTouch = ['hold', 500],
   tooltipDisabled,
   highlight,
   absoluteHover,
+  childrenFirst,
   disabled,
   children,
   ...props
@@ -65,6 +71,8 @@ export const Button = React.forwardRef<ButtonElement, ButtonProps>(<
         aria-label={label}
         disabled={disabled}
       >
+        {childrenFirst && children}
+
         <label
           className={cx(styles.label, labelClassName)}
           style={labelStyle}
@@ -72,14 +80,14 @@ export const Button = React.forwardRef<ButtonElement, ButtonProps>(<
           {label}
         </label>
 
-        {children}
+        {!childrenFirst && children}
       </BaseButton>
 
       <Tooltip
         reference={ref}
         content={tooltip}
-        offset={[0, 10]}
-        delay={[1000, 50]}
+        offset={tooltipOffset}
+        delay={tooltipDelay}
         trigger={tooltipTrigger}
         touch={tooltipTouch}
         disabled={disabled || tooltipDisabled || !tooltip}
