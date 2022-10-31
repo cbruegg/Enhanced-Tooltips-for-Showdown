@@ -36,7 +36,7 @@ This repository incorporates code from multiple plugins:
 ### Local Development
 
 ```bash
-yarn build:chrome
+yarn install && yarn build:chrome
 ```
 
 This will create a `dist/` folder. The XCode project in `src/safari` references files from the dist folder and can then be used to build the Safari extension. After that, make sure to configure Safari to allow unsigned extensions and enable the extension in Safari's preferences.
