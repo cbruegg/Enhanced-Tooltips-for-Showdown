@@ -25,8 +25,8 @@
 		A1AB7C2E2798AEFA00725B12 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C2C2798AEFA00725B12 /* Main.storyboard */; };
 		A1AB7C372798AEFA00725B12 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1AB7C362798AEFA00725B12 /* AppDelegate.swift */; };
 		A1AB7C3A2798AEFA00725B12 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C382798AEFA00725B12 /* Main.storyboard */; };
-		A1AB7C422798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1AB7C412798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		A1AB7C4C2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1AB7C4B2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1AB7C422798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A1AB7C412798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1AB7C4C2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A1AB7C4B2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A1AB7C522798AEFA00725B12 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C152798AEFA00725B12 /* Main.html */; };
 		A1AB7C532798AEFA00725B12 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C152798AEFA00725B12 /* Main.html */; };
 		A1AB7C542798AEFA00725B12 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = A1AB7C172798AEFA00725B12 /* Icon.png */; };
@@ -153,26 +153,26 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		A1AB7C652798AEFA00725B12 /* Embed App Extensions */ = {
+		A1AB7C652798AEFA00725B12 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A1AB7C422798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed App Extensions */,
+				A1AB7C422798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A1AB7C6C2798AEFA00725B12 /* Embed App Extensions */ = {
+		A1AB7C6C2798AEFA00725B12 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A1AB7C4C2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed App Extensions */,
+				A1AB7C4C2798AEFA00725B12 /* Enhanced Tooltips for Showdown Extension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -399,7 +399,7 @@
 				A1AB7C1E2798AEFA00725B12 /* Sources */,
 				A1AB7C1F2798AEFA00725B12 /* Frameworks */,
 				A1AB7C202798AEFA00725B12 /* Resources */,
-				A1AB7C652798AEFA00725B12 /* Embed App Extensions */,
+				A1AB7C652798AEFA00725B12 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -418,7 +418,7 @@
 				A1AB7C302798AEFA00725B12 /* Sources */,
 				A1AB7C312798AEFA00725B12 /* Frameworks */,
 				A1AB7C322798AEFA00725B12 /* Resources */,
-				A1AB7C6C2798AEFA00725B12 /* Embed App Extensions */,
+				A1AB7C6C2798AEFA00725B12 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -472,7 +472,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1320;
-				LastUpgradeCheck = 1320;
+				LastUpgradeCheck = 1420;
 				TargetAttributes = {
 					A1AB7C212798AEFA00725B12 = {
 						CreatedOnToolsVersion = 13.2.1;
@@ -778,6 +778,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -837,6 +838,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1001,8 +1003,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/Pokemon Showdown Enhanced Tooltips.entitlements";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 9;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1014,7 +1018,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				MARKETING_VERSION = 2.3;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1033,8 +1037,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/Pokemon Showdown Enhanced Tooltips.entitlements";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 9;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1046,7 +1052,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				MARKETING_VERSION = 2.3;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1068,8 +1074,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/Pokemon Showdown Enhanced Tooltips.entitlements";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 9;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1082,7 +1090,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				MARKETING_VERSION = 2.3;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1105,8 +1113,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "macOS (App)/Pokemon Showdown Enhanced Tooltips.entitlements";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 9;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 5F2AW2L57Z;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1119,7 +1129,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				MARKETING_VERSION = 2.3;
 				OTHER_LDFLAGS = (
 					"-framework",
