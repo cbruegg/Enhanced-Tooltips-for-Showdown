@@ -2,11 +2,14 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import {
   detectAuthPlayerKeyFromBattle,
   detectBattleRules,
+  detectLegacyGen,
   detectPlayerKeyFromBattle,
+  legalLockedFormat,
   sanitizePokemon,
   sanitizeVolatiles,
   syncField,
   syncPokemon,
+  toggleRuinAbilities,
 } from '@showdex/utils/battle';
 import { calcPokemonCalcdexId } from '@showdex/utils/calc';
 import { env } from '@showdex/utils/core';
@@ -21,7 +24,7 @@ export interface SyncBattlePayload {
 
 export const SyncBattleActionType = 'calcdex:sync';
 
-const defaultMaxPokemon = env.int('calcdex-player-max-pokemon');
+const defaultMinPokemon = env.int('calcdex-player-min-pokemon', 0);
 const l = logger('@showdex/redux/actions/syncBattle');
 
 /**
@@ -103,8 +106,11 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
     // update the current turn number
     battleState.turn = turn || 0;
 
-    // update the battle's active state
-    battleState.active = !ended;
+    // update the battle's active state, but only allow it to go from true -> false
+    // as to avoid updating the HellodexBattleRecord from replays and battle re-inits)
+    if (battleState.active && typeof ended === 'boolean' && ended) {
+      battleState.active = !ended;
+    }
 
     // find out which side myPokemon belongs to
     const detectedPlayerKey = detectPlayerKeyFromBattle(battle);
@@ -166,7 +172,7 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
       }
 
       // determine the max amount of Pokemon
-      const maxPokemon = player?.totalPokemon || defaultMaxPokemon;
+      const maxPokemon = Math.max(player?.totalPokemon || 0, defaultMinPokemon);
 
       if (playerState.maxPokemon !== maxPokemon) {
         playerState.maxPokemon = maxPokemon;
@@ -373,12 +379,20 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
           basePokemon,
           clientPokemon,
           serverPokemon,
-          battleState.format,
+          battleState,
+          // battleState.field,
+          // battleState.format,
           settings?.showAllFormes,
           (!isMyPokemonSide || !hasMyPokemon)
             && settings?.defaultAutoMoves[battleState.authPlayerKey === playerKey ? 'auth' : playerKey],
         );
 
+        // update the syncedPokemon's playerKey, if falsy or mismatched
+        if (!syncedPokemon.playerKey || syncedPokemon.playerKey !== playerKey) {
+          syncedPokemon.playerKey = playerKey;
+        }
+
+        // extract Gmax/Tera info from the BattleRoom's `request` object, if available
         if (request?.requestType === 'move' && request.side?.id === playerKey) {
           const {
             active,
@@ -394,18 +408,22 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
               details: reqDetails,
             } = side.pokemon?.[j] || {};
 
-            const shouldIgnore = !moveData?.maxMoves?.gigantamax
+            const hasGmaxData = !!moveData?.maxMoves?.gigantamax;
+            const hasTeraData = !!moveData?.canTerastallize && moveData.canTerastallize !== '???';
+
+            const shouldIgnore = (!hasGmaxData && !hasTeraData)
               || (!reqIdent && !reqDetails)
               || (!!reqCalcdexId && syncedPokemon.calcdexId !== reqCalcdexId)
-              || (syncedPokemon.ident !== reqIdent && syncedPokemon.details !== reqDetails)
-              || !syncedPokemon.altFormes.some((f) => f.endsWith('-Gmax'));
+              || (syncedPokemon.ident !== reqIdent && syncedPokemon.details !== reqDetails);
+              // || !syncedPokemon.altFormes.some((f) => f.endsWith('-Gmax'));
 
             l.debug(
               'Processing move request for', reqIdent || reqDetails,
-              'with G-Max move?', moveData?.maxMoves?.gigantamax, // ? = partial, i.e., could be null/undefined
               '\n', 'battleId', battleId,
               '\n', 'shouldIgnore?', shouldIgnore,
               '\n', 'moveData', moveData,
+              '\n', 'Gmax?', moveData?.maxMoves?.gigantamax, // ? = partial, i.e., could be null/undefined
+              '\n', 'Tera?', moveData?.canTerastallize,
               '\n', 'sidePokemon', side.pokemon?.[j],
               '\n', 'request', request,
               '\n', 'battle', battle,
@@ -415,15 +433,29 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
               continue;
             }
 
-            syncedPokemon.dmaxable = true; // if not already
-            syncedPokemon.gmaxable = true;
+            if (hasGmaxData) {
+              syncedPokemon.dmaxable = true; // if not already
+              syncedPokemon.gmaxable = true;
 
-            if (!syncedPokemon.speciesForme.endsWith('-Gmax')) {
-              syncedPokemon.speciesForme += '-Gmax';
+              if (!syncedPokemon.speciesForme.endsWith('-Gmax')) {
+                syncedPokemon.speciesForme += '-Gmax';
+              }
+            }
+
+            if (hasTeraData) {
+              syncedPokemon.teraType = moveData.canTerastallize;
             }
 
             break;
           }
+        }
+
+        // update the faintCounter from the player side if not fainted (or prev value is 0)
+        if (player.faintCounter > -1 && (syncedPokemon.hp > 0 || !syncedPokemon.faintCounter)) {
+          const reloadOffset = !syncedPokemon.hp && !syncedPokemon.faintCounter ? 1 : 0;
+          const value = Math.max(player.faintCounter - reloadOffset);
+
+          syncedPokemon.faintCounter = value;
         }
 
         l.debug(
@@ -554,11 +586,26 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
           }
 
           // set the initial showGenetics value from the settings if this is serverSourced
-          const geneticsKey = playerKey === battleState.authPlayerKey
-            ? 'auth'
-            : playerKey;
+          const geneticsKey = playerKey === battleState.authPlayerKey ? 'auth' : playerKey;
 
-          syncedPokemon.showGenetics = settings?.defaultShowGenetics?.[geneticsKey] ?? true;
+          // update (2022/11/14): defaultShowGenetics has been deprecated in favor of lockGeneticsVisibility
+          // syncedPokemon.showGenetics = settings?.defaultShowGenetics?.[geneticsKey] ?? true;
+
+          const showBaseStats = settings?.showBaseStats === 'always'
+            || (settings?.showBaseStats === 'meta' && !legalLockedFormat(battleState.format));
+
+          // handles 3 cases:
+          // (1) user selected all stats, so we should set this to true to initially show all rows, then allow them to be hidden
+          // (2) user selected only some stats, so this becomes initially false so PokeStats can show the rows they've selected
+          // (3) user selected no stats, so this becomes initially false, then allow them to all be shown
+          // (note: hydrator may rehydrate an empty array as `false`, hence why we're checking if the value is an array first!)
+          syncedPokemon.showGenetics = Array.isArray(settings?.lockGeneticsVisibility?.[geneticsKey]) && [
+            showBaseStats && 'base',
+            'iv',
+            !detectLegacyGen(battleState.gen) && 'ev',
+          ].filter(Boolean).every((
+            k: 'base' | 'iv' | 'ev',
+          ) => settings.lockGeneticsVisibility[geneticsKey].includes(k));
 
           playerState.pokemon.push(syncedPokemon);
 
@@ -594,15 +641,15 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
         }
       }
 
-      // obtain the calcdexId of the active Pokemon, if any
-      // const [activePokemon] = player.active || [];
+      // keep track of which calcdexId's we've added so far (for myPokemon in Doubles)
+      const processedIds: string[] = [];
 
       playerState.activeIndices = player.active?.map((activePokemon) => {
         // checking myPokemon first (if it's available) for Illusion/Zoroark
         const activeId = (
           isMyPokemonSide
             && hasMyPokemon
-            && myPokemon.find((p) => p?.active)?.calcdexId
+            && myPokemon.find((p) => p?.active && !processedIds.includes(p?.calcdexId))?.calcdexId
         )
           || activePokemon?.calcdexId
           || player.pokemon.find((p) => p === activePokemon)?.calcdexId;
@@ -614,19 +661,35 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
           ? playerState.pokemon.findIndex((p) => p.calcdexId === activeId)
           : -1;
 
-        if (activeIndex > -1) {
+        // l.debug(
+        //   'Building activeIndices for player', playerKey,
+        //   '\n', 'activeId', activeId,
+        //   '\n', 'activeIndex', activeIndex,
+        //   '\n', 'activePokemon', activePokemon,
+        //   '\n', 'player.active', player.active,
+        //   '\n', `${playerKey}.pokemon`, playerState.pokemon,
+        // );
+
+        if (activeIndex > -1 && !processedIds.includes(activeId)) {
           // playerState.activeIndex = activeIndex;
 
           // if (playerState.autoSelect) {
           //   playerState.selectionIndex = activeIndex;
           // }
 
+          processedIds.push(activeId);
+
           return activeIndex;
         }
 
         if (activePokemon && __DEV__) {
           l.warn(
-            'Could not find activeIndex with activeId', activeId, 'for player', playerKey,
+            ...(activeId && processedIds.includes(activeId) ? [
+              'Attempted to add existing activeId', activeId, 'for player', playerKey,
+              '\n', 'processedIds', processedIds,
+            ] : [
+              'Could not find activeIndex with activeId', activeId, 'for player', playerKey,
+            ]),
             '\n', 'battleId', battleId,
             '\n', 'activePokemon', activePokemon,
             '\n', 'playerPokemon', playerPokemon,
@@ -643,6 +706,16 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
 
       if (playerState.activeIndices?.length && playerState.autoSelect) {
         [playerState.selectionIndex] = playerState.activeIndices;
+      }
+
+      // update Ruin abilities (gen 9), if any, before syncing the field
+      if (battleState.gen > 8) {
+        toggleRuinAbilities(
+          playerState,
+          null,
+          battleState.field?.gameType,
+          true, // update the selected Pokemon's abilityToggled value too
+        );
       }
     }
 

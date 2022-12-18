@@ -2,8 +2,9 @@ import { configureStore } from '@reduxjs/toolkit';
 // import { setupListeners } from '@reduxjs/toolkit/query/react';
 import { logger } from '@showdex/utils/debug';
 import type { Action, AnyAction, ConfigureStoreOptions } from '@reduxjs/toolkit';
-import { pkmnApi } from '../services';
+import { pkmnApi, showdownApi } from '../services';
 import { calcdexSlice } from './calcdexSlice';
+import { hellodexSlice } from './hellodexSlice';
 import { showdexSlice } from './showdexSlice';
 
 export type RootStore = ReturnType<typeof createStore>;
@@ -11,6 +12,7 @@ export type RootDispatch = RootStore['dispatch'];
 
 export interface RootState extends ReturnType<RootStore['getState']> {
   showdex: ReturnType<typeof showdexSlice.getInitialState>;
+  hellodex: ReturnType<typeof hellodexSlice.getInitialState>;
   calcdex: ReturnType<typeof calcdexSlice.getInitialState>;
 }
 
@@ -52,7 +54,9 @@ export const createStore = (
 
     reducer: {
       [pkmnApi.reducerPath]: pkmnApi.reducer,
+      [showdownApi.reducerPath]: showdownApi.reducer,
       [showdexSlice.name]: showdexSlice.reducer,
+      [hellodexSlice.name]: hellodexSlice.reducer,
       [calcdexSlice.name]: calcdexSlice.reducer,
     },
 
@@ -62,6 +66,7 @@ export const createStore = (
       serializableCheck: false,
     }).concat(
       pkmnApi.middleware,
+      showdownApi.middleware,
     ),
   });
 

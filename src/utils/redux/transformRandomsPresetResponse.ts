@@ -48,15 +48,17 @@ export const transformRandomsPresetResponse = (
       moves,
       evs,
       ivs,
+      roles,
     } = pkmnPreset;
 
     const preset: CalcdexPokemonPreset = {
       calcdexId: null, // we'll hash this after we build the object
       id: null, // will equal calcdexId, so the same applies as above
-
+      source: 'smogon',
       name: 'Randoms',
       gen,
       format: args?.format ?? `gen${gen}randombattle`, // e.g., 'gen8randombattle'
+
       speciesForme, // do not sanitize
       level,
 
@@ -70,6 +72,9 @@ export const transformRandomsPresetResponse = (
       item: items?.[0],
       altItems: items,
 
+      /**
+       * @todo Needs to be updated once we support more than 4 moves.
+       */
       moves: moves?.slice(0, 4),
       altMoves: moves,
 
@@ -94,16 +99,59 @@ export const transformRandomsPresetResponse = (
       },
     };
 
-    preset.calcdexId = calcPresetCalcdexId(preset);
-    preset.id = preset.calcdexId; // used by RTK Query for tagging
+    if (Object.keys(roles || {}).length) {
+      Object.entries(roles).forEach(([
+        roleName,
+        role,
+      ]) => {
+        if (!roleName || !role?.moves?.length) {
+          return;
+        }
 
-    // shouldn't be the case, but check if the preset already exists in our output
-    const presetIndex = output.findIndex((p) => p.calcdexId === preset.calcdexId);
+        const rolePreset = { ...preset };
 
-    if (presetIndex > -1) {
-      output[presetIndex] = preset;
+        const {
+          teraTypes,
+          moves: roleMoves,
+        } = role;
+
+        if (roleName) {
+          rolePreset.name = roleName;
+        }
+
+        if (teraTypes?.length) {
+          rolePreset.teraTypes = teraTypes.filter((t) => !!t && t !== '???');
+        }
+
+        /**
+         * @todo Needs to be updated once we support more than 4 moves.
+         */
+        rolePreset.moves = roleMoves.slice(0, 4);
+        rolePreset.altMoves = [...roleMoves];
+
+        rolePreset.calcdexId = calcPresetCalcdexId(rolePreset);
+        rolePreset.id = rolePreset.calcdexId;
+
+        const presetIndex = output.findIndex((p) => p.calcdexId === rolePreset.calcdexId);
+
+        if (presetIndex > -1) {
+          output[presetIndex] = rolePreset;
+        } else {
+          output.push(rolePreset);
+        }
+      });
     } else {
-      output.push(preset);
+      preset.calcdexId = calcPresetCalcdexId(preset);
+      preset.id = preset.calcdexId; // used by RTK Query for tagging
+
+      // shouldn't be the case, but check if the preset already exists in our output
+      const presetIndex = output.findIndex((p) => p.calcdexId === preset.calcdexId);
+
+      if (presetIndex > -1) {
+        output[presetIndex] = preset;
+      } else {
+        output.push(preset);
+      }
     }
   });
 

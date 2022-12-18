@@ -7,6 +7,7 @@ import {
   transformFormatStatsResponse,
   transformPresetResponse,
   transformRandomsPresetResponse,
+  transformRandomsStatsResponse,
 } from '@showdex/utils/redux';
 import type { GenerationNum } from '@smogon/calc';
 import type { AbilityName, ItemName, MoveName } from '@smogon/calc/dist/data/interface';
@@ -49,6 +50,20 @@ export interface PkmnSmogonPresetRequest {
  * @since 0.1.0
  */
 export interface PkmnSmogonPreset {
+  /**
+   * Note that this key is purposefully all lowercase.
+   *
+   * @since 1.1.0
+   */
+  teratypes?: Showdown.TypeName | Showdown.TypeName[];
+
+  /**
+   * Note that this key exists in case the pkmn API changes the casing.
+   *
+   * @since 1.1.0
+   */
+  teraTypes?: Showdown.TypeName | Showdown.TypeName[];
+
   ability: AbilityName | AbilityName[];
   nature: Showdown.PokemonNature | Showdown.PokemonNature[];
   item: ItemName | ItemName[];
@@ -58,7 +73,7 @@ export interface PkmnSmogonPreset {
 }
 
 /**
- * Downloaded JSON from the Gen Sets API via `@pkmn/smogon`.
+ * Downloaded JSON from the pkmn Gen Sets API.
  *
  * * Models the structure of the sets of an entire gen (e.g., `'/gen8.json'`),
  *   which includes every format in that gen.
@@ -94,7 +109,7 @@ export interface PkmnSmogonFormatPresetResponse {
 }
 
 /**
- * Downloaded JSON from the Gen Format Stats API via `@pkmn/smogon`.
+ * Downloaded JSON from the pkmn Gen Format Stats API.
  *
  * @since 1.0.3
  */
@@ -162,7 +177,13 @@ export interface PkmnSmogonRandomPreset {
   level: number;
   abilities: AbilityName[];
   items: ItemName[];
-  moves: MoveName[];
+
+  /**
+   * Won't exist in Gen 9 due to the introduction of the `roles` system.
+   *
+   * @since 0.1.0
+   */
+  moves?: MoveName[];
 
   /**
    * Unless specified, all IVs should default to `31`.
@@ -197,10 +218,22 @@ export interface PkmnSmogonRandomPreset {
    * @since 0.1.0
    */
   evs?: Showdown.StatsTable;
+
+  /**
+   * New roles system introduced for Gen 9 random battles.
+   *
+   * @since 1.1.0
+   */
+  roles?: {
+    [roleName: string]: {
+      teraTypes: Showdown.TypeName[];
+      moves: MoveName[];
+    };
+  };
 }
 
 /**
- * Downloaded JSON from the Randoms API via `@pkmn/smogon`.
+ * Downloaded JSON from the pkmn Randoms API.
  *
  * * Note that the schema is different from that of the Gen Sets API,
  *   as outlined in the `PkmnSmogonPresetResponse` interface.
@@ -215,16 +248,39 @@ export interface PkmnSmogonRandomsPresetResponse {
   [speciesForme: string]: PkmnSmogonRandomPreset;
 }
 
+/**
+ * Downloaded JSON from the pkmn Randoms Stats API.
+ *
+ * @since 1.0.7
+ */
+export interface PkmnSmogonRandomsStatsResponse {
+  [speciesForme: string]: {
+    level: number;
+    abilities: { [name: AbilityName]: number; };
+    items: { [name: ItemName]: number; };
+    moves?: { [name: MoveName]: number; };
+    ivs?: Showdown.StatsTable;
+    evs?: Showdown.StatsTable;
+    roles?: {
+      [roleName: string]: {
+        weight: number;
+        teraTypes: Record<Showdown.TypeName, number>;
+        moves: { [name: MoveName]: number; };
+      };
+    };
+  };
+}
+
 export const presetApi = pkmnApi.injectEndpoints({
   overrideExisting: true,
 
   endpoints: (build) => ({
-    pokemonPreset: build.query<CalcdexPokemonPreset[], PkmnSmogonPresetRequest>({
+    pokemonFormatPreset: build.query<CalcdexPokemonPreset[], PkmnSmogonPresetRequest>({
       // using the fetchBaseQuery() with runtimeFetch() as the fetchFn doesn't seem to work
       // (Chrome reports a TypeError when calling fetch() in the background service worker)
       // query: ({ gen, format }) => ({
       //   url: [
-      //     env('pkmn-presets-gens-path'), // e.g., '/smogon/data/sets'
+      //     env('pkmn-presets-formats-path'), // e.g., '/smogon/data/sets'
       //     `gen${format?.includes('bdsp') ? 4 : gen}.json`, // e.g., 'gen8.json'
       //   ].join('/'), // e.g., '/smogon/data/sets/gen8.json'
       //   method: HttpMethod.GET,
@@ -235,7 +291,7 @@ export const presetApi = pkmnApi.injectEndpoints({
       queryFn: async ({ gen, format, formatOnly }) => {
         const response = await runtimeFetch([
           env('pkmn-presets-base-url'),
-          env('pkmn-presets-gens-path'), // e.g., '/smogon/data/sets'
+          env('pkmn-presets-format-path'), // e.g., '/smogon/data/sets'
           `/${formatOnly ? format : `gen${gen}`}.json`, // e.g., '/gen8.json'
         ].join(''), {
           method: HttpMethod.GET,
@@ -267,7 +323,7 @@ export const presetApi = pkmnApi.injectEndpoints({
       queryFn: async ({ gen, format }) => {
         const response = await runtimeFetch<PkmnSmogonFormatStatsResponse>([
           env('pkmn-presets-base-url'),
-          env('pkmn-presets-stats-path'), // e.g., '/smogon/data/stats'
+          env('pkmn-presets-format-stats-path'), // e.g., '/smogon/data/stats'
           `/${format}.json`, // e.g., '/gen8bdspou.json'
         ].join(''), {
           method: HttpMethod.GET,
@@ -324,11 +380,38 @@ export const presetApi = pkmnApi.injectEndpoints({
       // transformResponse: transformRandomsPresetResponse,
       providesTags: createTagProvider(PokemonReduxTagType.Preset),
     }),
+
+    pokemonRandomsStats: build.query<CalcdexPokemonPreset[], Omit<PkmnSmogonPresetRequest, 'formatOnly'>>({
+      queryFn: async ({ gen, format }) => {
+        const response = await runtimeFetch<PkmnSmogonRandomsStatsResponse>([
+          env('pkmn-presets-base-url'),
+          env('pkmn-presets-randoms-stats-path'), // e.g., '/randbats/data/stats'
+          `/${format || `gen${gen}randombattle`}.json`, // e.g., '/gen8randombattle.json'
+        ].join(''), {
+          method: HttpMethod.GET,
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+
+        const data = response.json();
+
+        return {
+          data: transformRandomsStatsResponse(data, null, {
+            gen,
+            format,
+          }),
+        };
+      },
+
+      providesTags: createTagProvider(PokemonReduxTagType.Preset),
+    }),
   }),
 });
 
 export const {
-  usePokemonPresetQuery,
+  usePokemonFormatPresetQuery,
   usePokemonFormatStatsQuery,
   usePokemonRandomsPresetQuery,
+  usePokemonRandomsStatsQuery,
 } = presetApi;

@@ -2,11 +2,11 @@ import * as React from 'react';
 import cx from 'classnames';
 import {
   PiconButton,
+  PokeFormeTooltip,
   PokeHpBar,
   PokeStatus,
-  PokeType,
 } from '@showdex/components/app';
-import { Dropdown } from '@showdex/components/form';
+import { Dropdown, PokeTypeField } from '@showdex/components/form';
 import {
   Badge,
   Button,
@@ -22,26 +22,35 @@ import {
   buildPresetOptions,
   detectLegacyGen,
   detectToggledAbility,
+  detectUsageAlt,
   exportPokePaste,
+  flattenAlt,
   flattenAlts,
-  // formatDexDescription,
-  // getDexForFormat,
-  // hasMegaForme,
   hasNickname,
+  importPokePaste,
+  legalLockedFormat,
   mergeRevealedMoves,
 } from '@showdex/utils/battle';
 import { calcPokemonHp } from '@showdex/utils/calc';
+import { readClipboardText, writeClipboardText } from '@showdex/utils/core';
 // import { logger } from '@showdex/utils/debug';
 import { capitalize } from '@showdex/utils/humanize';
+import { sortUsageAlts } from '@showdex/utils/redux';
 import type { GenerationNum } from '@smogon/calc';
 import type { AbilityName, ItemName } from '@smogon/calc/dist/data/interface';
-// import type { DropdownOption } from '@showdex/components/form';
 import type { BadgeInstance } from '@showdex/components/ui';
-import type { CalcdexPokemon, CalcdexPokemonPreset } from '@showdex/redux/store';
+import type {
+  CalcdexBattleField,
+  CalcdexPlayerKey,
+  CalcdexPlayerSide,
+  CalcdexPokemon,
+  CalcdexPokemonPreset,
+  CalcdexPokemonUsageAlt,
+} from '@showdex/redux/store';
 import type { ElementSizeLabel } from '@showdex/utils/hooks';
 import { PokeAbilityOptionTooltip } from './PokeAbilityOptionTooltip';
 import { PokeItemOptionTooltip } from './PokeItemOptionTooltip';
-import { usePresets } from './usePresets';
+import { useUsageAltSorter } from './useUsageAltSorter';
 import styles from './PokeInfo.module.scss';
 
 export interface PokeInfoProps {
@@ -49,7 +58,14 @@ export interface PokeInfoProps {
   style?: React.CSSProperties;
   gen?: GenerationNum;
   format?: string;
+  playerKey?: CalcdexPlayerKey;
   pokemon: CalcdexPokemon;
+  presets?: CalcdexPokemonPreset[];
+  usage?: CalcdexPokemonPreset;
+  usages?: CalcdexPokemonPreset[];
+  presetsLoading?: boolean;
+  // active?: boolean;
+  field?: CalcdexBattleField;
   containerSize?: ElementSizeLabel;
   onPokemonChange?: (pokemon: DeepPartial<CalcdexPokemon>) => void;
 }
@@ -61,30 +77,39 @@ export const PokeInfo = ({
   style,
   gen,
   format,
+  playerKey,
   pokemon,
+  presets,
+  usage,
+  usages,
+  presetsLoading,
+  // active,
+  field,
   containerSize,
   onPokemonChange,
 }: PokeInfoProps): JSX.Element => {
   const settings = useCalcdexSettings();
   const colorScheme = useColorScheme();
 
-  const {
-    presets,
-    presetsLoading,
-  } = usePresets({
-    format,
-    pokemon,
-  });
+  // not sorted in usePresets() since the usage stats may not be available there
+  const abilityUsageSorter = useUsageAltSorter(usage?.altAbilities);
+  const itemUsageSorter = useUsageAltSorter(usage?.altItems);
+  const moveUsageSorter = useUsageAltSorter(usage?.altMoves);
 
-  const applyPreset = React.useCallback((preset: CalcdexPokemonPreset) => {
+  const applyPreset = React.useCallback((
+    preset: CalcdexPokemonPreset,
+    additionalMutations?: DeepPartial<CalcdexPokemon>,
+  ) => {
     const mutation: DeepPartial<CalcdexPokemon> = {
+      ...additionalMutations,
+
       preset: preset.calcdexId,
+
       moves: preset.moves,
       nature: preset.nature,
       dirtyAbility: preset.ability,
-      // item: !pokemon.item || pokemon.item === '(exists)' ? preset.item : pokemon.item,
-      // dirtyItem: pokemon.item && pokemon.item !== '(exists)' && pokemon.item !== preset.item ? preset.item : null,
       dirtyItem: preset.item,
+
       ivs: {
         hp: preset?.ivs?.hp ?? 31,
         atk: preset?.ivs?.atk ?? 31,
@@ -93,7 +118,9 @@ export const PokeInfo = ({
         spd: preset?.ivs?.spd ?? 31,
         spe: preset?.ivs?.spe ?? 31,
       },
-      evs: { // not specifying the 0's may cause any unspecified EVs to remain!
+
+      // not specifying the 0's may cause any unspecified EVs to remain!
+      evs: {
         hp: preset.evs?.hp || 0,
         atk: preset.evs?.atk || 0,
         def: preset.evs?.def || 0,
@@ -102,6 +129,29 @@ export const PokeInfo = ({
         spe: preset.evs?.spe || 0,
       },
     };
+
+    const altTeraTypes = preset.teraTypes?.filter((t) => !!t && flattenAlt(t) !== '???');
+
+    // check if we have Tera typing usage data
+    const detectedUsage = (usages?.length === 1 && usages[0])
+      || (!!preset.name && usages?.find((u) => u?.source === 'usage' && u.name?.includes(preset.name)))
+      || usage;
+
+    const teraTypesUsage = detectedUsage?.teraTypes?.filter(detectUsageAlt);
+
+    if (teraTypesUsage?.length) {
+      // mutation.altTeraTypes = flatAltTeraTypes
+      //   .map((t) => [t, teraTypesUsage.find((u) => u[0] === t)?.[1] || 0] as CalcdexPokemonUsageAlt<Showdown.TypeName>)
+      //   .sort(sortUsageAlts);
+      mutation.altTeraTypes = teraTypesUsage.sort(sortUsageAlts);
+
+      // update the teraType to the most likely one after sorting
+      [mutation.teraType] = mutation.altTeraTypes[0] as CalcdexPokemonUsageAlt<Showdown.TypeName>;
+    } else if (altTeraTypes?.[0]) {
+      // apply the first teraType from the preset's teraTypes
+      [mutation.teraType] = flattenAlts(altTeraTypes);
+      mutation.altTeraTypes = altTeraTypes;
+    }
 
     // don't apply the dirtyAbility/dirtyItem if we're applying the Pokemon's first preset and
     // their abilility/item was already revealed or it matches the Pokemon's revealed ability/item
@@ -128,23 +178,63 @@ export const PokeInfo = ({
 
     if (preset.altAbilities?.length) {
       mutation.altAbilities = [...preset.altAbilities];
+
+      // apply the top usage ability (if available)
+      if (typeof abilityUsageSorter === 'function' && mutation.altAbilities.length > 1 && !clearDirtyAbility) {
+        const sortedAbilities = flattenAlts(mutation.altAbilities).sort(abilityUsageSorter);
+        const [topAbility] = sortedAbilities;
+
+        if (sortedAbilities.length === mutation.altAbilities.length) {
+          mutation.altAbilities = sortedAbilities;
+        }
+
+        if (topAbility && mutation.dirtyAbility !== topAbility) {
+          mutation.dirtyAbility = topAbility;
+        }
+      }
     }
 
     if (preset.altItems?.length) {
       mutation.altItems = [...preset.altItems];
+
+      // apply the top usage item (if available)
+      if (typeof itemUsageSorter === 'function' && mutation.altItems.length > 1 && !clearDirtyItem) {
+        const sortedItems = flattenAlts(mutation.altItems).sort(itemUsageSorter);
+        const [topItem] = sortedItems;
+
+        if (sortedItems.length === mutation.altItems.length) {
+          mutation.altItems = sortedItems;
+        }
+
+        if (topItem && mutation.dirtyItem !== topItem) {
+          mutation.dirtyItem = topItem;
+        }
+      }
     }
 
     if (preset.altMoves?.length) {
       mutation.altMoves = [...preset.altMoves];
+
+      // sort the moves by their usage stats (if available) and apply the top 4 moves
+      // (otherwise, just apply the moves from the preset)
+      if (typeof moveUsageSorter === 'function' && mutation.altMoves.length > 1) {
+        const sortedMoves = flattenAlts(mutation.altMoves).sort(moveUsageSorter);
+
+        if (sortedMoves.length) {
+          mutation.altMoves = sortedMoves;
+
+          /**
+           * @todo Needs to be updated once we support more than 4 moves.
+           */
+          mutation.moves = sortedMoves.slice(0, 4);
+        }
+      }
     }
 
     // check if we already have revealed moves (typical of spectating or replaying a battle)
     mutation.moves = pokemon.transformedForme && pokemon.transformedMoves?.length
       ? [...pokemon.transformedMoves]
-      : mergeRevealedMoves({
-        ...pokemon,
-        moves: mutation.moves,
-      });
+      : mergeRevealedMoves({ ...pokemon, moves: mutation.moves });
 
     // only apply the ability/item (and remove their dirty counterparts) if there's only
     // 1 possible ability/item in the pool (and their actual ability/item hasn't been revealed)
@@ -199,16 +289,23 @@ export const PokeInfo = ({
     }
 
     // apply the defaultShowGenetics setting if the Pokemon is serverSourced
-    if (pokemon.serverSourced) {
-      mutation.showGenetics = settings?.defaultShowGenetics?.auth;
-    }
+    // update (2022/11/15): defaultShowGenetics is deprecated in favor of lockGeneticsVisibility;
+    // showGenetics's initial value is set in syncBattle() when the Pokemon is first init'd into Redux
+    // if (pokemon.serverSourced) {
+    //   mutation.showGenetics = settings?.defaultShowGenetics?.auth;
+    // }
 
     // spreadStats will be recalculated in `onPokemonChange()` from `PokeCalc`
     onPokemonChange?.(mutation);
   }, [
+    abilityUsageSorter,
+    itemUsageSorter,
+    moveUsageSorter,
     onPokemonChange,
     pokemon,
-    settings,
+    // settings,
+    usage,
+    usages,
   ]);
 
   // this will allow the user to switch back to the "Yours" preset for a transformed Pokemon
@@ -230,7 +327,8 @@ export const PokeInfo = ({
     const existingPreset = pokemon.preset && presets?.length
       ? presets.find((p) => p?.calcdexId === pokemon.preset && (
         !pokemon.transformedForme
-          || formatId(p.name) !== 'yours'
+          // || formatId(p.name) !== 'yours'
+          || p.source !== 'server' // i.e., the 'Yours' preset
           || appliedTransformedPreset.current
       ))
       : null;
@@ -266,8 +364,10 @@ export const PokeInfo = ({
     if (downloadUsageStats && prioritizeUsageStats) {
       // If we aren't in a random battle, check if we should prioritize
       // the showdown usage stats.
+      // note: 'usage'-sourced sets won't exist in `presets` for Randoms formats
       const usagePreset = presets.find((p) => (
-        (p.format === format?.replace(/^gen\d/, '') && formatId(p.name) === 'showdownusage')
+        // (p.format === format?.replace(/^gen\d/, '') && formatId(p.name) === 'showdownusage')
+        p?.source === 'usage' && (!format || format.includes(p.format))
       ));
 
       // only update if we found a Showdown Usage preset for the format
@@ -279,11 +379,10 @@ export const PokeInfo = ({
 
     if (!initialPreset) {
       // it's likely that the Pokemon has no EVs/IVs set, so show the EVs/IVs if they're hidden
-      const forceShowGenetics = !pokemon.showGenetics
-        && (
-          !Object.values(pokemon.ivs || {}).reduce((sum, val) => sum + (val || 0), 0)
-            || !Object.values(pokemon.evs || {}).reduce((sum, val) => sum + (val || 0), 0)
-        );
+      const forceShowGenetics = !pokemon.showGenetics && (
+        !Object.values(pokemon.ivs || {}).reduce((sum, val) => sum + (val || 0), 0)
+          || !Object.values(pokemon.evs || {}).reduce((sum, val) => sum + (val || 0), 0)
+      );
 
       if (forceShowGenetics) {
         onPokemonChange?.({ showGenetics: true });
@@ -313,7 +412,7 @@ export const PokeInfo = ({
   // const dex = getDexForFormat(format);
   const legacy = detectLegacyGen(gen);
 
-  const pokemonKey = pokemon?.calcdexId || pokemon?.name || '???';
+  const pokemonKey = pokemon?.calcdexId || pokemon?.name || '?';
   const friendlyPokemonName = pokemon?.speciesForme || pokemon?.name || pokemonKey;
 
   const nickname = hasNickname(pokemon) && settings?.showNicknames
@@ -350,8 +449,8 @@ export const PokeInfo = ({
   const itemName = pokemon?.dirtyItem ?? pokemon?.item;
 
   const presetOptions = React.useMemo(
-    () => buildPresetOptions(presets),
-    [presets],
+    () => buildPresetOptions(presets, usages),
+    [presets, usages],
   );
 
   const handlePresetChange = (calcdexId: string) => {
@@ -367,13 +466,47 @@ export const PokeInfo = ({
   const abilityOptions = React.useMemo(() => (legacy ? [] : buildAbilityOptions(
     format,
     pokemon,
+    usage,
     settings?.showAllOptions,
   )), [
     format,
     legacy,
     pokemon,
     settings,
+    usage,
   ]);
+
+  // for Ruin abilities (gen 9), only show the ability toggle in Doubles
+  const showAbilityToggle = pokemon?.abilityToggleable
+    && (
+      !formatId(abilityName)?.endsWith('ofruin')
+        || field?.gameType === 'Doubles'
+    );
+
+  const fieldKey: keyof CalcdexBattleField = playerKey === 'p2'
+    ? 'defenderSide'
+    : 'attackerSide';
+
+  // ability toggle would only be disabled for inactive Pokemon w/ Ruin abilities (gen 9) in Doubles
+  const disableAbilityToggle = pokemon?.abilityToggleable
+    && formatId(abilityName)?.endsWith('ofruin')
+    && field?.gameType === 'Doubles'
+    // && !active
+    && !pokemon.abilityToggled
+    // && (
+    //   (abilityName === 'beadsofruin' && field?.[fieldKey]?.ruinBeadsCount)
+    //     || (abilityName === 'swordofruin' && field?.[fieldKey]?.ruinSwordCount)
+    //     || (abilityName === 'tabletsofruin' && field?.[fieldKey]?.ruinTabletsCount)
+    //     || (abilityName === 'vesselofruin' && field?.[fieldKey]?.ruinVesselCount)
+    //     || 0
+    // ) >= 2;
+    && ([
+      'ruinBeadsCount',
+      'ruinSwordCount',
+      'ruinTabletsCount',
+      'ruinVesselCount',
+    ] as (keyof CalcdexPlayerSide)[])
+      .reduce((sum, key) => sum + ((field[fieldKey]?.[key] as number) || 0), 0) >= 2;
 
   const showResetAbility = !!pokemon?.dirtyAbility
     && !pokemon.transformedForme
@@ -396,66 +529,28 @@ export const PokeInfo = ({
     }),
   });
 
-  const itemOptions = React.useMemo(() => (legacy ? [] : buildItemOptions(
+  const itemOptions = React.useMemo(() => (gen === 1 ? [] : buildItemOptions(
     format,
     pokemon,
+    usage,
     // settings?.showAllOptions,
-    true, // fuck it w/e lol
+    true, // fuck it w/e lol (instead of using settings.showAllOptions)
   )), [
     format,
-    legacy,
+    gen,
+    // legacy,
     pokemon,
     // settings,
+    usage,
   ]);
 
   const showResetItem = !!pokemon?.dirtyItem
     && (!!pokemon?.item || !!pokemon?.prevItem)
     && (pokemon?.item || pokemon?.prevItem) !== pokemon?.dirtyItem;
 
-  // handle cycling through the Pokemon's available alternative formes, if any
-  // (disabled for legacy gens -- this is enough since nextForme will be null if legacy)
-  const formeIndex = !legacy && pokemon?.altFormes?.length
-    ? pokemon.altFormes.findIndex((f) => [
-      pokemon.speciesForme,
-      pokemon.transformedForme,
-    ].filter(Boolean).includes(f))
-    : -1;
-
-  const nextFormeIndex = formeIndex > -1
-    ? formeIndex + 1 > pokemon.altFormes.length - 1
-      ? 0
-      : formeIndex + 1
-    : -1;
-
-  const nextForme = nextFormeIndex > -1
-    ? pokemon.altFormes[nextFormeIndex]
-    : null;
-
-  const switchToNextForme = React.useCallback(() => {
-    if (!nextForme) {
-      return;
-    }
-
-    onPokemonChange?.({
-      [pokemon?.transformedForme ? 'transformedForme' : 'speciesForme']: nextForme,
-    });
-  }, [
-    nextForme,
-    onPokemonChange,
-    pokemon,
-  ]);
-
-  const nextFormeTooltip = nextForme ? (
-    <div className={styles.tooltipContent}>
-      <div>
-        Switch to{' '}
-        <em>{nextForme}</em>
-      </div>
-      <div>
-        <strong>{pokemon.speciesForme}</strong>
-      </div>
-    </div>
-  ) : null;
+  const [formesVisible, setFormesVisible] = React.useState(false);
+  const toggleFormesTooltip = () => setFormesVisible(!formesVisible);
+  const closeFormesTooltip = () => setFormesVisible(false);
 
   const smogonPageTooltip = (
     <div className={styles.tooltipContent}>
@@ -463,7 +558,7 @@ export const PokeInfo = ({
       {
         !!pokemon?.speciesForme &&
         <>
-          {' '}For
+          {' '}for
           <br />
           <strong>{pokemon.speciesForme}</strong>
         </>
@@ -478,35 +573,106 @@ export const PokeInfo = ({
     format,
   );
 
-  const copiedRef = React.useRef<BadgeInstance>(null);
+  // const formeDisabled = !nextForme;
+  const formeDisabled = !pokemon?.altFormes?.length;
+  const smogonDisabled = !settings?.openSmogonPage || !pokemon?.speciesForme;
+  const piconDisabled = settings?.reverseIconName ? formeDisabled : smogonDisabled;
+  const nameDisabled = settings?.reverseIconName ? smogonDisabled : formeDisabled;
+
+  const editableTypes = settings?.editPokemonTypes === 'always'
+    || (settings?.editPokemonTypes === 'meta' && !legalLockedFormat(format));
+
+  const importBadgeRef = React.useRef<BadgeInstance>(null);
+  const importFailedBadgeRef = React.useRef<BadgeInstance>(null);
+  const [importFailedReason, setImportFailedReason] = React.useState('Failed');
+
+  const handlePokePasteImport = () => void (async () => {
+    if (typeof onPokemonChange !== 'function') {
+      return;
+    }
+
+    try {
+      const data = await readClipboardText();
+      const preset = importPokePaste(data, format);
+
+      const importFailed = !preset?.calcdexId || ![
+        pokemon?.speciesForme,
+        ...(pokemon?.altFormes || []),
+      ].filter(Boolean).includes(preset.speciesForme);
+
+      if (importFailed) {
+        setImportFailedReason(!preset?.calcdexId ? 'Bad Syntax' : 'Mismatch');
+        importFailedBadgeRef.current?.show();
+
+        return;
+      }
+
+      const currentPresets = [...pokemon.presets];
+      const existingImportIndex = currentPresets.findIndex((p) => p.source === 'import');
+
+      if (existingImportIndex > -1) {
+        currentPresets.splice(existingImportIndex, 1, preset);
+      } else {
+        currentPresets.push(preset);
+      }
+
+      // onPokemonChange({ presets: currentPresets });
+      applyPreset(preset, {
+        presets: currentPresets,
+      });
+
+      importBadgeRef.current?.show();
+    } catch (error) {
+      // if (__DEV__) {
+      //   l.error(
+      //     'Failed to import the set for', pokemon.speciesForme, 'from clipboard:',
+      //     '\n', error,
+      //     '\n', '(You will only see this error on development.)',
+      //   );
+      // }
+
+      setImportFailedReason('Failed');
+      importFailedBadgeRef.current?.show();
+    }
+  })();
+
+  const exportBadgeRef = React.useRef<BadgeInstance>(null);
+  const exportFailedBadgeRef = React.useRef<BadgeInstance>(null);
 
   const pokePaste = React.useMemo(
     () => exportPokePaste(pokemon, format),
     [format, pokemon],
   );
 
-  const handlePokePasteCopy = () => {
-    if (typeof navigator === 'undefined' || !pokePaste) {
+  const handlePokePasteExport = () => void (async () => {
+    if (!pokePaste) {
       return;
     }
 
-    void (async () => {
-      try {
-        await navigator.clipboard.writeText(pokePaste);
+    try {
+      // await navigator.clipboard.writeText(pokePaste);
+      await writeClipboardText(pokePaste);
 
-        copiedRef.current?.show();
-      } catch (error) {
-        // no-op when an error is thrown while writing to the user's clipboard
-        (() => {})();
-      }
-    })();
-  };
+      exportBadgeRef.current?.show();
+    } catch (error) {
+      // if (__DEV__) {
+      //   l.error(
+      //     'Failed to export the set for', pokemon.speciesForme, 'to clipboard:',
+      //     '\n', error,
+      //     '\n', '(You will only see this error on development.)',
+      //   );
+      // }
+
+      exportFailedBadgeRef.current?.show();
+    }
+  })();
 
   return (
     <div
       className={cx(
         styles.container,
         containerSize === 'xs' && styles.verySmol,
+        // ['xs', 'sm'].includes(containerSize) && styles.smol,
         ['md', 'lg', 'xl'].includes(containerSize) && styles.veryThicc,
         !!colorScheme && styles[colorScheme],
         className,
@@ -515,44 +681,67 @@ export const PokeInfo = ({
     >
       <div className={styles.row}>
         <div className={styles.piconContainer}>
-          <PiconButton
-            piconStyle={pokemon?.name ? { transform: 'scaleX(-1)' } : undefined}
-            pokemon={{
-              ...pokemon,
-              speciesForme: (
-                pokemon?.transformedForme
-                  || pokemon?.speciesForme
-              )?.replace(pokemon?.useMax ? '' : '-Gmax', ''), // replace('', '') does nothing btw
-              item: itemName,
-            }}
-            tooltip={settings?.reverseIconName ? nextFormeTooltip : smogonPageTooltip}
-            tooltipDelay={[settings?.reverseIconName ? 500 : 1000, 50]}
-            tooltipDisabled={settings?.reverseIconName ? !nextForme : !settings?.showUiTooltips}
-            shadow
-            disabled={settings?.reverseIconName ? !nextForme : !pokemon?.speciesForme}
-            onPress={settings?.reverseIconName ? switchToNextForme : openSmogonPage}
-          />
+          <PokeFormeTooltip
+            pokemon={pokemon}
+            visible={formesVisible}
+            disabled={!settings?.reverseIconName}
+            onPokemonChange={onPokemonChange}
+            onRequestClose={closeFormesTooltip}
+          >
+            <PiconButton
+              piconStyle={pokemon?.name ? { transform: 'scaleX(-1)' } : undefined}
+              pokemon={{
+                ...pokemon,
+                speciesForme: (
+                  pokemon?.transformedForme
+                    || pokemon?.speciesForme
+                )?.replace(pokemon?.useMax ? '' : '-Gmax', ''), // replace('', '') does nothing btw
+                item: itemName,
+              }}
+              // tooltip={settings?.reverseIconName ? nextFormeTooltip : smogonPageTooltip}
+              tooltip={settings?.reverseIconName ? undefined : smogonPageTooltip}
+              // tooltipDelay={[settings?.reverseIconName ? 500 : 1000, 50]}
+              tooltipDelay={[1000, 50]}
+              // tooltipDisabled={settings?.reverseIconName ? !nextForme : !settings?.showUiTooltips}
+              tooltipDisabled={settings?.reverseIconName || !settings?.showUiTooltips}
+              shadow
+              disabled={piconDisabled}
+              // onPress={settings?.reverseIconName ? switchToNextForme : openSmogonPage}
+              onPress={settings?.reverseIconName ? toggleFormesTooltip : openSmogonPage}
+            />
+          </PokeFormeTooltip>
         </div>
 
         <div className={styles.infoContainer}>
           <div className={styles.firstLine}>
-            {/* no nicknames, as requested by camdawgboi lol */}
-            <Button
-              className={cx(
-                styles.nameButton,
-                !pokemon?.speciesForme && styles.missingForme,
-                !nextForme && styles.disabled,
-              )}
-              labelClassName={styles.nameLabel}
-              label={nickname || pokemon?.speciesForme || 'MissingNo.'}
-              tooltip={settings?.reverseIconName ? smogonPageTooltip : nextFormeTooltip}
-              tooltipDelay={[settings?.reverseIconName ? 1000 : 500, 50]}
-              tooltipDisabled={settings?.reverseIconName ? !settings?.showUiTooltips : !nextForme}
-              hoverScale={1}
-              // absoluteHover
-              disabled={settings?.reverseIconName ? !pokemon?.speciesForme : !nextForme}
-              onPress={settings?.reverseIconName ? openSmogonPage : switchToNextForme}
-            />
+            <PokeFormeTooltip
+              pokemon={pokemon}
+              visible={formesVisible}
+              disabled={settings?.reverseIconName}
+              onPokemonChange={onPokemonChange}
+              onRequestClose={closeFormesTooltip}
+            >
+              <Button
+                className={cx(
+                  styles.nameButton,
+                  !pokemon?.speciesForme && styles.missingForme,
+                  nameDisabled && styles.disabled,
+                )}
+                labelClassName={styles.nameLabel}
+                label={nickname || pokemon?.speciesForme || 'MissingNo.'}
+                // tooltip={settings?.reverseIconName ? smogonPageTooltip : nextFormeTooltip}
+                tooltip={settings?.reverseIconName ? smogonPageTooltip : undefined}
+                // tooltipDelay={[settings?.reverseIconName ? 1000 : 500, 50]}
+                tooltipDelay={[1000, 50]}
+                // tooltipDisabled={settings?.reverseIconName ? !settings?.showUiTooltips : !nextForme}
+                tooltipDisabled={settings?.reverseIconName && !settings?.showUiTooltips}
+                hoverScale={1}
+                // absoluteHover
+                disabled={nameDisabled}
+                // onPress={settings?.reverseIconName ? openSmogonPage : switchToNextForme}
+                onPress={settings?.reverseIconName ? openSmogonPage : toggleFormesTooltip}
+              />
+            </PokeFormeTooltip>
 
             {
               (typeof pokemon?.level === 'number' && pokemon.level !== 100) &&
@@ -561,17 +750,63 @@ export const PokeInfo = ({
               </div>
             }
 
+            <PokeTypeField
+              className={styles.typesField}
+              label={`Types for Pokemon ${friendlyPokemonName}`}
+              // tooltip={(
+              //   <div className={styles.tooltipContent}>
+              //     Change{' '}
+              //     {
+              //       !!pokemon?.speciesForme &&
+              //       <>
+              //         <strong>
+              //           {pokemon.speciesForme}
+              //         </strong>'s
+              //         {' '}
+              //       </>
+              //     }
+              //     Types
+              //   </div>
+              // )}
+              // tooltipDisabled={!settings?.showUiTooltips}
+              multi
+              input={{
+                name: `PokeInfo:Types:${pokemonKey}`,
+                value: [...(pokemon?.types || [])],
+                onChange: (types: Showdown.TypeName[]) => onPokemonChange?.({
+                  types: [...(types || [])],
+                }),
+              }}
+              tooltipPlacement="bottom-start"
+              shorterAbbreviations={gen > 8 && ['xs', 'sm'].includes(containerSize)}
+              highlight={gen < 9 || !pokemon?.terastallized}
+              readOnly={!editableTypes}
+              disabled={!pokemon?.speciesForme}
+            />
+
             {
-              !!pokemon?.types?.length &&
-              <div className={styles.types}>
-                {pokemon.types.map((type, i) => (
-                  <PokeType
-                    key={`PokeInfo:Types:${pokemonKey}:PokeType:${i}`}
-                    style={pokemon.types.length > 1 && i === 0 ? { marginRight: 2 } : null}
-                    type={type}
-                  />
-                ))}
-              </div>
+              gen > 8 &&
+              <PokeTypeField
+                className={cx(styles.typesField, styles.teraTypeField)}
+                label={`Tera Type for Pokemon ${friendlyPokemonName}`}
+                title="Tera Type"
+                input={{
+                  name: `PokeInfo:TeraType:${pokemonKey}`,
+                  value: pokemon?.teraType || '???',
+                  onChange: (type: Showdown.TypeName) => onPokemonChange?.({
+                    teraType: type,
+                    terastallized: !!type && type !== '???' && pokemon?.terastallized,
+                  }),
+                }}
+                tooltipPlacement="bottom-start"
+                defaultTypeLabel="Tera"
+                // teraTyping
+                shorterAbbreviations={['xs', 'sm'].includes(containerSize)}
+                highlight={pokemon?.terastallized}
+                highlightTypes={flattenAlts(pokemon?.altTeraTypes)}
+                typeUsages={pokemon?.altTeraTypes?.filter(detectUsageAlt)}
+                disabled={!pokemon?.speciesForme}
+              />
             }
           </div>
 
@@ -625,38 +860,113 @@ export const PokeInfo = ({
 
         <div className={styles.presetContainer}>
           <div className={cx(styles.label, styles.dropdownLabel)}>
-            Set
+            <div className={styles.presetHeader}>
+              <div className={styles.presetHeaderPart}>
+                Set
 
-            <ToggleButton
-              className={styles.toggleButton}
-              label="Auto"
-              absoluteHover
-              // active={pokemon?.autoPreset}
-              disabled /** @todo remove after implementing auto-presets */
-              onPress={() => onPokemonChange?.({
-                autoPreset: !pokemon?.autoPreset,
-              })}
-            />
+                <ToggleButton
+                  className={styles.toggleButton}
+                  label="Auto"
+                  absoluteHover
+                  // active={pokemon?.autoPreset}
+                  disabled /** @todo remove after implementing auto-presets */
+                  onPress={() => onPokemonChange?.({
+                    autoPreset: !pokemon?.autoPreset,
+                  })}
+                />
+              </div>
 
-            <ToggleButton
-              className={styles.toggleButton}
-              label="Copy"
-              tooltip={pokePaste ? (
-                <div className={styles.pokePasteTooltip}>
+              <div className={cx(styles.presetHeaderPart, styles.presetHeaderRight)}>
+                <ToggleButton
+                  className={cx(
+                    styles.toggleButton,
+                    styles.importButton,
+                    // !settings?.showUiTooltips && styles.floatingBadges,
+                  )}
+                  label="Import"
+                  tooltip={(
+                    <div className={styles.tooltipContent}>
+                      {/* <Badge
+                        ref={importBadgeRef}
+                        className={styles.importBadge}
+                        label="Imported"
+                        color="blue"
+                      />
+
+                      <Badge
+                        ref={importFailedBadgeRef}
+                        className={styles.importBadge}
+                        label={importFailedReason}
+                        color="red"
+                      /> */}
+
+                      Import Pok&eacute;Paste from Clipboard
+                    </div>
+                  )}
+                  tooltipPlacement="bottom"
+                  tooltipDisabled={!settings?.showUiTooltips}
+                  absoluteHover
+                  disabled={!pokemon?.speciesForme || typeof onPokemonChange !== 'function'}
+                  onPress={handlePokePasteImport}
+                >
                   <Badge
-                    ref={copiedRef}
-                    className={styles.copiedBadge}
+                    ref={importBadgeRef}
+                    className={cx(styles.importBadge, styles.floating)}
+                    label="Imported"
+                    color="blue"
+                  />
+
+                  <Badge
+                    ref={importFailedBadgeRef}
+                    className={cx(styles.importBadge, styles.floating)}
+                    label={importFailedReason}
+                    color="red"
+                  />
+                </ToggleButton>
+
+                <ToggleButton
+                  className={cx(styles.toggleButton, styles.importButton)}
+                  label="Export"
+                  tooltip={pokePaste ? (
+                    <div className={styles.pokePasteTooltip}>
+                      {/* <Badge
+                        ref={exportBadgeRef}
+                        className={styles.importBadge}
+                        label="Copied!"
+                        color="green"
+                      />
+
+                      <Badge
+                        ref={exportFailedBadgeRef}
+                        className={styles.importBadge}
+                        label="Failed"
+                        color="red"
+                      /> */}
+
+                      {pokePaste}
+                    </div>
+                  ) : null}
+                  tooltipPlacement="bottom"
+                  absoluteHover
+                  disabled={!pokePaste}
+                  onPress={handlePokePasteExport}
+                >
+                  <Badge
+                    ref={exportBadgeRef}
+                    className={cx(styles.importBadge, styles.floating)}
                     label="Copied!"
                     color="green"
                   />
 
-                  {pokePaste}
-                </div>
-              ) : null}
-              absoluteHover
-              disabled={!pokePaste}
-              onPress={handlePokePasteCopy}
-            />
+                  <Badge
+                    ref={exportFailedBadgeRef}
+                    className={cx(styles.importBadge, styles.floating)}
+                    label="Failed"
+                    color="red"
+                  />
+                </ToggleButton>
+              </div>
+            </div>
           </div>
 
           <Dropdown
@@ -688,7 +998,7 @@ export const PokeInfo = ({
               Ability
 
               {
-                pokemon?.abilityToggleable &&
+                showAbilityToggle &&
                 <ToggleButton
                   className={styles.toggleButton}
                   label="Active"
@@ -703,6 +1013,7 @@ export const PokeInfo = ({
                   tooltipDisabled={!settings?.showUiTooltips}
                   absoluteHover
                   active={pokemon.abilityToggled}
+                  disabled={disableAbilityToggle}
                   onPress={() => onPokemonChange?.({
                     abilityToggled: !pokemon.abilityToggled,
                   })}

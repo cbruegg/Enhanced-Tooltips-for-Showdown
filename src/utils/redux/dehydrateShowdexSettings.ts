@@ -34,6 +34,7 @@ export const DehydratedShowdexSettingsMap: Record<'packageVersion' | keyof Showd
 export const DehydratedHellodexSettingsMap: Record<keyof ShowdexHellodexSettings, string> = {
   openOnStart: 'oos',
   focusRoomsRoom: 'frr',
+  showBattleRecord: 'sbr',
 };
 
 /**
@@ -54,6 +55,7 @@ export const DehydratedCalcdexSettingsMap: Record<keyof ShowdexCalcdexSettings, 
   authPosition: 'aps',
   showNicknames: 'snn',
   reverseIconName: 'rin',
+  openSmogonPage: 'osp',
   showAllFormes: 'saf',
   showAllOptions: 'sao',
   showNonDamageRanges: 'snd',
@@ -64,7 +66,12 @@ export const DehydratedCalcdexSettingsMap: Record<keyof ShowdexCalcdexSettings, 
   includeTeambuilder: 'itb',
   autoExportOpponent: 'aeo',
   defaultAutoMoves: 'dam',
-  defaultShowGenetics: 'dsg',
+  // defaultShowGenetics: 'dsg',
+  editPokemonTypes: 'ept',
+  showMoveEditor: 'sme',
+  showBaseStats: 'sbs',
+  lockGeneticsVisibility: 'lgv',
+  allowIllegalSpreads: 'ais',
   showUiTooltips: 'sut',
   showAbilityTooltip: 'sat',
   showItemTooltip: 'sit',
@@ -112,41 +119,44 @@ export const DehydratedCalcdexSettingsMap: Record<keyof ShowdexCalcdexSettings, 
  * where `{hellodexSettings}`, whose properties are deliminated by a pipe (`'|'`), is in the following format:
  *
  * ```
- * oos~{openOnStart}
- * frr~{focusRoomsRoom}
+ * OOS~{openOnStart}
+ * FRR~{focusRoomsRoom}
  * ```
  *
  * and `{calcdexSettings}`, whose properties are deliminated by a pipe (`'|'`), is in the following format:
  *
  * ```
- * oos~{openOnStart}|
- * oas~{openAs}|
- * con~{closeOn}|
- * doc~{destroyOnClose}|
- * prs~{preserveRenderStates}|
- * das~{defaultAutoSelect}|
- * aps~{authPosition}|
- * snn~{showNicknames}|
- * rin~{reverseIconName}|
- * sao~{showAllOptions}|
- * snd~{showNonDamageRanges}|
- * dsp~{downloadSmogonPresets}|
- * dus~{downloadUsageStats}|
- * pus~{prioritizeUsageStats}|
- * itb~{includeTeambuilder}|
- * aeo~{autoExportOpponent}|
- * dam~{defaultAutoMoves}|
- * dsg~{defaultShowGenetics}|
- * sat~{showAbilityTooltip}|
- * sit~{showItemTooltip}|
- * smv~{showMoveTooltip}|
- * smu~{showMatchupTooltip}|
- * pmd~{prettifyMatchupDescription}|
- * sda~{showMatchupDamageAmounts}|
- * cmd~{copyMatchupDescription}|
- * sft~{showFieldTooltips}|
- * ncl~{nhkoColors}|
- * nlb~{nhkoLabels}
+ * OOS~{openOnStart}|
+ * OAS~{openAs}|
+ * CON~{closeOn}|
+ * DOC~{destroyOnClose}|
+ * PRS~{preserveRenderStates}|
+ * DAS~{defaultAutoSelect}|
+ * APS~{authPosition}|
+ * SNN~{showNicknames}|
+ * RIN~{reverseIconName}|
+ * OSP~{openSmogonPage}|
+ * SAO~{showAllOptions}|
+ * SND~{showNonDamageRanges}|
+ * DSP~{downloadSmogonPresets}|
+ * DUS~{downloadUsageStats}|
+ * PUS~{prioritizeUsageStats}|
+ * ITB~{includeTeambuilder}|
+ * AEO~{autoExportOpponent}|
+ * DAM~{defaultAutoMoves}|
+ * SME~{showMoveEditor}|
+ * SBS~{showBaseStats}|
+ * LGV~{lockGeneticsVisibility}|
+ * SAT~{showAbilityTooltip}|
+ * SIT~{showItemTooltip}|
+ * SMV~{showMoveTooltip}|
+ * SMU~{showMatchupTooltip}|
+ * PMD~{prettifyMatchupDescription}|
+ * SDA~{showMatchupDamageAmounts}|
+ * CMD~{copyMatchupDescription}|
+ * SFT~{showFieldTooltips}|
+ * NCL~{nhkoColors}|
+ * NLB~{nhkoLabels}
  * ```
  *
  * @since 1.0.3
@@ -184,7 +194,7 @@ export const dehydrateShowdexSettings = (settings: ShowdexSettings): string => {
 
     const dehydratedValue = dehydrateValue(value);
 
-    return `${dehydratedKey}~${dehydratedValue}`;
+    return `${dehydratedKey.toUpperCase()}~${dehydratedValue}`;
   }).filter(Boolean);
 
   output.push(`${DehydratedShowdexSettingsMap.hellodex}:${hellodexOutput.join('|')}`);
@@ -207,7 +217,7 @@ export const dehydrateShowdexSettings = (settings: ShowdexSettings): string => {
         ? dehydratePerSide(value)
         : dehydrateValue(value);
 
-    return `${dehydratedKey}~${dehydratedValue}`;
+    return `${dehydratedKey.toUpperCase()}~${dehydratedValue}`;
   }).filter(Boolean);
 
   output.push(`${DehydratedShowdexSettingsMap.calcdex}:${calcdexOutput.join('|')}`);

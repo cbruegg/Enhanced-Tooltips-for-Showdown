@@ -43,6 +43,7 @@ const PlayerSideScreensMap: Record<string, keyof CalcdexPlayerSide> = {
 
 const PlayerSideDoublesMap: Record<string, keyof CalcdexPlayerSide> = {
   Hand: 'isHelpingHand',
+  Gift: 'isFlowerGift',
   Guard: 'isFriendGuard',
   Battery: 'isBattery',
   Power: 'isPowerSpot',
@@ -55,6 +56,7 @@ const PlayerSideFieldDexMap: Partial<Record<keyof CalcdexPlayerSide, 'abilities'
   isAuroraVeil: 'moves',
   isHelpingHand: 'moves',
   isFriendGuard: 'abilities',
+  isFlowerGift: 'abilities',
   isBattery: 'abilities',
   isPowerSpot: 'abilities',
   isTailwind: 'moves',
@@ -84,7 +86,8 @@ export const FieldCalc = ({
       return null;
     }
 
-    const description = WeatherDescriptions[option.value]?.shortDesc;
+    const value = gen > 8 && option.value === 'Hail' ? 'Snow' : option.value;
+    const description = WeatherDescriptions[value]?.shortDesc;
 
     if (!description) {
       return null;
@@ -96,6 +99,7 @@ export const FieldCalc = ({
       </div>
     );
   }, [
+    gen,
     settings,
   ]);
 
@@ -225,7 +229,7 @@ export const FieldCalc = ({
 
           return (
             <React.Fragment
-              key={`FieldCalc:${battleId || '???'}:${attackerSideKey}:${label}:ToggleButton`}
+              key={`FieldCalc:${battleId || '?'}:${attackerSideKey}:${label}:ToggleButton`}
             >
               <ToggleButton
                 className={styles.toggleButton}
@@ -268,7 +272,7 @@ export const FieldCalc = ({
           optionTooltip={weatherTooltip}
           optionTooltipProps={{ hidden: !settings?.showFieldTooltips }}
           input={{
-            name: `FieldCalc:${battleId || '???'}:Weather:Dropdown`,
+            name: `FieldCalc:${battleId || '?'}:Weather:Dropdown`,
             value: weather,
             onChange: (updatedWeather: CalcdexBattleField['weather']) => onFieldChange?.({
               weather: updatedWeather,
@@ -278,10 +282,18 @@ export const FieldCalc = ({
             ...LegacyWeatherNames,
             gen > 2 && WeatherMap.hail,
           ].filter(Boolean)).map((name: Weather) => ({
-            label: WeatherDescriptions[name]?.label || name,
+            /**
+             * @todo hmm kinda gross no? lol
+             */
+            label: (
+              gen > 8 && name === 'Hail' // for gen 9, but > 8 for posterity lol
+                ? 'Snow' // `value` would still be 'Hail' btw
+                : WeatherDescriptions[name]?.label
+            ) || name,
             value: name,
           }))}
           noOptionsMessage="No Weather"
+          highlight={!!weather}
           disabled={disabled || !battleId || gen === 1}
         />
       </TableGridItem>
@@ -295,7 +307,7 @@ export const FieldCalc = ({
           optionTooltip={terrainTooltip}
           optionTooltipProps={{ hidden: !settings?.showFieldTooltips }}
           input={{
-            name: `FieldCalc:${battleId || '???'}:Terrain:Dropdown`,
+            name: `FieldCalc:${battleId || '?'}:Terrain:Dropdown`,
             value: terrain,
             onChange: (updatedTerrain: CalcdexBattleField['terrain']) => onFieldChange?.({
               terrain: updatedTerrain,
@@ -306,6 +318,7 @@ export const FieldCalc = ({
             value: name,
           }))}
           noOptionsMessage="No Terrain"
+          highlight={!!terrain}
           disabled={disabled || !battleId || gen < 6}
         />
       </TableGridItem>
@@ -337,7 +350,7 @@ export const FieldCalc = ({
 
           return (
             <React.Fragment
-              key={`FieldCalc:${battleId || '???'}:${defenderSideKey}:${label}:ToggleButton`}
+              key={`FieldCalc:${battleId || '?'}:${defenderSideKey}:${label}:ToggleButton`}
             >
               <ToggleButton
                 className={styles.toggleButton}

@@ -168,9 +168,28 @@ export const PokemonGmaxMoves: Record<Showdown.TypeName, Record<string, MoveName
  * @since 1.0.3
  */
 export const PokemonCriticalHitMoves: MoveName[] = [
+  <MoveName> 'Flower Trick',
   <MoveName> 'Frost Breath',
   <MoveName> 'Storm Throw',
   <MoveName> 'Surging Strikes',
   <MoveName> 'Wicked Blow',
   <MoveName> 'Zippy Zap',
+];
+
+/**
+ * Moves that allow the target Pokemon to switch.
+ *
+ * * Primarily used in `mergeRevealedMoves()` for replacing existing damaging STAB moves,
+ *   except for these pivot moves!
+ *
+ * @since 1.0.7
+ */
+export const PokemonPivotMoves: MoveName[] = [
+  <MoveName> 'Baton Pass',
+  <MoveName> 'Flip Turn',
+  <MoveName> 'Parting Shot',
+  <MoveName> 'Shed Tail', // gen 9 :o
+  <MoveName> 'Teleport',
+  <MoveName> 'U-turn',
+  <MoveName> 'Volt Switch',
 ];

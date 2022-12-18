@@ -1,6 +1,6 @@
 import * as React from 'react';
 import cx from 'classnames';
-import { Dropdown } from '@showdex/components/form';
+import { Dropdown, PokeTypeField, ValueField } from '@showdex/components/form';
 import { TableGrid, TableGridItem } from '@showdex/components/layout';
 import {
   Badge,
@@ -9,13 +9,18 @@ import {
   Tooltip,
 } from '@showdex/components/ui';
 import { useCalcdexSettings, useColorScheme } from '@showdex/redux/store';
-import { buildMoveOptions } from '@showdex/utils/battle';
-import { formatDamageAmounts } from '@showdex/utils/calc';
-import { upsizeArray } from '@showdex/utils/core';
+import { buildMoveOptions, legalLockedFormat } from '@showdex/utils/battle';
+import { formatDamageAmounts, getMoveOverrideDefaults, hasMoveOverrides } from '@showdex/utils/calc';
+import { clamp, upsizeArray, writeClipboardText } from '@showdex/utils/core';
 import type { GenerationNum } from '@smogon/calc';
 import type { MoveName } from '@smogon/calc/dist/data/interface';
 import type { BadgeInstance } from '@showdex/components/ui';
-import type { CalcdexBattleRules, CalcdexPokemon } from '@showdex/redux/store';
+import type {
+  CalcdexBattleRules,
+  CalcdexMoveOverride,
+  CalcdexPokemon,
+  CalcdexPokemonPreset,
+} from '@showdex/redux/store';
 import type { ElementSizeLabel } from '@showdex/utils/hooks';
 import type { SmogonMatchupHookCalculator } from './useSmogonMatchup';
 import { PokeMoveOptionTooltip } from './PokeMoveOptionTooltip';
@@ -27,7 +32,9 @@ export interface PokeMovesProps {
   gen: GenerationNum;
   format?: string;
   rules?: CalcdexBattleRules;
-  pokemon: CalcdexPokemon;
+  playerPokemon: CalcdexPokemon;
+  opponentPokemon?: CalcdexPokemon;
+  usage?: CalcdexPokemonPreset;
   movesCount?: number;
   containerSize?: ElementSizeLabel;
   calculateMatchup: SmogonMatchupHookCalculator;
@@ -40,7 +47,9 @@ export const PokeMoves = ({
   gen,
   format,
   rules,
-  pokemon,
+  playerPokemon: pokemon,
+  opponentPokemon,
+  usage,
   movesCount = 4,
   containerSize,
   calculateMatchup,
@@ -53,13 +62,20 @@ export const PokeMoves = ({
 
   const copiedRefs = React.useRef<BadgeInstance[]>([]);
 
-  const pokemonKey = pokemon?.calcdexId || pokemon?.name || '???';
+  const pokemonKey = pokemon?.calcdexId || pokemon?.name || '?';
   const friendlyPokemonName = pokemon?.speciesForme || pokemon?.name || pokemonKey;
 
-  const moveOptions = React.useMemo(
-    () => buildMoveOptions(format, pokemon, settings?.showAllOptions),
-    [format, pokemon, settings],
-  );
+  const moveOptions = React.useMemo(() => buildMoveOptions(
+    format,
+    pokemon,
+    usage,
+    settings?.showAllOptions,
+  ), [
+    format,
+    pokemon,
+    settings,
+    usage,
+  ]);
 
   const matchups = React.useMemo(() => upsizeArray(
     pokemon?.moves || [],
@@ -76,11 +92,13 @@ export const PokeMoves = ({
     || gen === 6
     || gen === 7;
 
-  const showMaxToggle = !rules?.dynamax
-    && (
-      format?.includes('nationaldex')
-        || (gen === 8 && !format?.includes('bdsp'))
-    );
+  const showMaxToggle = !rules?.dynamax && gen < 9 && (
+    format?.includes('nationaldex')
+      || (gen === 8 && !format?.includes('bdsp'))
+  );
+
+  const showEditButton = settings?.showMoveEditor === 'always'
+    || (settings?.showMoveEditor === 'meta' && !legalLockedFormat(format));
 
   const handleMoveChange = (name: MoveName, index: number) => {
     const moves = [...(pokemon?.moves || [] as MoveName[])];
@@ -106,7 +124,8 @@ export const PokeMoves = ({
     // wrapped in an unawaited async in order to handle any thrown errors
     void (async () => {
       try {
-        await navigator.clipboard.writeText(description);
+        // await navigator.clipboard.writeText(description);
+        await writeClipboardText(description);
 
         copiedRefs.current?.[index]?.show();
       } catch (error) {
@@ -137,19 +156,36 @@ export const PokeMoves = ({
           Moves
         </div>
 
-        {/* <ToggleButton
-          className={cx(styles.toggleButton, styles.autoButton)}
-          label="Auto"
-          tooltip="Auto-Set Revealed Moves"
-          // disabled={!pokemon}
-          disabled
-          onPress={() => {}}
-        /> */}
+        {
+          gen > 8 &&
+          <ToggleButton
+            className={cx(styles.toggleButton, styles.ultButton)}
+            label="Tera"
+            tooltip={[
+              pokemon?.terastallized ? 'Revert' : 'Terastallize',
+              'to',
+              (pokemon?.terastallized ? pokemon?.types?.join('/') : pokemon?.teraType) || '???',
+            ].join(' ')}
+            tooltipDisabled={!settings?.showUiTooltips}
+            primary
+            active={pokemon?.terastallized}
+            disabled={!pokemon?.speciesForme || !pokemon.teraType || pokemon.teraType === '???'}
+            onPress={() => onPokemonChange?.({
+              terastallized: !pokemon?.terastallized,
+              useZ: false,
+              useMax: false,
+            })}
+          />
+        }
 
         {
           showZToggle &&
           <ToggleButton
-            className={cx(styles.toggleButton, styles.ultButton)}
+            className={cx(
+              styles.toggleButton,
+              styles.ultButton,
+              gen > 8 && styles.lessSpacing,
+            )}
             label="Z"
             tooltip={`${pokemon?.useZ ? 'Deactivate' : 'Activate'} Z-Moves`}
             tooltipDisabled={!settings?.showUiTooltips}
@@ -157,6 +193,7 @@ export const PokeMoves = ({
             active={pokemon?.useZ}
             disabled={!pokemon?.speciesForme}
             onPress={() => onPokemonChange?.({
+              terastallized: false,
               useZ: !pokemon?.useZ,
               useMax: false,
             })}
@@ -178,43 +215,77 @@ export const PokeMoves = ({
             active={pokemon?.useMax}
             disabled={!pokemon?.speciesForme}
             onPress={() => onPokemonChange?.({
+              terastallized: false,
               useZ: false,
               useMax: !pokemon?.useMax,
             })}
           />
         }
+
+        {
+          showEditButton &&
+          <ToggleButton
+            className={cx(
+              styles.toggleButton,
+              styles.editButton,
+              // pokemon?.showMoveOverrides && styles.hideButton,
+            )}
+            label={pokemon?.showMoveOverrides ? 'Hide' : 'Edit'}
+            tooltip={`${pokemon?.showMoveOverrides ? 'Close' : 'Open'} Move Editor`}
+            tooltipDisabled={!settings?.showUiTooltips}
+            primary={pokemon?.showMoveOverrides}
+            // active={pokemon?.showMoveOverrides}
+            disabled={!pokemon?.speciesForme}
+            onPress={() => onPokemonChange?.({
+              showMoveOverrides: !pokemon?.showMoveOverrides,
+            })}
+          />
+        }
       </TableGridItem>
 
-      <TableGridItem
-        className={cx(styles.header, styles.dmgHeader)}
-        header
-      >
-        <div className={styles.headerTitle}>
-          DMG
-        </div>
+      {pokemon?.showMoveOverrides ? (
+        <TableGridItem
+          className={cx(styles.header, styles.editorHeader)}
+          header
+        >
+          {/* <div className={styles.headerTitle}>
+            Properties
+          </div> */}
+        </TableGridItem>
+      ) : (
+        <>
+          <TableGridItem
+            className={cx(styles.header, styles.dmgHeader)}
+            header
+          >
+            <div className={styles.headerTitle}>
+              DMG
+            </div>
 
-        <ToggleButton
-          className={styles.toggleButton}
-          label="Crit"
-          tooltip={`${pokemon?.criticalHit ? 'Hide' : 'Show'} Critical Hit Damages`}
-          tooltipDisabled={!settings?.showUiTooltips}
-          primary
-          active={pokemon?.criticalHit}
-          disabled={!pokemon?.speciesForme}
-          onPress={() => onPokemonChange?.({
-            criticalHit: !pokemon?.criticalHit,
-          })}
-        />
-      </TableGridItem>
+            <ToggleButton
+              className={styles.toggleButton}
+              label="Crit"
+              tooltip={`${pokemon?.criticalHit ? 'Hide' : 'Show'} Critical Hit Damages`}
+              tooltipDisabled={!settings?.showUiTooltips}
+              primary
+              active={pokemon?.criticalHit}
+              disabled={!pokemon?.speciesForme}
+              onPress={() => onPokemonChange?.({
+                criticalHit: !pokemon?.criticalHit,
+              })}
+            />
+          </TableGridItem>
 
-      <TableGridItem
-        className={styles.header}
-        header
-      >
-        <div className={styles.headerTitle}>
-          KO %
-        </div>
-      </TableGridItem>
+          <TableGridItem
+            className={styles.header}
+            header
+          >
+            <div className={styles.headerTitle}>
+              KO %
+            </div>
+          </TableGridItem>
+        </>
+      )}
 
       {/* (actual) moves */}
       {Array(movesCount).fill(null).map((_, i) => {
@@ -237,27 +308,44 @@ export const PokeMoves = ({
         // const moveName = calcMove?.name;
         const moveName = pokemon?.moves?.[i] || calcMove?.name;
 
-        // Z/Max/G-Max moves bypass the original move's accuracy
-        // (only time these moves can "miss" is if the opposing Pokemon is in a semi-vulnerable state,
-        // after using moves like Fly, Dig, Phantom Force, etc.)
-        // const showAccuracy = !pokemon?.useMax
-        //   && typeof move?.accuracy !== 'boolean'
-        //   && (move?.accuracy || -1) > 0
-        //   && move.accuracy !== 100;
+        // getMoveOverrideDefaults() could return null, so spreading here to avoid a "Cannot read properties of null" error
+        // (could make it not return null, but too lazy atm lol)
+        const moveDefaults = { ...getMoveOverrideDefaults(format, pokemon, moveName, opponentPokemon) };
 
-        // const showMoveStats = !!move?.type;
+        const moveOverrides = {
+          ...moveDefaults,
+          ...pokemon?.moveOverrides?.[moveName],
+        };
 
-        // const damageButtonDisabled = !settings?.showMatchupTooltip
-        //   || !settings?.copyMatchupDescription
-        //   || !description?.raw;
+        const damagingMove = [
+          'Physical',
+          'Special',
+        ].includes(moveOverrides.category);
 
-        const showDamageAmounts = !!description?.damageAmounts
+        const hasOverrides = pokemon?.showMoveOverrides
+          && hasMoveOverrides(format, pokemon, moveName, opponentPokemon);
+
+        const basePowerKey: keyof CalcdexMoveOverride = (pokemon?.useZ && 'zBasePower')
+          || (pokemon?.useMax && 'maxBasePower')
+          || 'basePower';
+
+        const fallbackBasePower = (pokemon?.useZ && moveDefaults.zBasePower)
+          || (pokemon?.useMax && moveDefaults.maxBasePower)
+          || calcMove?.bp
+          || 0;
+
+        const showDamageAmounts = !pokemon?.showMoveOverrides
+          && !!description?.damageAmounts
           && (
             settings?.showMatchupDamageAmounts === 'always'
               || (settings?.showMatchupDamageAmounts === 'nfe' && defender?.species.nfe)
           );
 
-        const matchupTooltip = settings?.showMatchupTooltip && description?.raw ? (
+        const showMatchupTooltip = !pokemon?.showMoveOverrides
+          && settings?.showMatchupTooltip
+          && !!description?.raw;
+
+        const matchupTooltip = showMatchupTooltip ? (
           <div className={styles.descTooltip}>
             <Badge
               ref={(ref) => { copiedRefs.current[i] = ref; }}
@@ -316,6 +404,16 @@ export const PokeMoves = ({
           </div>
         ) : null;
 
+        // checking if a damaging move has non-0 BP (would be 'N/A' for status moves)
+        // e.g., move dex reports 0 BP for Mirror Coat, a Special move ('IMMUNE' wouldn't be correct here)
+        const parsedDamageRange = moveName
+          ? damageRange
+            || (moveOverrides[basePowerKey] || fallbackBasePower ? 'IMMUNE' : '???')
+          : null;
+
+        const hasDamageRange = !!parsedDamageRange
+          && !['IMMUNE', 'N/A', '???'].includes(parsedDamageRange);
+
         return (
           <React.Fragment
             key={`PokeMoves:Moves:${pokemonKey}:MoveRow:${i}`}
@@ -324,74 +422,11 @@ export const PokeMoves = ({
               <Dropdown
                 aria-label={`Move Slot ${i + 1} for Pokemon ${friendlyPokemonName}`}
                 hint="--"
-                // tooltip={calcMove?.type ? (
-                //   <div className={styles.moveTooltip}>
-                //     {
-                //       !!moveDescription &&
-                //       <div className={styles.moveDescription}>
-                //         {moveDescription}
-                //       </div>
-                //     }
-                //
-                //     <div className={styles.moveProperties}>
-                //       <PokeType
-                //         className={styles.moveType}
-                //         type={calcMove.type}
-                //         reverseColorScheme
-                //       />
-                //
-                //       {
-                //         !!calcMove.category &&
-                //         <div className={styles.moveProperty}>
-                //           <div className={styles.propertyName}>
-                //             {calcMove.category.slice(0, 4)}
-                //           </div>
-                //
-                //           {/* note: Dex.forGen(1).moves.get('seismictoss').basePower = 1 */}
-                //           {/* lowest BP of a move whose BP isn't dependent on another mechanic should be 10 */}
-                //           {
-                //             (calcMove?.bp ?? 0) > 2 &&
-                //             <div className={styles.propertyValue}>
-                //               {calcMove.bp}
-                //             </div>
-                //           }
-                //         </div>
-                //       }
-                //
-                //       {
-                //         showAccuracy &&
-                //         <div className={styles.moveProperty}>
-                //           <div className={styles.propertyName}>
-                //             ACC
-                //           </div>
-                //
-                //           <div className={styles.propertyValue}>
-                //             {move.accuracy}%
-                //           </div>
-                //         </div>
-                //       }
-                //
-                //       {
-                //         !!calcMove?.priority &&
-                //         <div className={styles.moveProperty}>
-                //           <div className={styles.propertyName}>
-                //             PRI
-                //           </div>
-                //
-                //           <div className={styles.propertyValue}>
-                //             {calcMove.priority > 0 && '+'}
-                //             {calcMove.priority}
-                //           </div>
-                //         </div>
-                //       }
-                //     </div>
-                //   </div>
-                // ) : null}
-                // optionTooltip={moveOptionTooltip}
                 optionTooltip={PokeMoveOptionTooltip}
                 optionTooltipProps={{
                   format,
                   pokemon,
+                  opponentPokemon,
                   hidden: !settings?.showMoveTooltip,
                 }}
                 input={{
@@ -405,66 +440,282 @@ export const PokeMoves = ({
               />
             </TableGridItem>
 
-            <TableGridItem>
-              {/* [XXX.X% &ndash;] XXX.X% */}
-              {/* (note: '0 - 0%' damageRange will be reported as 'N/A') */}
-              {(!!damageRange && (settings?.showNonDamageRanges || damageRange !== 'N/A')) ? (
-                settings?.showMatchupTooltip && settings.copyMatchupDescription ? (
-                  <Button
-                    className={cx(
-                      styles.damageButton,
-                      // damageButtonDisabled && styles.disabled,
-                    )}
-                    labelClassName={cx(
-                      styles.damageButtonLabel,
-                      damageRange === 'N/A' && styles.noDamage,
-                    )}
-                    tabIndex={-1} // not ADA compliant, obviously lol
-                    label={damageRange}
-                    tooltip={matchupTooltip}
-                    tooltipTrigger="mouseenter"
-                    hoverScale={1}
-                    // activeScale={damageButtonDisabled ? 1 : undefined}
-                    absoluteHover
-                    // disabled={!settings?.showMatchupTooltip || !settings?.copyMatchupDescription || !description?.raw}
-                    disabled={!description?.raw}
-                    onPress={() => handleDamagePress(i, [
-                      description.raw,
-                      showDamageAmounts && `(${description.damageAmounts})`,
-                    ].filter(Boolean).join(' '))}
+            {pokemon?.showMoveOverrides ? (
+              <TableGridItem className={styles.editorItem}>
+                <div className={styles.editorLeft}>
+                  <PokeTypeField
+                    input={{
+                      value: moveOverrides.type,
+                      onChange: (value: Showdown.TypeName) => onPokemonChange?.({
+                        moveOverrides: {
+                          [moveName]: { type: value },
+                        },
+                      }),
+                    }}
                   />
-                ) : (
-                  <Tooltip
-                    content={matchupTooltip}
-                    offset={[0, 10]}
-                    delay={[1000, 50]}
-                    trigger="mouseenter"
-                    touch={['hold', 500]}
-                    disabled={!settings?.showMatchupTooltip}
-                  >
-                    <div
-                      className={cx(
-                        styles.damageButtonLabel,
-                        styles.noCopy,
-                        damageRange === 'N/A' && styles.noDamage,
-                      )}
-                    >
-                      {damageRange}
-                    </div>
-                  </Tooltip>
-                )
-              ) : null}
-            </TableGridItem>
 
-            <TableGridItem
-              style={{
-                ...(!koChance ? { opacity: 0.3 } : null),
-                ...(koColor ? { color: koColor } : null),
-              }}
-            >
-              {/* XXX% XHKO */}
-              {koChance}
-            </TableGridItem>
+                  <ToggleButton
+                    className={cx(
+                      styles.editorButton,
+                      styles.categoryButton,
+                      moveOverrides.category === 'Status' && styles.readOnly,
+                    )}
+                    label={moveOverrides.category?.slice(0, 4)}
+                    tooltip={(
+                      <div className={styles.descTooltip}>
+                        {
+                          damagingMove &&
+                          <>
+                            Switch to{' '}
+                            <em>{moveOverrides.category === 'Physical' ? 'Special' : 'Physical'}</em>
+                            <br />
+                          </>
+                        }
+
+                        <strong>{moveOverrides.category}</strong>
+                      </div>
+                    )}
+                    tooltipDisabled={!settings?.showUiTooltips}
+                    primary={damagingMove}
+                    onPress={damagingMove ? () => onPokemonChange?.({
+                      moveOverrides: {
+                        [moveName]: {
+                          category: moveOverrides.category === 'Physical'
+                            ? 'Special'
+                            : 'Physical',
+                        },
+                      },
+                    }) : undefined}
+                  />
+
+                  {
+                    damagingMove &&
+                    <>
+                      <div className={styles.moveProperty}>
+                        <ValueField
+                          className={styles.valueField}
+                          label={`Base Power Override for ${moveName} of Pokemon ${friendlyPokemonName}`}
+                          hideLabel
+                          hint={moveOverrides[basePowerKey]?.toString() || 0}
+                          fallbackValue={fallbackBasePower}
+                          min={0}
+                          max={999} // hmm...
+                          step={1}
+                          shiftStep={10}
+                          clearOnFocus
+                          absoluteHover
+                          input={{
+                            value: moveOverrides[basePowerKey],
+                            onChange: (value: number) => onPokemonChange?.({
+                              moveOverrides: {
+                                [moveName]: { [basePowerKey]: clamp(0, value, 999) },
+                              },
+                            }),
+                          }}
+                        />
+
+                        <div className={styles.propertyName}>
+                          {pokemon?.useZ && !pokemon?.useMax && 'Z '}
+                          {pokemon?.useMax && 'Max '}
+                          BP
+                        </div>
+                      </div>
+
+                      {
+                        ['md', 'lg', 'xl'].includes(containerSize) &&
+                        <div
+                          className={styles.moveProperty}
+                          style={{ marginLeft: '1em' }}
+                        >
+                          <ToggleButton
+                            className={styles.editorButton}
+                            style={{ marginRight: 3 }}
+                            label="ATK"
+                            tooltip={(
+                              <div className={styles.descTooltip}>
+                                Use this Pok&eacute;mon's ATK stat.
+                              </div>
+                            )}
+                            tooltipDisabled={!settings?.showUiTooltips}
+                            primary
+                            active={moveOverrides.offensiveStat === 'atk'}
+                            activeScale={moveOverrides.offensiveStat === 'atk' ? 0.98 : undefined}
+                            onPress={() => onPokemonChange?.({
+                              moveOverrides: {
+                                [moveName]: { offensiveStat: 'atk' },
+                              },
+                            })}
+                          />
+                          <ToggleButton
+                            className={styles.editorButton}
+                            style={{ marginRight: '0.8em' }}
+                            label="SPA"
+                            tooltip={(
+                              <div className={styles.descTooltip}>
+                                Use this Pok&eacute;mon's SPA stat.
+                              </div>
+                            )}
+                            tooltipDisabled={!settings?.showUiTooltips}
+                            primary
+                            active={moveOverrides.offensiveStat === 'spa'}
+                            activeScale={moveOverrides.offensiveStat === 'spa' ? 0.98 : undefined}
+                            onPress={() => onPokemonChange?.({
+                              moveOverrides: {
+                                [moveName]: { offensiveStat: 'spa' },
+                              },
+                            })}
+                          />
+
+                          <div
+                            className={styles.propertyName}
+                            style={{ opacity: 0.5 }}
+                          >
+                            vs
+                          </div>
+
+                          <ToggleButton
+                            className={styles.editorButton}
+                            style={{ marginRight: 3, marginLeft: '0.8em' }}
+                            label="DEF"
+                            tooltip={(
+                              <div className={styles.descTooltip}>
+                                Use the opposing Pok&eacute;mon's DEF stat.
+                              </div>
+                            )}
+                            tooltipDisabled={!settings?.showUiTooltips}
+                            primary
+                            active={moveOverrides.defensiveStat === 'def'}
+                            activeScale={moveOverrides.defensiveStat === 'def' ? 0.98 : undefined}
+                            onPress={() => onPokemonChange?.({
+                              moveOverrides: {
+                                [moveName]: { defensiveStat: 'def' },
+                              },
+                            })}
+                          />
+                          <ToggleButton
+                            className={styles.editorButton}
+                            // style={{ marginRight: 3 }}
+                            label="SPD"
+                            tooltip={(
+                              <div className={styles.descTooltip}>
+                                Use the opposing Pok&eacute;mon's SPD stat.
+                              </div>
+                            )}
+                            tooltipDisabled={!settings?.showUiTooltips}
+                            primary
+                            active={moveOverrides.defensiveStat === 'spd'}
+                            activeScale={moveOverrides.defensiveStat === 'spd' ? 0.98 : undefined}
+                            onPress={() => onPokemonChange?.({
+                              moveOverrides: {
+                                [moveName]: { defensiveStat: 'spd' },
+                              },
+                            })}
+                          />
+                          {/* update (2022/11/04): ignoreDefensive in createSmogonMove() doesn't seem to do anything */}
+                          {/* <ToggleButton
+                            className={styles.editorButton}
+                            label="IGN"
+                            tooltip={(
+                              <div className={styles.descTooltip}>
+                                Ignore/bypass the opposing Pok&eactue;mon's defensive stats.
+                              </div>
+                            )}
+                            tooltipDisabled={!settings?.showUiTooltips}
+                            primary
+                            active={moveOverrides.defensiveStat === 'ignore'}
+                            onPress={() => onPokemonChange?.({
+                              moveOverrides: {
+                                [moveName]: { defensiveStat: 'ignore' },
+                              },
+                            })}
+                          /> */}
+                        </div>
+                      }
+                    </>
+                  }
+                </div>
+
+                <div className={styles.editorRight}>
+                  <ToggleButton
+                    className={styles.editorButton}
+                    style={hasOverrides ? undefined : { opacity: 0 }}
+                    label="Reset"
+                    tooltip="Reset Move to Defaults"
+                    tooltipDisabled={!settings?.showUiTooltips}
+                    primary={hasOverrides}
+                    disabled={!hasOverrides}
+                    onPress={() => onPokemonChange?.({
+                      moveOverrides: {
+                        [moveName]: null,
+                      },
+                    })}
+                  />
+                </div>
+              </TableGridItem>
+            ) : (
+              <>
+                <TableGridItem>
+                  {/* [XXX.X% &ndash;] XXX.X% */}
+                  {/* (note: '0 - 0%' damageRange will be reported as 'N/A') */}
+                  {(settings?.showNonDamageRanges || hasDamageRange) ? (
+                    settings?.showMatchupTooltip && settings.copyMatchupDescription ? (
+                      <Button
+                        className={cx(
+                          styles.damageButton,
+                          !showMatchupTooltip && styles.disabled,
+                        )}
+                        labelClassName={cx(
+                          styles.damageButtonLabel,
+                          !hasDamageRange && styles.noDamage,
+                        )}
+                        tabIndex={-1} // not ADA compliant, obviously lol
+                        label={parsedDamageRange}
+                        tooltip={matchupTooltip}
+                        tooltipTrigger="mouseenter"
+                        tooltipTouch={['hold', 500]}
+                        tooltipDisabled={!showMatchupTooltip}
+                        hoverScale={1}
+                        absoluteHover
+                        disabled={!showMatchupTooltip}
+                        onPress={() => handleDamagePress(i, [
+                          description.raw,
+                          showDamageAmounts && `(${description.damageAmounts})`,
+                        ].filter(Boolean).join(' '))}
+                      />
+                    ) : (
+                      <Tooltip
+                        content={matchupTooltip}
+                        offset={[0, 10]}
+                        delay={[1000, 50]}
+                        trigger="mouseenter"
+                        touch={['hold', 500]}
+                        disabled={!showMatchupTooltip}
+                      >
+                        <div
+                          className={cx(
+                            styles.damageButtonLabel,
+                            styles.noCopy,
+                            !hasDamageRange && styles.noDamage,
+                          )}
+                        >
+                          {parsedDamageRange}
+                        </div>
+                      </Tooltip>
+                    )
+                  ) : null}
+                </TableGridItem>
+
+                <TableGridItem
+                  style={{
+                    ...(!koChance ? { opacity: 0.3 } : null),
+                    ...(koColor ? { color: koColor } : null),
+                  }}
+                >
+                  {/* XXX% XHKO */}
+                  {koChance}
+                </TableGridItem>
+              </>
+            )}
           </React.Fragment>
         );
       })}

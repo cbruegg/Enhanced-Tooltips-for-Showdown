@@ -77,6 +77,14 @@ export interface ShowdexHellodexSettings {
    * @since 1.0.3
    */
   focusRoomsRoom: boolean;
+
+  /**
+   * Whether to show the win/loss counter.
+   *
+   * @default true
+   * @since 1.0.6
+   */
+  showBattleRecord: boolean;
 }
 
 /**
@@ -230,6 +238,16 @@ export interface ShowdexCalcdexSettings {
   reverseIconName: boolean;
 
   /**
+   * Whether to open the Pokemon's *Smogon Univeristy* page when the configured button is clicked on.
+   *
+   * * Configured button depends on `reverseIconName`.
+   *
+   * @default true
+   * @since 1.0.6
+   */
+  openSmogonPage: boolean;
+
+  /**
    * Whether to allow all possible formes to be switched to, if any, even if a forme is revealed.
    *
    * @default true
@@ -345,28 +363,78 @@ export interface ShowdexCalcdexSettings {
   defaultAutoMoves: Record<'auth' | CalcdexPlayerKey, boolean>;
 
   /**
-   * Default EVs/IVs visibility per side.
+   * When to allow the Pokemon's types to be edited when clicked on.
    *
-   * * Despite the `showGenetics` setting pertaining to each Pokemon, the determined setting will be set for
-   *   every Pokemon in the side, functioning more as the initial value.
-   *   - User should be able to tweak the `showGenetics` setting for each individual Pokemon afterwards.
-   * * `auth` pertains to whichever side the logged-in player is playing as.
-   *   - Will override the side's setting that `auth` pertains to with the value of `auth`.
-   * * Though `p3` and `p4` are defined, they currently aren't being used.
+   * * `'always'` will always allow the types to be edited.
+   * * `'meta'` will only show the *Edit* button in nonstandard metagame formats.
+   *   - Essentially, this applies to any format that's not included in `LegalLockedFormats`.
+   * * `'never'` will never allow the types to be edited.
+   *   - Types cannot be clicked on when this is selected.
+   *
+   * @default 'meta'
+   * @since 1.0.6
+   */
+  editPokemonTypes: 'always' | 'meta' | 'never';
+
+  /**
+   * When to show the *Edit* button in the moves table.
+   *
+   * * `'always'` will always show the *Edit* button.
+   * * `'meta'` will only show the *Edit* button in nonstandard metagame formats.
+   *   - Essentially, this applies to any format that's not included in `LegalLockedFormats`.
+   * * `'never'` will never show the *Edit* button.
+   *
+   * @default 'meta'
+   * @since 1.0.6
+   */
+  showMoveEditor: 'always' | 'meta' | 'never';
+
+  /**
+   * Whether to allow the Pokemon's base stats to be edited in the stats table.
+   *
+   * * `'always'` will always show the base stats.
+   * * `'meta'` will only show the base stats in nonstandard metagame formats.
+   *   - Essentially, this applies to any format that's not included in `LegalLockedFormats`.
+   * * `'never'` will never show the base stats.
+   *
+   * @default 'meta'
+   * @since 1.0.6
+   */
+  showBaseStats: 'always' | 'meta' | 'never';
+
+  /**
+   * Whether to always show the Pokemon's stats in the stats table, regardless of the `CalcdexPokemon`'s `showGenetics` value.
+   *
+   * * If included in the array for the specific player, the row should always be shown.
+   *   - e.g., `{ auth: ['ev'] }` should always show the EVs row for the logged-in player (`auth`).
+   * * All rows should be visible when the `CalcdexPokemon`'s `showGenetics` value is `true`.
    *
    * @default
    * ```ts
    * {
-   *   auth: false,
-   *   p1: true,
-   *   p2: true,
-   *   p3: true,
-   *   p4: true,
+   *   auth: [],
+   *   p1: ['iv', 'ev'],
+   *   p2: ['iv', 'ev'],
+   *   p3: ['iv', 'ev'],
+   *   p4: ['iv', 'ev'],
    * }
    * ```
-   * @since 1.0.3
    */
-  defaultShowGenetics: Record<'auth' | CalcdexPlayerKey, boolean>;
+  lockGeneticsVisibility: Record<'auth' | CalcdexPlayerKey, ('base' | 'iv' | 'ev')[]>;
+
+  /**
+   * Whether to allow illegal EV/IV values.
+   *
+   * * `'always'` will always allow illegal EV/IV values, up to 999.
+   *   - Note: 999 is arbitrarily set.
+   * * `'meta'` will only allow illegal EV/IV values in nonstandard metagame formats.
+   *   - Essentially, this applies to any format that's not included in `LegalLockedFormats`.
+   * * `'never'` will never allow illegal EV/IV values.
+   *
+   * @default 'meta'
+   * @since 1.0.6
+   */
+  allowIllegalSpreads: 'always' | 'meta' | 'never';
 
   /**
    * Whether to show UI tooltips.

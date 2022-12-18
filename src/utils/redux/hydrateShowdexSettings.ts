@@ -69,6 +69,7 @@ export const hydrateShowdexSettings = (value?: string): ShowdexSettings => {
     hellodex: {
       openOnStart: true,
       focusRoomsRoom: false,
+      showBattleRecord: true,
     },
 
     calcdex: {
@@ -92,6 +93,7 @@ export const hydrateShowdexSettings = (value?: string): ShowdexSettings => {
       authPosition: 'top',
       showNicknames: false,
       reverseIconName: false,
+      openSmogonPage: true,
       showAllFormes: true,
       showAllOptions: false,
       showNonDamageRanges: true,
@@ -104,24 +106,33 @@ export const hydrateShowdexSettings = (value?: string): ShowdexSettings => {
 
       defaultAutoMoves: {
         auth: false,
-        // p1: true,
-        // p2: true,
-        // p3: true,
-        // p4: true,
-        p1: false,
-        p2: false,
-        p3: false,
-        p4: false,
-      },
-
-      defaultShowGenetics: {
-        auth: false,
         p1: true,
         p2: true,
         p3: true,
         p4: true,
       },
 
+      // defaultShowGenetics: {
+      //   auth: false,
+      //   p1: true,
+      //   p2: true,
+      //   p3: true,
+      //   p4: true,
+      // },
+
+      editPokemonTypes: 'always',
+      showMoveEditor: 'meta',
+      showBaseStats: 'meta',
+
+      lockGeneticsVisibility: {
+        auth: [],
+        p1: ['iv', 'ev'],
+        p2: ['iv', 'ev'],
+        p3: ['iv', 'ev'],
+        p4: ['iv', 'ev'],
+      },
+
+      allowIllegalSpreads: 'meta',
       showUiTooltips: true,
       showAbilityTooltip: true,
       showItemTooltip: true,
@@ -173,9 +184,11 @@ export const hydrateShowdexSettings = (value?: string): ShowdexSettings => {
 
   dehydratedSettings.forEach((dehydratedSetting) => {
     const [
-      dehydratedKey,
+      rawDehydratedKey,
       dehydratedValue,
     ] = dehydratedSetting?.split(':') || [];
+
+    const dehydratedKey = rawDehydratedKey?.toLowerCase();
 
     if (!dehydratedKey || IgnoredDehydratedShowdexKeys.includes(dehydratedKey)) {
       return;
@@ -191,9 +204,11 @@ export const hydrateShowdexSettings = (value?: string): ShowdexSettings => {
 
         dehydratedHellodexSettings.forEach((dehydratedHellodexSetting) => {
           const [
-            dehydratedHellodexKey,
+            rawDehydratedHellodexKey,
             ...dehydratedHellodexValues
           ] = dehydratedHellodexSetting?.split('~') || [];
+
+          const dehydratedHellodexKey = rawDehydratedHellodexKey?.toLowerCase();
 
           if (!dehydratedHellodexKey) {
             return;
@@ -224,9 +239,11 @@ export const hydrateShowdexSettings = (value?: string): ShowdexSettings => {
 
         dehydratedCalcdexSettings.forEach((dehydratedCalcdexSetting) => {
           const [
-            dehydratedCalcdexKey,
+            rawDehydratedCalcdexKey,
             ...dehydratedCalcdexValues
           ] = dehydratedCalcdexSetting?.split('~') || [];
+
+          const dehydratedCalcdexKey = rawDehydratedCalcdexKey?.toLowerCase();
 
           if (!dehydratedCalcdexKey) {
             return;
@@ -252,9 +269,10 @@ export const hydrateShowdexSettings = (value?: string): ShowdexSettings => {
             : [
               DehydratedCalcdexSettingsMap.defaultAutoSelect,
               DehydratedCalcdexSettingsMap.defaultAutoMoves,
-              DehydratedCalcdexSettingsMap.defaultShowGenetics,
+              // DehydratedCalcdexSettingsMap.defaultShowGenetics,
+              DehydratedCalcdexSettingsMap.lockGeneticsVisibility,
             ].includes(dehydratedCalcdexKey)
-              ? hydratePerSide(dehydratedCalcdexValue)
+              ? (<ShowdexCalcdexSettings[typeof hydratedCalcdexKey]> hydratePerSide(dehydratedCalcdexValue))
               : ['y', 'n'].includes(dehydratedCalcdexValue)
                 ? hydrateBoolean(dehydratedCalcdexValue)
                 : <ShowdexCalcdexSettings[typeof hydratedCalcdexKey]> hydrateString(dehydratedCalcdexValue);

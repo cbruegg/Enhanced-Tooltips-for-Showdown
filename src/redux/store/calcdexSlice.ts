@@ -72,6 +72,15 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
   serverSourced?: boolean;
 
   /**
+   * Player key (or "side ID", as it's referred to in the client) that the Pokemon belongs to.
+   *
+   * @example 'p1'
+   * @default null
+   * @since 1.1.0
+   */
+  playerKey?: CalcdexPlayerKey;
+
+  /**
    * Whether the Pokemon can Dynamax.
    *
    * * In addition to the Dynamax clause (and whether the gen supports D-maxing),
@@ -156,6 +165,20 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
    * @since 0.1.0
    */
   types?: Showdown.TypeName[];
+
+  /**
+   * Terastallizing type that the terastallizable Pokemon can terastallizingly terastallize into during terastallization.
+   *
+   * @since 1.1.0
+   */
+  teraType?: Showdown.TypeName;
+
+  /**
+   * Alternative Tera types from the currently applied `preset`.
+   *
+   * @since 1.1.0
+   */
+  altTeraTypes?: CalcdexPokemonAlt<Showdown.TypeName>[];
 
   /**
    * Ability of the Pokemon.
@@ -313,8 +336,9 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
    * Whether to show the EV/IV rows in the `PokeStats` table.
    *
    * * If `false`, an edit button should be shown to allow the user to set this value to `true`.
+   * * Applies to this specific Pokemon only.
    *
-   * @default true
+   * @default false
    * @since 1.0.3
    */
   showGenetics?: boolean;
@@ -332,6 +356,22 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
    * @since 1.0.1
    */
   useMax?: boolean;
+
+  /**
+   * Whether the Pokemon has terastallized.
+   *
+   * * Can be determined from the client by verifying if the Pokemon's `teraType` in the battle state has a value
+   *   and there exists a `typechange` in its `volatiles` object.
+   *   - Both conditions must be satisfied as the lack of a `typechange` volatile with the presence of a `teraType`
+   *     indicates that the terastallized Pokemon is not active.
+   * * Note that this is a separate property to independently keep track of the Pokemon's `teraType` value, even when not terastallized.
+   *   - (In case if you're thinking that we could achieve the same effect by only setting the `teraType` when terastallized, just like the client.)
+   *   - This property would determine whether we specify the `teraType` property to the `calculate()` function of `@smogon/calc`.
+   *   - Additionally, this property allows the user to independently toggle the Pokemon's terastallized state to run calcs.
+   *
+   * @since 1.1.0
+   */
+  terastallized?: boolean;
 
   /**
    * Moves currently assigned to the Pokemon.
@@ -405,15 +445,24 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
   revealedMoves?: MoveName[];
 
   /**
-   * Categorized moves of the Pokemon.
+   * Whether to show editing controls for overriding moves.
    *
-   * @deprecated As of v1.0.3, this is no longer being used.
-   *   For `moveState.revealed`, use the `revealedMoves` property.
-   *   `moveState.learnset` and `moveState.other` are no longer used in favor of on-demand population
-   *   via `getPokemonLearnset()` and `BattleMovedex`, respectively, in `buildMoveOptions()`.
-   * @since 0.1.0
+   * * Applies to this specific Pokemon only.
+   *
+   * @default false
+   * @since 1.0.6
    */
-  moveState?: CalcdexMoveState;
+  showMoveOverrides?: boolean;
+
+  /**
+   * Overridden move properties by the user for the Pokemon.
+   *
+   * * Key refers to the move name with its value referring to the overridden properties.
+   * * Any overrides here pertain to the current Pokemon only.
+   *
+   * @since 1.0.6
+   */
+  moveOverrides?: Record<MoveName, CalcdexMoveOverride>;
 
   /**
    * Stage boosts of the Pokemon.
@@ -435,7 +484,7 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
    *
    * @default
    * ```ts
-   * {}
+   * { hp: null, atk: null, def: null, spa: null, spd: null, spe: null }
    * ```
    * @since 0.1.0
    */
@@ -451,6 +500,21 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
    * @since 0.1.0
    */
   baseStats?: Showdown.StatsTable;
+
+  /**
+   * Keeps track of user-modified base stats as to not modify the actual base stats.
+   *
+   * * This is spread over the `overrides.baseStats` in `createSmogonPokemon()`, leaving the original `baseStats` intact.
+   *   - "Resetting" the stat to its original value is also made easy by setting its corresponding value here to `null`.
+   * * Recalculating the base stats again to find out if `baseStats` has been modified sounded like a lot of work lol.
+   *
+   * @default
+   * ```ts
+   * { hp: null, atk: null, def: null, spa: null, spd: null, spe: null }
+   * ```
+   * @since 1.0.6
+   */
+  dirtyBaseStats?: Showdown.StatsTable;
 
   /**
    * Base stats of the `transformedForme`.
@@ -514,15 +578,60 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
   criticalHit?: boolean;
 
   /**
-   * Remaining number of turns the Pokemon is poisoned for.
+   * Number of turns the Pokemon was asleep for.
    *
+   * * Kept track by the client under the `statusData.sleepTurns` property in `Showdown.Pokemon`.
+   * * As of v1.1.0, this exists since we're not copying `statusData` from the client battle state anymore.
+   * * Not sure what this is being used for (if at all) atm.
+   *
+   * @default 0
+   * @since 1.1.0
+   */
+  sleepCounter?: number;
+
+  /**
+   * Number of turns the Pokemon was *badly* poisoned for.
+   *
+   * * Kept track by the client under the `statusData.toxicTurns` property in `Showdown.Pokemon`.
    * * This property is only used by `calculate()` in `@smogon/calc`.
-   * * Value of `0` means the Pokemon is not poisoned.
+   * * Value of `0` means the Pokemon is not badly poisoned (and probably not regular poisoned).
    *
    * @default 0
    * @since 0.1.0
    */
   toxicCounter?: number;
+
+  /**
+   * Number of times the Pokemon was hit.
+   *
+   * * Kept track by the client under the `timesAttacked` property in `Showdown.Pokemon`.
+   * * Note that this value should persist even if the Pokemon faints, especially since Pokemon can now
+   *   be revived with *Revival Blessing*, a move introduced in Gen 9.
+   * * Primarily used for calculating the base power of *Rage Fist*, a move introduced in Gen 9.
+   *
+   * @default 0
+   * @since 1.1.0
+   */
+  hitCounter?: number;
+
+  /**
+   * Number of fainted Pokemon on the side that this Pokemon belongs to.
+   *
+   * * Kept track by the client under the `faintCounter` property in `Showdown.Side`.
+   * * ~~Note that all Pokemon on a given side will have the same value for this property.~~
+   *   - Redundantly done this way to keep the codebase a bit less messier.
+   *   - Otherwise, I'd have to pass the `field` state to a bunch of functions.
+   *   - (Although, it's kinda already like that... LOL)
+   * * Update (2022/12/13): This value won't be synced once the Pokemon faints.
+   *   - For example, when *Kingambit* faints with a prior `faintCounter` of `2`, the value won't be
+   *     updated on subsequent faints from other Pokemon (i.e., will remain at `2`).
+   *   - When refreshing the page on a completed battle, this value will be set to the reported
+   *     `faintCounter` minus `1` (minimum `0`) to account for this Pokemon if it were still alive.
+   *
+   * @default 0
+   * @since 1.1.0
+   */
+  faintCounter?: number;
 
   /**
    * Preset that's currently being applied to the Pokemon.
@@ -558,59 +667,23 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
 }
 
 /**
- * @deprecated As of v1.0.3, this is no longer being used.
- *   See deprecation information in `CalcdexPokemon['moveState']`.
+ * Move overrides set by the user.
+ *
+ * * Any property not defined here should default to the move's default value.
+ * * Should be the value of an object, where the key is the move name itself.
+ *   - Hence why the move name is not specified here.
+ *
+ * @since 1.0.6
  */
-export interface CalcdexMoveState {
-  /**
-   * Should only consist of moves that were revealed during the battle.
-   *
-   * * These moves should have the highest render priority
-   *   (i.e., should be at the top of the list).
-   * * This is usually accessible within the client `Showdown.Pokemon` object,
-   *   under the `moveTrack` property.
-   *
-   * @default
-   * ```ts
-   * []
-   * ```
-   * @deprecated As of v1.0.3, this is no longer being used.
-   *   Use `CalcdexPokemon['revealedMoves']` instead.
-   * @since 0.1.0
-   */
-  revealed: (MoveName | string)[];
-
-  /**
-   * Should only consist of moves that the Pokemon can legally learn.
-   *
-   * * These moves should be rendered after those in `revealed`.
-   * * Moves that exist in `revealed` should be filtered out.
-   *
-   * @default
-   * ```ts
-   * []
-   * ```
-   * @deprecated As of v1.0.3, this is no longer being used.
-   *   Populated on-demand via `getPokemonLearnset()` in `buildMoveOptions()`.
-   * @since 0.1.0
-   */
-  learnset: (MoveName | string)[];
-
-  /**
-   * Optional moves, including potentially illegal ones for formats like `gen8anythinggoes` (I think lmao).
-   *
-   * * These moves, if specified, should be rendered last.
-   * * Moves that exist in `revealed` and `learnsets` should be filtered out.
-   *
-   * @default
-   * ```ts
-   * []
-   * ```
-   * @deprecated As of v1.0.1, this is no longer being used.
-   *   Populated on-demand via `BattleMovedex` in `buildMoveOptions()`.
-   * @since 0.1.0
-   */
-  other?: (MoveName | string)[];
+export interface CalcdexMoveOverride {
+  type?: Showdown.TypeName;
+  category?: Showdown.MoveCategory;
+  basePower?: number;
+  zBasePower?: number;
+  maxBasePower?: number;
+  alwaysCriticalHits?: boolean;
+  offensiveStat?: Showdown.StatNameNoHp;
+  defensiveStat?: Showdown.StatNameNoHp | 'ignore';
 }
 
 /**
@@ -652,6 +725,24 @@ export type CalcdexPokemonUsageAlt<
 ];
 
 /**
+ * Source of the Calcdex Pokemon set (preset).
+ *
+ * * `'import'` refers to any preset imported from the user's clipboard.
+ * * `'server'` refers to any preset provided by the Showdown server, typically for the logged-in user's Pokemon.
+ * * `'smogon'` refers to any preset that has been downloaded, though typically from the Smogon dex.
+ * * `'storage'` refers to any preset locally saved in the user's browser, typically stored by the Teambuilder.
+ * * `'usage'` refers to any preset from Showdown usage stats.
+ *
+ * @since 1.0.7
+ */
+export type CalcdexPokemonPresetSource =
+  | 'import'
+  | 'server'
+  | 'smogon'
+  | 'storage'
+  | 'usage';
+
+/**
  * Pokemon set, ~~basically~~ probably.
  *
  * * Types for some properties are more specifically typed,
@@ -685,6 +776,14 @@ export interface CalcdexPokemonPreset {
    * @since 0.1.3
    */
   id?: string;
+
+  /**
+   * Source of the preset.
+   *
+   * @example 'server'
+   * @since 1.0.7
+   */
+  source?: CalcdexPokemonPresetSource;
 
   /**
    * Name of the preset.
@@ -723,10 +822,33 @@ export interface CalcdexPokemonPreset {
    */
   format?: string;
 
+  /**
+   * Nickname of the Pokemon.
+   *
+   * @example 'Smogonbirb'
+   * @since 1.0.7
+   */
+  nickname?: string;
+
+  /**
+   * Usage percentage of the preset.
+   *
+   * * Primarily only available in Gen 9 Randoms with role-based sets.
+   *   - Side note: `usage` in Randoms would refer to probability of the set.
+   * * Value is a percentage represented as a decimal in the interval `[0, 1]`, both inclusive.
+   *
+   * @since 1.1.0
+   */
+  usage?: number;
+
   speciesForme?: string;
   level?: number;
   gender?: Showdown.GenderName;
+  hpType?: string;
+  teraTypes?: CalcdexPokemonAlt<Showdown.TypeName>[];
   shiny?: boolean;
+  happiness?: number;
+  gigantamax?: boolean;
   ability?: AbilityName;
   altAbilities?: CalcdexPokemonAlt<AbilityName>[];
   item?: ItemName;
@@ -736,10 +858,7 @@ export interface CalcdexPokemonPreset {
   nature?: Showdown.PokemonNature;
   ivs?: Showdown.StatsTable;
   evs?: Showdown.StatsTable;
-  happiness?: number;
   pokeball?: string;
-  hpType?: string;
-  gigantamax?: boolean;
 }
 
 /* eslint-disable @typescript-eslint/indent */
@@ -880,6 +999,8 @@ export interface CalcdexBattleField extends SmogonState.Field {
  * * Additional properties that will be unused by the `Side` constructor are included
  *   as they may be used in Pokemon stat calculations.
  *
+ * @todo get rid of `attackerSide` and `defenderSide` in `CalcdexBattleField` and merge this entire
+ *   interface with `CalcdexPlayer` or something.
  * @see https://github.com/smogon/damage-calc/blob/master/calc/src/field.ts#L84-L102
  * @since 0.1.3
  */
@@ -910,6 +1031,42 @@ export interface CalcdexPlayerSide extends SmogonState.Side {
    * @since 0.1.3
    */
   isWaterPledge?: boolean;
+
+  /**
+   * Number of Pokemon with an activated *Beads of Ruin* ability.
+   *
+   * * Used to determine toggle state of `isBeadsOfRuin` in `State.Side`.
+   *
+   * @since 1.1.0
+   */
+  ruinBeadsCount?: number;
+
+  /**
+   * Number of Pokemon with an activated *Sword of Ruin* ability.
+   *
+   * * Used to determine the toggle state of `isSwordOfRuin` in `State.Side`.
+   *
+   * @since 1.1.0
+   */
+  ruinSwordCount?: number;
+
+  /**
+   * Number of Pokemon with an activated *Tablets of Ruin* ability.
+   *
+   * * Used to determine the toggle state of `isTabletsOfRuin` in `State.Side`.
+   *
+   * @since 1.1.0
+   */
+  ruinTabletsCount?: number;
+
+  /**
+   * Number of Pokemon with an activated *Vessel of Ruin* ability.
+   *
+   * * Used to determine the toggle state of `isVesselOfRuin` in `State.Side`.
+   *
+   * @since 1.1.0
+   */
+  ruinVesselCount?: number;
 }
 
 /**
@@ -1341,7 +1498,7 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
           sideid: 'p1',
           name: null,
           rating: null,
-          activeIndex: -1,
+          // activeIndex: -1,
           activeIndices: [],
           selectionIndex: 0,
           autoSelect: true,
@@ -1355,7 +1512,7 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
           sideid: 'p2',
           name: null,
           rating: null,
-          activeIndex: -1,
+          // activeIndex: -1,
           activeIndices: [],
           selectionIndex: 0,
           autoSelect: true,
@@ -1419,8 +1576,14 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         battleNonce: battleNonce || currentState.battleNonce,
         gen: typeof gen === 'number' && gen > 0 ? gen : currentState.gen,
         format: format || currentState.format,
-        active: typeof active === 'boolean' ? active : currentState.active,
+        // active: typeof active === 'boolean' ? active : currentState.active,
       };
+
+      // for the active state, only update if previously true and the new value is false
+      // as we don't want the HellodexBattleRecord to record replays or battle re-inits
+      if (currentState.active && typeof active === 'boolean' && !active) {
+        state[battleId].active = active;
+      }
 
       l.debug(
         'DONE', action.type, 'for', battleId || '(missing battleId)',

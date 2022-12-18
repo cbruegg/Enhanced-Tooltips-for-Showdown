@@ -1,6 +1,7 @@
 import { PokemonPokePasteStatMap } from '@showdex/consts/pokemon';
-import type { GenerationNum } from '@smogon/calc';
+// import type { GenerationNum } from '@smogon/calc';
 import type { CalcdexPokemon } from '@showdex/redux/store';
+import { detectLegacyGen } from './detectLegacyGen';
 import { getDexForFormat } from './getDexForFormat';
 import { hasNickname } from './hasNickname';
 import { replace } from './regex';
@@ -85,13 +86,14 @@ const exportStatsTable = (
  */
 export const exportPokePaste = (
   pokemon: DeepPartial<CalcdexPokemon>,
-  format?: string | GenerationNum,
+  format?: string,
 ): string => {
   if (!pokemon?.speciesForme) {
     return null;
   }
 
   const dex = getDexForFormat(format);
+  const legacy = detectLegacyGen(format);
 
   const {
     name,
@@ -105,6 +107,8 @@ export const exportPokePaste = (
     dirtyAbility,
     level,
     // happiness, // doesn't exist in CalcdexPokemon atm
+    types,
+    teraType,
     nature,
     ivs,
     evs,
@@ -116,11 +120,23 @@ export const exportPokePaste = (
     speciesForme,
   ];
 
-  // (line 1) <name | speciesForme> [(<speciesForme>)] [(<gender>)] [@ <item>]
+  // <name | speciesForme> [(<speciesForme>)] [(<gender>)] [@ <item>]
   const dexCurrentForme = dex?.species.get(speciesForme);
 
-  if (dexCurrentForme?.name && dexCurrentForme.name !== output[0]) {
-    output[0] = dexCurrentForme.name;
+  const battleOnlyFormes = Array.isArray(dexCurrentForme?.battleOnly)
+    ? [...dexCurrentForme.battleOnly]
+    : [dexCurrentForme.battleOnly].filter(Boolean);
+
+  const actualForme = battleOnlyFormes[0] || dexCurrentForme.name;
+
+  if (actualForme && actualForme !== output[0]) {
+    output[0] = actualForme;
+  }
+
+  const hasGmaxForme = output[0].endsWith('-Gmax');
+
+  if (hasGmaxForme) {
+    output[0] = output[0].replace('-Gmax', '');
   }
 
   if (hasNickname(pokemon)) {
@@ -137,26 +153,36 @@ export const exportPokePaste = (
     output[0] += ` @ ${currentItem}`;
   }
 
-  // (line 2?) Shiny: <Yes/No>
-  if (shiny) {
-    output.push('Shiny: Yes');
-  }
-
-  // (line 3?) Ability: <ability>
+  // Ability: <ability>
   const currentAbility = dirtyAbility ?? ability;
 
   if (currentAbility) {
     output.push(`Ability: ${currentAbility}`);
   }
 
-  // (line 4?) Level: <value> (where <value> is not 100)
+  // Shiny: <Yes/No>
+  if (shiny) {
+    output.push('Shiny: Yes');
+  }
+
+  // Tera Type: <teraType>
+  // (<teraType> shouldn't print when '???' or matches the default Tera type, i.e., the first type of the Pokemon)
+  if (teraType && teraType !== '???' && teraType !== types[0]) {
+    output.push(`Tera Type: ${teraType}`);
+  }
+
+  // Gigantamax: <Yes/No>
+  if (hasGmaxForme) {
+    output.push('Gigantamax: Yes');
+  }
+
+  // Level: <value> (where <value> is not 100)
   if (typeof level === 'number' && level !== 100) {
     output.push(`Level: ${level}`);
   }
 
-  // (line 5?) Happiness: <value> (where <value> is not 255)
+  // Happiness: <value> (where <value> is not 255)
 
-  // (lines 6? & 7?)
   // IVs: <value> <stat> ...[/ <value> <stat>] (where <value> is not 31)
   // EVs: <value> <stat> ...[/ <value> <stat>] (where <value> is not 0)
   // (where <stat> is HP, Atk, Def, SpA, SpD, or Spe)
@@ -168,7 +194,7 @@ export const exportPokePaste = (
     }
   }
 
-  if (Object.keys(evs || {}).length) {
+  if (!legacy && Object.keys(evs || {}).length) {
     const exportedEvs = exportStatsTable(evs, 0);
 
     if (exportedEvs) {
@@ -176,12 +202,12 @@ export const exportPokePaste = (
     }
   }
 
-  // (line 8?) <nature> Nature
+  // <nature> Nature
   if (nature) {
     output.push(`${nature} Nature`);
   }
 
-  // (lines 9-12) - <moveName>
+  // - <moveName>
   if (moves?.length) {
     // e.g., 'Hidden Power Fire' -> 'Hidden Power [Fire]'
     // (though, the Teambuilder will accept the former, i.e., 'Hidden Power Fire')
