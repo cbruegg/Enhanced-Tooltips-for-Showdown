@@ -504,7 +504,6 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
 
   let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
   if (!illusionIndex || illusionIndex === 1) {
-    // text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}${heightBuf}${weightBuf}<br />`;
     if (heightBuf.length > 0 || weightBuf.length > 0) {
       text += `<p class="section"><small>Physical Properties:</small><br />${heightBuf}${weightBuf}<br />`;
     }
@@ -518,11 +517,6 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
     }
 
     let types = this.getPokemonTypes(pokemon);
-
-    if (clientPokemon && (clientPokemon.volatiles.typechange || clientPokemon.volatiles.typeadd)) {
-      // text += `<small>(Type changed)</small><br />`;
-    }
-    // text += types.map(type => Dex.getTypeIcon(type)).join(' ') + '<br />';
 
     // ***********
     // Show base stats
@@ -560,73 +554,6 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
   });
   text += '</p>';
   // ********************
-
-  /*
-  if (pokemon.fainted) {
-    text += '<p><small>HP:</small> (fainted)</p>';
-  } else if (this.battle.hardcoreMode) {
-    if (serverPokemon) {
-      text += '<p><small>HP:</small> ' + serverPokemon.hp + '/' + serverPokemon.maxhp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
-    }
-  } else {
-    let exacthp = '';
-    if (serverPokemon) {
-      exacthp = ' (' + serverPokemon.hp + '/' + serverPokemon.maxhp + ')';
-    } else if (pokemon.maxhp === 48) {
-      exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
-    }
-    text += '<p><small>HP:</small> ' + Pokemon.getHPText(pokemon) + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '');
-    if (clientPokemon) {
-      if (pokemon.status === 'tox') {
-        if (pokemon.ability === 'Poison Heal' || pokemon.ability === 'Magic Guard') {
-          text += ' <small>Would take if ability removed: ' + Math.floor(100 / 16 * Math.min(clientPokemon.statusData.toxicTurns + 1, 15)) + '%</small>';
-        } else {
-          text += ' Next damage: ' + Math.floor(100 / 16 * Math.min(clientPokemon.statusData.toxicTurns + 1, 15)) + '%';
-        }
-      } else if (pokemon.status === 'slp') {
-        text += ' Turns asleep: ' + clientPokemon.statusData.sleepTurns;
-      }
-    }
-    text += '</p>';
-  }
-
-  const supportsAbilities = this.battle.gen > 2 && !this.battle.tier.includes("Let's Go");
-
-  let abilityText = '';
-  if (supportsAbilities) {
-    abilityText = this.getPokemonAbilityText(
-      clientPokemon, serverPokemon, isActive, !!illusionIndex && illusionIndex > 1
-    );
-  }
-
-  let itemText = '';
-  if (serverPokemon && serverPokemon.item) {
-    itemText = '<small>Item:</small> ' + Dex.items.get(serverPokemon.item).name;
-  } else if (clientPokemon) {
-    let item = '';
-    let itemEffect = clientPokemon.itemEffect || '';
-    if (clientPokemon.prevItem) {
-      item = 'None';
-      if (itemEffect) itemEffect += '; ';
-      let prevItem = Dex.items.get(clientPokemon.prevItem).name;
-      itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
-    }
-    if (pokemon.item) item = Dex.items.get(pokemon.item).name;
-    if (itemEffect) itemEffect = ' (' + itemEffect + ')';
-    if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
-  }
-
-  text += '<p>';
-  text += abilityText;
-  if (itemText) {
-    // ability/item on one line for your own switch tooltips, two lines everywhere else
-    text += (!isActive && serverPokemon ? ' / ' : '</p><p>');
-    text += itemText;
-  }
-  text += '</p>';
-
-  text += this.renderStats(clientPokemon, serverPokemon, !isActive);
-  */
 
   if (serverPokemon && !isActive) {
     // move list
