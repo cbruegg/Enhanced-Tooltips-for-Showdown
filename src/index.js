@@ -464,7 +464,14 @@ ShowdownEnhancedTooltip.getStatbarHTML = function getStatbarHTML(pokemon) {
   return buf;
 }
 
+
+const originalShowPokemonTooltip = BattleTooltips.prototype.showPokemonTooltip;
 ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientPokemon, serverPokemon, isActive, illusionIndex) {
+  const originalText = originalShowPokemonTooltip.apply(this, arguments);
+
+  // Heuristically strip section of revealed moves and how often they were used as we add an enhanced version of it later
+  const originalTextWithoutRevealedMoves = originalText.replace(/<p\s*class="section">&#8226;.*<\/p>$/, '');
+
   var _this3 = this;
   const pokemon = clientPokemon || serverPokemon;
   let text = '';
@@ -497,7 +504,10 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
 
   let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
   if (!illusionIndex || illusionIndex === 1) {
-    text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}${heightBuf}${weightBuf}<br />`;
+    // text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}${heightBuf}${weightBuf}<br />`;
+    if (heightBuf.length > 0 || weightBuf.length > 0) {
+      text += `<p class="section"><small>Physical Properties:</small><br />${heightBuf}${weightBuf}<br />`;
+    }
 
     if (clientPokemon && clientPokemon.volatiles && clientPokemon.volatiles.formechange) {
       if (clientPokemon.volatiles.transform) {
@@ -510,16 +520,16 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
     let types = this.getPokemonTypes(pokemon);
 
     if (clientPokemon && (clientPokemon.volatiles.typechange || clientPokemon.volatiles.typeadd)) {
-      text += `<small>(Type changed)</small><br />`;
+      // text += `<small>(Type changed)</small><br />`;
     }
-    text += types.map(type => Dex.getTypeIcon(type)).join(' ');
+    // text += types.map(type => Dex.getTypeIcon(type)).join(' ') + '<br />';
 
     // ***********
     // Show base stats
     var template = clientPokemon ? clientPokemon.getSpecies() : null;
     // Removed condition 'showBaseStats', we just always show it.
     if (template) {
-      text += '<br /><small>Base stats:' + '<br />';
+      text += '<small>Base stats:' + '<br />';
       text += 'HP: ' + template.baseStats.hp + ' ';
       text += 'Atk: ' + template.baseStats.atk + ' ';
       text += 'Def: ' + template.baseStats.def + ' ';
@@ -529,7 +539,7 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
     }
     // **********
 
-    text += `</h2>`;
+    text += `</p>`;
   }
 
   if (illusionIndex) {
@@ -548,9 +558,10 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
       text += `<p>${multiplierKey}x: ${weakTypes}</p>`;
     }
   });
-  text += '</p><h2></h2>';
+  text += '</p>';
   // ********************
 
+  /*
   if (pokemon.fainted) {
     text += '<p><small>HP:</small> (fainted)</p>';
   } else if (this.battle.hardcoreMode) {
@@ -615,6 +626,7 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
   text += '</p>';
 
   text += this.renderStats(clientPokemon, serverPokemon, !isActive);
+  */
 
   if (serverPokemon && !isActive) {
     // move list
@@ -668,7 +680,7 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
     }
     text += `</p>`;
   }
-  return text;
+  return originalTextWithoutRevealedMoves + text;
 };
 
 ShowdownEnhancedTooltip.getTypeEff = function(types){
