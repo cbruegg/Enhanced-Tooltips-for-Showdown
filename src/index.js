@@ -470,7 +470,7 @@ ShowdownEnhancedTooltip.showPokemonTooltip = function showPokemonTooltip(clientP
   const originalText = originalShowPokemonTooltip.apply(this, arguments);
 
   // Heuristically strip section of revealed moves and how often they were used as we add an enhanced version of it later
-  const originalTextWithoutRevealedMoves = originalText.replace(/<p\s*class="section">&#8226;.*<\/p>$/, '');
+  const originalTextWithoutRevealedMoves = originalText.replace(/<p\s*class="section">\s*(<span.*)?\s*&#8226;\s*(<\/span>)?.*<\/p>$/, '');
 
   var _this3 = this;
   const pokemon = clientPokemon || serverPokemon;
