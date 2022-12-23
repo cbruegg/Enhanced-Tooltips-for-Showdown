@@ -5,6 +5,7 @@ var SUPPORTED = [
   'gen4randombattle', 'gen5randombattle', 'gen6randombattle',
   'gen7randombattle', 'gen7letsgorandombattle', 'gen7randomdoublesbattle',
   'gen8randombattlenodmax', 'gen8randombattle', 'gen8bdsprandombattle', 'gen8randomdoublesbattle',
+  'gen9randombattle', 'gen9unratedrandombattle', 'gen9randomdoublesbattle'
 ];
 
 // Random Battle sets are generated based on battle-only forms which makes disambiguating sets
@@ -112,10 +113,11 @@ if (TOOLTIP) {
     var moves = data.moves;
     var noHP = true;
     var multi = !['singles', 'doubles'].includes(gameType);
-    var ms = [];
-    for (var move of moves) {
-      if (move.startsWith('Hidden Power')) noHP = false;
-      if (!(multi && move === 'Ally Switch')) ms.push(move);
+    if (gen < 9) {
+      // Gen 9 doesn't have the `moves` field anymore, but doesn't have HP anymore anyway
+      for (var move of moves) {
+        if (move.startsWith('Hidden Power')) noHP = false;
+      }
     }
 
     var buf = '<div style="border-top: 1px solid #888; background: #dedede">';
@@ -127,7 +129,21 @@ if (TOOLTIP) {
       buf +=
         '<p><small>Items:</small> ' + (data.items ? data.items.join(', ') : '(No Item)') + '</p>';
     }
-    buf += '<p><small>Moves:</small> ' + moves.join(', ') + '</p>';
+    if (gen < 9) {
+      buf += '<p><small>Moves:</small> ' + moves.join(', ') + '</p>';
+    } else {
+      for (const roleName in data.roles) {
+        const roleData = data.roles[roleName];
+        const moves = roleData.moves;
+        buf += `<p><i>${roleName}</i><br><small>Moves:</small> ` + moves.join(', ');
+        const teraTypes = roleData.teraTypes;
+        if (teraTypes) {
+          buf += "<br><small>Tera Types:</small> ";
+          buf += teraTypes.join(', ');
+        }
+        buf += '</p>';
+      }
+    }
 
     buf += '<p>';
     for (var statName of Dex.statNamesExceptHP) {
