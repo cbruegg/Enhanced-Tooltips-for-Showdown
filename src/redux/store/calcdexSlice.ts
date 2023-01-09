@@ -1,6 +1,6 @@
 import { createSlice, current } from '@reduxjs/toolkit';
 import { syncBattle, SyncBattleActionType } from '@showdex/redux/actions';
-import { sanitizeField } from '@showdex/utils/battle';
+import { detectLegacyGen, sanitizeField } from '@showdex/utils/battle';
 import { calcPokemonCalcdexId } from '@showdex/utils/calc';
 import { env } from '@showdex/utils/core';
 import { logger } from '@showdex/utils/debug';
@@ -29,6 +29,7 @@ export type CalcdexLeanPokemon = Omit<NonFunctionProperties<Partial<Showdown.Pok
   | 'prevItem'
   | 'side'
   | 'sprite'
+  | 'terastallized'
 >;
 
 /* eslint-enable @typescript-eslint/indent */
@@ -731,6 +732,8 @@ export type CalcdexPokemonUsageAlt<
  * * `'server'` refers to any preset provided by the Showdown server, typically for the logged-in user's Pokemon.
  * * `'smogon'` refers to any preset that has been downloaded, though typically from the Smogon dex.
  * * `'storage'` refers to any preset locally saved in the user's browser, typically stored by the Teambuilder.
+ *   - `'storage'` refers to any preset derived from a Teambuilder team.
+ *   - `'storage-box'` refers to any preset derived from a Teambuilder box.
  * * `'usage'` refers to any preset from Showdown usage stats.
  *
  * @since 1.0.7
@@ -740,6 +743,7 @@ export type CalcdexPokemonPresetSource =
   | 'server'
   | 'smogon'
   | 'storage'
+  | 'storage-box'
   | 'usage';
 
 /**
@@ -844,10 +848,11 @@ export interface CalcdexPokemonPreset {
   speciesForme?: string;
   level?: number;
   gender?: Showdown.GenderName;
-  hpType?: string;
+  hiddenPowerType?: string;
   teraTypes?: CalcdexPokemonAlt<Showdown.TypeName>[];
   shiny?: boolean;
   happiness?: number;
+  dynamaxLevel?: number;
   gigantamax?: boolean;
   ability?: AbilityName;
   altAbilities?: CalcdexPokemonAlt<AbilityName>[];
@@ -1257,6 +1262,7 @@ export interface CalcdexBattleState extends CalcdexPlayerState {
    *
    * * Derived from `gen` of the Showdown `battle` state.
    *
+   * @example 8
    * @since 0.1.0
    */
   gen: GenerationNum;
@@ -1273,6 +1279,15 @@ export interface CalcdexBattleState extends CalcdexPlayerState {
   format: string;
 
   /**
+   * Whether the gen uses legacy battle mechanics.
+   *
+   * * Determined via `detectLegacyGen()`.
+   *
+   * @since 1.1.1
+   */
+  legacy: boolean;
+
+  /**
    * Rules (clauses) applied to the battle.
    *
    * @since 0.1.3
@@ -1282,6 +1297,7 @@ export interface CalcdexBattleState extends CalcdexPlayerState {
   /**
    * Current turn number, primarily recorded for debugging purposes.
    *
+   * @default 0
    * @since 1.0.4
    */
   turn?: number;
@@ -1289,6 +1305,7 @@ export interface CalcdexBattleState extends CalcdexPlayerState {
   /**
    * Whether the battle is currently active (i.e., not ended).
    *
+   * @default false
    * @since 1.0.3
    */
   active?: boolean;
@@ -1299,6 +1316,20 @@ export interface CalcdexBattleState extends CalcdexPlayerState {
    * @since 1.0.3
    */
   renderMode?: CalcdexRenderMode;
+
+  /**
+   * Whether Teambuilder presets have been included for this current battle.
+   *
+   * * This exists as a performance optimization so that the Teambuilder presets are only converted
+   *   once per battle.
+   *   - Since this is primarily being used in `syncBattle()`, this prevents conversions on each sync.
+   * * You should logical AND (`&&`) this with the `includeTeambuilder` Calcdex setting when determining
+   *   Teambuilder preset conversion.
+   *
+   * @default false
+   * @since 1.1.2
+   */
+  includedTeambuilder?: boolean;
 
   /**
    * Side key/ID of the player.
@@ -1449,6 +1480,7 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         format = null,
         rules = {},
         turn = 0,
+        active = false,
         renderMode,
         playerKey = null,
         authPlayerKey = null,
@@ -1485,10 +1517,13 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
 
         gen,
         format,
+        legacy: detectLegacyGen(format || gen),
         rules,
         turn,
+        active,
 
         renderMode,
+        includedTeambuilder: false,
 
         playerKey,
         authPlayerKey,

@@ -1,6 +1,8 @@
 import { PokemonPivotMoves } from '@showdex/consts/pokemon';
+import { formatId } from '@showdex/utils/app';
 import type { MoveName } from '@smogon/calc/dist/data/interface';
 import type { CalcdexPokemon } from '@showdex/redux/store';
+import { flattenAlts } from './flattenAlts';
 import { getDexForFormat } from './getDexForFormat';
 
 /**
@@ -17,6 +19,7 @@ export const mergeRevealedMoves = (
   const {
     types,
     moves,
+    altMoves,
     revealedMoves,
   } = pokemon || {};
 
@@ -50,7 +53,15 @@ export const mergeRevealedMoves = (
   // then, find the revealed moves to process
   // (using some() here for 'Hidden Power', so an existing move like 'Hidden Power Electric' should match,
   // therefore, filtered out of this list; otherwise, 'Hidden Power' will replace another move!)
-  const mergeableMoveNames = revealedMoves.filter((m) => !moves.some((n) => n.startsWith(m)));
+  // update (2023/01/06): changed the filter condition since using startsWith() will prevent something like
+  // 'Toxic' from merging if 'Toxic Spikes' already exists ('Toxic Spikes'.startsWith('Toxic') -> true ... LOL)
+  const mergeableMoveNames = revealedMoves
+    // .filter((m) => !moves.some((n) => n.startsWith(m)));
+    .filter((m) => (
+      m.startsWith('Hidden Power')
+        ? !moves.some((n) => n.startsWith(m))
+        : !moves.some((n) => n === m)
+    ));
 
   if (!mergeableMoveNames.length) {
     return moves;
@@ -61,7 +72,14 @@ export const mergeRevealedMoves = (
   ];
 
   for (const mergeableMoveName of mergeableMoveNames) {
-    const mergeableMove = dex.moves.get(mergeableMoveName);
+    // if the mergeableMoveName is Hidden Power (w/o a type), see if we can find a typed Hidden Power
+    // (something like 'hiddenpowerfire') in the Pokemon's move pool (i.e., altMoves), if available
+    // (if it happens to be just "Hidden Power" [Normal type], then all good cause of the logical OR)
+    const mergeableMove = dex.moves.get((
+      formatId(mergeableMoveName) === 'hiddenpower'
+        && altMoves?.length
+        && flattenAlts(altMoves).find((m) => /^hiddenpower\w+$/i.test(formatId(m)))
+    ) || mergeableMoveName);
 
     // HUH
     if (!mergeableMove?.exists) {

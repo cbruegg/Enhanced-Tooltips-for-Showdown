@@ -1,4 +1,4 @@
-import { flattenAlts } from '@showdex/utils/battle';
+import { detectLegacyGen, flattenAlts } from '@showdex/utils/battle';
 import { calcPresetCalcdexId } from '@showdex/utils/calc';
 import { env } from '@showdex/utils/core';
 import type { GenerationNum } from '@smogon/calc';
@@ -27,6 +27,8 @@ export const transformRandomsStatsResponse = (
   const output: CalcdexPokemonPreset[] = [];
 
   const gen = args?.gen || env.int<GenerationNum>('calcdex-default-gen');
+  const legacy = detectLegacyGen(gen);
+  const defaultIv = legacy ? 30 : 31;
 
   Object.entries(response).forEach(([
     speciesForme,
@@ -59,21 +61,23 @@ export const transformRandomsStatsResponse = (
       nature: 'Hardy',
 
       ivs: {
-        hp: ivs?.hp ?? 31,
-        atk: ivs?.atk ?? 31,
-        def: ivs?.def ?? 31,
-        spa: ivs?.spa ?? 31,
-        spd: ivs?.spd ?? 31,
-        spe: ivs?.spe ?? 31,
+        hp: ivs?.hp ?? defaultIv,
+        atk: ivs?.atk ?? defaultIv,
+        def: ivs?.def ?? defaultIv,
+        spa: ivs?.spa ?? defaultIv,
+        spd: ivs?.spd ?? defaultIv,
+        spe: ivs?.spe ?? defaultIv,
       },
 
       evs: {
-        hp: evs?.hp ?? 84,
-        atk: evs?.atk ?? 84,
-        def: evs?.def ?? 84,
-        spa: evs?.spa ?? 84,
-        spd: evs?.spd ?? 84,
-        spe: evs?.spe ?? 84,
+        ...(!legacy && {
+          hp: evs?.hp ?? 84,
+          atk: evs?.atk ?? 84,
+          def: evs?.def ?? 84,
+          spa: evs?.spa ?? 84,
+          spd: evs?.spd ?? 84,
+          spe: evs?.spe ?? 84,
+        }),
       },
     };
 
@@ -90,6 +94,8 @@ export const transformRandomsStatsResponse = (
       [[preset.item]] = altItems;
     }
 
+    // note: either `preset` or `rolePreset` will be pushed to the `output` array!
+    // (former if there are no roles and latter if there are)
     if (Object.keys(roles || {}).length) {
       Object.entries(roles).forEach(([
         roleName,
@@ -101,8 +107,12 @@ export const transformRandomsStatsResponse = (
 
         const rolePreset = { ...preset };
 
+        // update (2023/01/05): as mentioned in transformRandomsPresetResponse(),
+        // they added role-specific items and abilities
         const {
           weight,
+          abilities: roleAbilities,
+          items: roleItems,
           teraTypes,
           moves: roleMoves,
         } = roleStats;
@@ -113,6 +123,24 @@ export const transformRandomsStatsResponse = (
 
         if ((weight || 0) > 0) {
           rolePreset.usage = weight;
+        }
+
+        if (Object.keys(roleAbilities || {}).length) {
+          const altRoleAbilities = processUsageAlts(roleAbilities);
+
+          if (altRoleAbilities.length) {
+            rolePreset.altAbilities = altRoleAbilities;
+            [[rolePreset.ability]] = altRoleAbilities;
+          }
+        }
+
+        if (Object.values(roleItems || {}).length) {
+          const altRoleItems = processUsageAlts(roleItems);
+
+          if (altRoleItems.length) {
+            rolePreset.altItems = altRoleItems;
+            [[rolePreset.item]] = altRoleItems;
+          }
         }
 
         const altTeraTypes = processUsageAlts(teraTypes);

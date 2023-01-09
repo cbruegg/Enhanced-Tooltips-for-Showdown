@@ -35,6 +35,7 @@ export const DehydratedHellodexSettingsMap: Record<keyof ShowdexHellodexSettings
   openOnStart: 'oos',
   focusRoomsRoom: 'frr',
   showBattleRecord: 'sbr',
+  showDonateButton: 'sdb',
 };
 
 /**
@@ -45,18 +46,19 @@ export const DehydratedHellodexSettingsMap: Record<keyof ShowdexHellodexSettings
 export const DehydratedCalcdexSettingsMap: Record<keyof ShowdexCalcdexSettings, string> = {
   openOnStart: 'oos',
   openAs: 'oas',
+  openOnPanel: 'oop',
   // forcedOpenAs: 'foa',
   // closeOnEnd: 'coe',
   closeOn: 'con',
   destroyOnClose: 'doc',
-  preserveRenderStates: 'prs',
+  // preserveRenderStates: 'prs',
   defaultAutoSelect: 'das',
   showPlayerRatings: 'spr',
   authPosition: 'aps',
   showNicknames: 'snn',
   reverseIconName: 'rin',
   openSmogonPage: 'osp',
-  showAllFormes: 'saf',
+  // showAllFormes: 'saf',
   showAllOptions: 'sao',
   showNonDamageRanges: 'snd',
   downloadSmogonPresets: 'dsp',
@@ -128,9 +130,9 @@ export const DehydratedCalcdexSettingsMap: Record<keyof ShowdexCalcdexSettings, 
  * ```
  * OOS~{openOnStart}|
  * OAS~{openAs}|
+ * OOP~{openOnPanel}|
  * CON~{closeOn}|
  * DOC~{destroyOnClose}|
- * PRS~{preserveRenderStates}|
  * DAS~{defaultAutoSelect}|
  * APS~{authPosition}|
  * SNN~{showNicknames}|

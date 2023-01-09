@@ -31,7 +31,7 @@ async function main() {
       'we\'re not in Showdown anymore...',
     );
 
-    throw new Error('Showdex was attempted to start in an unsupported website.');
+    throw new Error('Showdex attempted to start in an unsupported website.');
   }
 
   const store = createStore();

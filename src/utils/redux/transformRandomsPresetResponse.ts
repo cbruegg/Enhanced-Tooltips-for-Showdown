@@ -1,3 +1,4 @@
+import { detectLegacyGen } from '@showdex/utils/battle';
 import { calcPresetCalcdexId } from '@showdex/utils/calc';
 import { env } from '@showdex/utils/core';
 // import { logger } from '@showdex/utils/debug';
@@ -30,6 +31,8 @@ export const transformRandomsPresetResponse = (
   const output: CalcdexPokemonPreset[] = [];
 
   const gen = args?.gen ?? env.int<GenerationNum>('calcdex-default-gen');
+  const legacy = detectLegacyGen(gen);
+  const defaultIv = legacy ? 30 : 31;
 
   // at least this is only O(n)
   // ...stonks
@@ -79,26 +82,30 @@ export const transformRandomsPresetResponse = (
       altMoves: moves,
 
       ivs: {
-        hp: ivs?.hp ?? 31,
-        atk: ivs?.atk ?? 31,
-        def: ivs?.def ?? 31,
-        spa: ivs?.spa ?? 31,
-        spd: ivs?.spd ?? 31,
-        spe: ivs?.spe ?? 31,
+        hp: ivs?.hp ?? defaultIv,
+        atk: ivs?.atk ?? defaultIv,
+        def: ivs?.def ?? defaultIv,
+        spa: ivs?.spa ?? defaultIv,
+        spd: ivs?.spd ?? defaultIv,
+        spe: ivs?.spe ?? defaultIv,
       },
 
       // see notes for the `evs` property in `PkmnSmogonRandomPreset` in `@showdex/redux/services/pkmnApi`
       // for more info about why 84 EVs is the default value for each stat
       evs: {
-        hp: evs?.hp ?? 84,
-        atk: evs?.atk ?? 84,
-        def: evs?.def ?? 84,
-        spa: evs?.spa ?? 84,
-        spd: evs?.spd ?? 84,
-        spe: evs?.spe ?? 84,
+        ...(!legacy && {
+          hp: evs?.hp ?? 84,
+          atk: evs?.atk ?? 84,
+          def: evs?.def ?? 84,
+          spa: evs?.spa ?? 84,
+          spd: evs?.spd ?? 84,
+          spe: evs?.spe ?? 84,
+        }),
       },
     };
 
+    // note: either `preset` or `rolePreset` will be pushed to the `output` array!
+    // (former if there are no roles and latter if there are)
     if (Object.keys(roles || {}).length) {
       Object.entries(roles).forEach(([
         roleName,
@@ -110,13 +117,27 @@ export const transformRandomsPresetResponse = (
 
         const rolePreset = { ...preset };
 
+        // update (2023/01/05): apparently they added role-specific abilities and items lol
+        // (but not all roles will have them, so make sure we're falling back to the ones attached to the Pokemon)
         const {
+          abilities: roleAbilities,
+          items: roleItems,
           teraTypes,
           moves: roleMoves,
         } = role;
 
         if (roleName) {
           rolePreset.name = roleName;
+        }
+
+        if (roleAbilities?.length) {
+          rolePreset.altAbilities = roleAbilities;
+          [rolePreset.ability] = roleAbilities;
+        }
+
+        if (roleItems?.length) {
+          rolePreset.altItems = roleItems;
+          [rolePreset.item] = roleItems;
         }
 
         if (teraTypes?.length) {

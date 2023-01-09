@@ -48,6 +48,9 @@ const l = logger('@showdex/pages/Calcdex/useCalcdex');
 // const gens = new Generations(($.extend(true, PkmnDex, Dex) as unknown) as ModdedDex);
 // const gens = new Generations(PkmnDex);
 
+/**
+ * @deprecated As of v1.1.1, this has been deprecated in favor of `CalcdexProvider` and `CalcdexPokeProvider`.
+ */
 export const useCalcdex = ({
   battle,
   battleId: manualBattleId,
@@ -75,7 +78,8 @@ export const useCalcdex = ({
 
   // determine if we should render the Calcdex
   const shouldRender = !battle?.calcdexDestroyed
-    && (!renderAsOverlay || settings?.preserveRenderStates || battle?.calcdexOverlayVisible);
+    // && (!renderAsOverlay || settings?.preserveRenderStates || battle?.calcdexOverlayVisible);
+    && (!renderAsOverlay || battle?.calcdexOverlayVisible);
 
   // handles `battle` changes
   React.useEffect(() => {
@@ -211,6 +215,7 @@ export const useCalcdex = ({
       battleId: null,
       gen: null,
       format: null,
+      legacy: false,
       rules: null,
       turn: 0,
       playerKey: 'p1',

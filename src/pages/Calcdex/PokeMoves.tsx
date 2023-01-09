@@ -8,100 +8,78 @@ import {
   ToggleButton,
   Tooltip,
 } from '@showdex/components/ui';
-import { useCalcdexSettings, useColorScheme } from '@showdex/redux/store';
-import { buildMoveOptions, legalLockedFormat } from '@showdex/utils/battle';
+import { useColorScheme } from '@showdex/redux/store';
+import { legalLockedFormat } from '@showdex/utils/battle';
 import { formatDamageAmounts, getMoveOverrideDefaults, hasMoveOverrides } from '@showdex/utils/calc';
 import { clamp, upsizeArray, writeClipboardText } from '@showdex/utils/core';
-import type { GenerationNum } from '@smogon/calc';
 import type { MoveName } from '@smogon/calc/dist/data/interface';
 import type { BadgeInstance } from '@showdex/components/ui';
-import type {
-  CalcdexBattleRules,
-  CalcdexMoveOverride,
-  CalcdexPokemon,
-  CalcdexPokemonPreset,
-} from '@showdex/redux/store';
+import type { CalcdexMoveOverride } from '@showdex/redux/store';
 import type { ElementSizeLabel } from '@showdex/utils/hooks';
-import type { SmogonMatchupHookCalculator } from './useSmogonMatchup';
+import { useCalcdexPokeContext } from './CalcdexPokeProvider';
 import { PokeMoveOptionTooltip } from './PokeMoveOptionTooltip';
 import styles from './PokeMoves.module.scss';
 
 export interface PokeMovesProps {
   className?: string;
   style?: React.CSSProperties;
-  gen: GenerationNum;
-  format?: string;
-  rules?: CalcdexBattleRules;
-  playerPokemon: CalcdexPokemon;
-  opponentPokemon?: CalcdexPokemon;
-  usage?: CalcdexPokemonPreset;
-  movesCount?: number;
   containerSize?: ElementSizeLabel;
-  calculateMatchup: SmogonMatchupHookCalculator;
-  onPokemonChange?: (pokemon: DeepPartial<CalcdexPokemon>) => void;
 }
 
 export const PokeMoves = ({
   className,
   style,
-  gen,
-  format,
-  rules,
-  playerPokemon: pokemon,
-  opponentPokemon,
-  usage,
-  movesCount = 4,
   containerSize,
-  calculateMatchup,
-  onPokemonChange,
 }: PokeMovesProps): JSX.Element => {
-  const settings = useCalcdexSettings();
+  const {
+    state,
+    settings,
+    playerPokemon: pokemon,
+    opponentPokemon,
+    moveOptions,
+    matchups,
+    updatePokemon,
+  } = useCalcdexPokeContext();
+
+  const {
+    gen,
+    format,
+    rules,
+  } = state;
+
   const colorScheme = useColorScheme();
-
-  // const dex = getDexForFormat(format);
-
   const copiedRefs = React.useRef<BadgeInstance[]>([]);
 
   const pokemonKey = pokemon?.calcdexId || pokemon?.name || '?';
   const friendlyPokemonName = pokemon?.speciesForme || pokemon?.name || pokemonKey;
 
-  const moveOptions = React.useMemo(() => buildMoveOptions(
-    format,
-    pokemon,
-    usage,
-    settings?.showAllOptions,
-  ), [
-    format,
-    pokemon,
-    settings,
-    usage,
-  ]);
+  const nationalDexFormat = !!format && [
+    'nationaldex',
+    'natdex',
+  ].some((f) => format.includes(f));
 
-  const matchups = React.useMemo(() => upsizeArray(
-    pokemon?.moves || [],
-    movesCount,
-    null,
-    true,
-  ).map((moveName) => calculateMatchup?.(moveName) || null), [
-    calculateMatchup,
-    movesCount,
-    pokemon,
-  ]);
+  const showZToggle = !!pokemon?.speciesForme && (
+    nationalDexFormat
+      || gen === 6
+      || gen === 7
+  );
 
-  const showZToggle = format?.includes('nationaldex')
-    || gen === 6
-    || gen === 7;
-
-  const showMaxToggle = !rules?.dynamax && gen < 9 && (
-    format?.includes('nationaldex')
+  const showMaxToggle = !!pokemon?.speciesForme && !rules?.dynamax && gen < 9 && (
+    nationalDexFormat
       || (gen === 8 && !format?.includes('bdsp'))
   );
 
-  const showEditButton = settings?.showMoveEditor === 'always'
-    || (settings?.showMoveEditor === 'meta' && !legalLockedFormat(format));
+  const showEditButton = !!pokemon?.speciesForme && (
+    settings?.showMoveEditor === 'always'
+      || (settings?.showMoveEditor === 'meta' && !legalLockedFormat(format))
+  );
 
   const handleMoveChange = (name: MoveName, index: number) => {
-    const moves = [...(pokemon?.moves || [] as MoveName[])];
+    const moves = upsizeArray(
+      [...(pokemon?.moves || [])],
+      matchups?.length,
+      null,
+    );
 
     if (!Array.isArray(moves) || (moves?.[index] && moves[index] === name)) {
       return;
@@ -110,7 +88,7 @@ export const PokeMoves = ({
     // when move is cleared, `name` will be null/undefined, so coalesce into an empty string
     moves[index] = (name?.replace('*', '') ?? '') as MoveName;
 
-    onPokemonChange?.({
+    updatePokemon({
       moves,
     });
   };
@@ -157,7 +135,7 @@ export const PokeMoves = ({
         </div>
 
         {
-          gen > 8 &&
+          (!!pokemon?.speciesForme && gen > 8) &&
           <ToggleButton
             className={cx(styles.toggleButton, styles.ultButton)}
             label="Tera"
@@ -170,7 +148,7 @@ export const PokeMoves = ({
             primary
             active={pokemon?.terastallized}
             disabled={!pokemon?.speciesForme || !pokemon.teraType || pokemon.teraType === '???'}
-            onPress={() => onPokemonChange?.({
+            onPress={() => updatePokemon({
               terastallized: !pokemon?.terastallized,
               useZ: false,
               useMax: false,
@@ -192,7 +170,7 @@ export const PokeMoves = ({
             primary
             active={pokemon?.useZ}
             disabled={!pokemon?.speciesForme}
-            onPress={() => onPokemonChange?.({
+            onPress={() => updatePokemon({
               terastallized: false,
               useZ: !pokemon?.useZ,
               useMax: false,
@@ -214,7 +192,7 @@ export const PokeMoves = ({
             primary
             active={pokemon?.useMax}
             disabled={!pokemon?.speciesForme}
-            onPress={() => onPokemonChange?.({
+            onPress={() => updatePokemon({
               terastallized: false,
               useZ: false,
               useMax: !pokemon?.useMax,
@@ -236,7 +214,7 @@ export const PokeMoves = ({
             primary={pokemon?.showMoveOverrides}
             // active={pokemon?.showMoveOverrides}
             disabled={!pokemon?.speciesForme}
-            onPress={() => onPokemonChange?.({
+            onPress={() => updatePokemon({
               showMoveOverrides: !pokemon?.showMoveOverrides,
             })}
           />
@@ -270,7 +248,7 @@ export const PokeMoves = ({
               primary
               active={pokemon?.criticalHit}
               disabled={!pokemon?.speciesForme}
-              onPress={() => onPokemonChange?.({
+              onPress={() => updatePokemon({
                 criticalHit: !pokemon?.criticalHit,
               })}
             />
@@ -288,7 +266,7 @@ export const PokeMoves = ({
       )}
 
       {/* (actual) moves */}
-      {Array(movesCount).fill(null).map((_, i) => {
+      {Array(matchups.length).fill(null).map((_, i) => {
         // const moveName = pokemon?.moves?.[i];
         // const move = moveName ? dex?.moves.get(moveName) : null;
         // const moveDescription = move?.shortDesc || move?.desc;
@@ -446,7 +424,7 @@ export const PokeMoves = ({
                   <PokeTypeField
                     input={{
                       value: moveOverrides.type,
-                      onChange: (value: Showdown.TypeName) => onPokemonChange?.({
+                      onChange: (value: Showdown.TypeName) => updatePokemon({
                         moveOverrides: {
                           [moveName]: { type: value },
                         },
@@ -477,7 +455,7 @@ export const PokeMoves = ({
                     )}
                     tooltipDisabled={!settings?.showUiTooltips}
                     primary={damagingMove}
-                    onPress={damagingMove ? () => onPokemonChange?.({
+                    onPress={damagingMove ? () => updatePokemon({
                       moveOverrides: {
                         [moveName]: {
                           category: moveOverrides.category === 'Physical'
@@ -506,7 +484,7 @@ export const PokeMoves = ({
                           absoluteHover
                           input={{
                             value: moveOverrides[basePowerKey],
-                            onChange: (value: number) => onPokemonChange?.({
+                            onChange: (value: number) => updatePokemon({
                               moveOverrides: {
                                 [moveName]: { [basePowerKey]: clamp(0, value, 999) },
                               },
@@ -540,7 +518,7 @@ export const PokeMoves = ({
                             primary
                             active={moveOverrides.offensiveStat === 'atk'}
                             activeScale={moveOverrides.offensiveStat === 'atk' ? 0.98 : undefined}
-                            onPress={() => onPokemonChange?.({
+                            onPress={() => updatePokemon({
                               moveOverrides: {
                                 [moveName]: { offensiveStat: 'atk' },
                               },
@@ -559,7 +537,7 @@ export const PokeMoves = ({
                             primary
                             active={moveOverrides.offensiveStat === 'spa'}
                             activeScale={moveOverrides.offensiveStat === 'spa' ? 0.98 : undefined}
-                            onPress={() => onPokemonChange?.({
+                            onPress={() => updatePokemon({
                               moveOverrides: {
                                 [moveName]: { offensiveStat: 'spa' },
                               },
@@ -586,7 +564,7 @@ export const PokeMoves = ({
                             primary
                             active={moveOverrides.defensiveStat === 'def'}
                             activeScale={moveOverrides.defensiveStat === 'def' ? 0.98 : undefined}
-                            onPress={() => onPokemonChange?.({
+                            onPress={() => updatePokemon({
                               moveOverrides: {
                                 [moveName]: { defensiveStat: 'def' },
                               },
@@ -605,7 +583,7 @@ export const PokeMoves = ({
                             primary
                             active={moveOverrides.defensiveStat === 'spd'}
                             activeScale={moveOverrides.defensiveStat === 'spd' ? 0.98 : undefined}
-                            onPress={() => onPokemonChange?.({
+                            onPress={() => updatePokemon({
                               moveOverrides: {
                                 [moveName]: { defensiveStat: 'spd' },
                               },
@@ -623,7 +601,7 @@ export const PokeMoves = ({
                             tooltipDisabled={!settings?.showUiTooltips}
                             primary
                             active={moveOverrides.defensiveStat === 'ignore'}
-                            onPress={() => onPokemonChange?.({
+                            onPress={() => updatePokemon({
                               moveOverrides: {
                                 [moveName]: { defensiveStat: 'ignore' },
                               },
@@ -644,7 +622,7 @@ export const PokeMoves = ({
                     tooltipDisabled={!settings?.showUiTooltips}
                     primary={hasOverrides}
                     disabled={!hasOverrides}
-                    onPress={() => onPokemonChange?.({
+                    onPress={() => updatePokemon({
                       moveOverrides: {
                         [moveName]: null,
                       },
@@ -662,7 +640,7 @@ export const PokeMoves = ({
                       <Button
                         className={cx(
                           styles.damageButton,
-                          !showMatchupTooltip && styles.disabled,
+                          (!showMatchupTooltip || !hasDamageRange) && styles.disabled,
                         )}
                         labelClassName={cx(
                           styles.damageButtonLabel,
@@ -673,10 +651,10 @@ export const PokeMoves = ({
                         tooltip={matchupTooltip}
                         tooltipTrigger="mouseenter"
                         tooltipTouch={['hold', 500]}
-                        tooltipDisabled={!showMatchupTooltip}
+                        tooltipDisabled={!showMatchupTooltip || !hasDamageRange}
                         hoverScale={1}
                         absoluteHover
-                        disabled={!showMatchupTooltip}
+                        disabled={!showMatchupTooltip || !hasDamageRange}
                         onPress={() => handleDamagePress(i, [
                           description.raw,
                           showDamageAmounts && `(${description.damageAmounts})`,
@@ -689,7 +667,7 @@ export const PokeMoves = ({
                         delay={[1000, 50]}
                         trigger="mouseenter"
                         touch={['hold', 500]}
-                        disabled={!showMatchupTooltip}
+                        disabled={!showMatchupTooltip || !hasDamageRange}
                       >
                         <div
                           className={cx(
