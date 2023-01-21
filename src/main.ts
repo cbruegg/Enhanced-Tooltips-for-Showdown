@@ -4,6 +4,7 @@ import { logger } from '@showdex/utils/debug';
 import type { RootStore } from '@showdex/redux/store';
 import '@showdex/styles/global.scss';
 import { getQuickJS } from 'quickjs-emscripten';
+import { supportsRegexLookBehindNatively } from './utils/battle/regex';
 
 // Provided by the enhanced-tooltips plugin (https://github.com/rowin1/Pokemon-Showdown-Enhanced-Tooltips)
 require('./index');
@@ -21,7 +22,9 @@ export type ShowdexBootstrapper = (
 ) => void;
 
 async function main() {
-  await getQuickJS();
+  if (!supportsRegexLookBehindNatively()) {
+    await getQuickJS();
+  }
 
   const l = logger('@showdex/main');
 
