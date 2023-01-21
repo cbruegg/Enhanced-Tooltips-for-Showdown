@@ -69,10 +69,6 @@
 		A1BBC4F528DCA1F0006216ED /* icon128.png in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CD28DCA1EF006216ED /* icon128.png */; };
 		A1BBC4F628DCA1F0006216ED /* icon128.png in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CD28DCA1EF006216ED /* icon128.png */; };
 		A1BBC4F728DCA1F0006216ED /* icon128.png in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CD28DCA1EF006216ED /* icon128.png */; };
-		A1BBC4F828DCA1F0006216ED /* main.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CE28DCA1EF006216ED /* main.js.LICENSE.txt */; };
-		A1BBC4F928DCA1F0006216ED /* main.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CE28DCA1EF006216ED /* main.js.LICENSE.txt */; };
-		A1BBC4FA28DCA1F0006216ED /* main.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CE28DCA1EF006216ED /* main.js.LICENSE.txt */; };
-		A1BBC4FB28DCA1F0006216ED /* main.js.LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CE28DCA1EF006216ED /* main.js.LICENSE.txt */; };
 		A1BBC4FC28DCA1F0006216ED /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CF28DCA1EF006216ED /* main.js */; };
 		A1BBC4FD28DCA1F0006216ED /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CF28DCA1EF006216ED /* main.js */; };
 		A1BBC4FE28DCA1F0006216ED /* main.js in Resources */ = {isa = PBXBuildFile; fileRef = A1BBC4CF28DCA1EF006216ED /* main.js */; };
@@ -211,7 +207,6 @@
 		A1BBC4CB28DCA1EF006216ED /* clipboard-heart.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "clipboard-heart.svg"; path = "../../../../dist/chrome/clipboard-heart.svg"; sourceTree = "<group>"; };
 		A1BBC4CC28DCA1EF006216ED /* icon48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon48.png; path = ../../../../dist/chrome/icon48.png; sourceTree = "<group>"; };
 		A1BBC4CD28DCA1EF006216ED /* icon128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon128.png; path = ../../../../dist/chrome/icon128.png; sourceTree = "<group>"; };
-		A1BBC4CE28DCA1EF006216ED /* main.js.LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.js.LICENSE.txt; path = ../../../../dist/chrome/main.js.LICENSE.txt; sourceTree = "<group>"; };
 		A1BBC4CF28DCA1EF006216ED /* main.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = main.js; path = ../../../../dist/chrome/main.js; sourceTree = "<group>"; };
 		A1BBC4D028DCA1EF006216ED /* bug.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = bug.svg; path = ../../../../dist/chrome/bug.svg; sourceTree = "<group>"; };
 		A1BBC4D228DCA1EF006216ED /* icon64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon64.png; path = ../../../../dist/chrome/icon64.png; sourceTree = "<group>"; };
@@ -376,7 +371,6 @@
 				A1BBC4CD28DCA1EF006216ED /* icon128.png */,
 				A1BBC4DF28DCA1F0006216ED /* info-circle.svg */,
 				A1BBC4CF28DCA1EF006216ED /* main.js */,
-				A1BBC4CE28DCA1EF006216ED /* main.js.LICENSE.txt */,
 				A1BBC4DD28DCA1F0006216ED /* remove-circle.svg */,
 				A1BBC4D928DCA1EF006216ED /* showdex.svg */,
 				A1BBC4DB28DCA1F0006216ED /* signpost.svg */,
@@ -532,7 +526,6 @@
 				A1BBC53828DCA1F0006216ED /* apple-touch-icon.png in Resources */,
 				A193CE6A28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */,
 				A1AB7C582798AEFA00725B12 /* Script.js in Resources */,
-				A1BBC4F828DCA1F0006216ED /* main.js.LICENSE.txt in Resources */,
 				A1BBC52828DCA1F0006216ED /* sparkle.svg in Resources */,
 				A1AB7C5C2798AEFA00725B12 /* Assets.xcassets in Resources */,
 				A1AB7C2E2798AEFA00725B12 /* Main.storyboard in Resources */,
@@ -568,7 +561,6 @@
 				A1ABECBC27D128460043CAB3 /* manifest.json in Resources */,
 				A1BBC51928DCA1F0006216ED /* content.js in Resources */,
 				A1BBC52D28DCA1F0006216ED /* signpost.svg in Resources */,
-				A1BBC4F928DCA1F0006216ED /* main.js.LICENSE.txt in Resources */,
 				A1BBC4E928DCA1F0006216ED /* background.js in Resources */,
 				A1AB7C592798AEFA00725B12 /* Script.js in Resources */,
 				A1BBC51128DCA1F0006216ED /* tize.svg in Resources */,
@@ -617,7 +609,6 @@
 				A1BBC53228DCA1F0006216ED /* github-face.svg in Resources */,
 				A193CE6C28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */,
 				A1BBC53E28DCA1F0006216ED /* info-circle.svg in Resources */,
-				A1BBC4FA28DCA1F0006216ED /* main.js.LICENSE.txt in Resources */,
 				A1BBC50A28DCA1F0006216ED /* icon64.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -650,7 +641,6 @@
 				A1BBC53328DCA1F0006216ED /* github-face.svg in Resources */,
 				A193CE6D28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */,
 				A1BBC53F28DCA1F0006216ED /* info-circle.svg in Resources */,
-				A1BBC4FB28DCA1F0006216ED /* main.js.LICENSE.txt in Resources */,
 				A1BBC50B28DCA1F0006216ED /* icon64.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
