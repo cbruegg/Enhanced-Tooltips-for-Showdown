@@ -60,7 +60,7 @@ export const ShowdexPlayerTitles: ShowdexPlayerTitle[] = [{
     ['ttoki', 'twitch.tv/tt0ki'],
   ],
 }, {
-  title: 'Royalty',
+  title: 'Showdex VIP',
   icon: 'crown',
   iconDescription: 'Crown Icon',
 
@@ -70,6 +70,7 @@ export const ShowdexPlayerTitles: ShowdexPlayerTitle[] = [{
   },
 
   userIds: [
+    'agentlag',
     ['finchinator', 'Our Lord and Savior'],
     ['mudkipnerd', "What's a King to a God"],
     ['nails', 'VGC Legend'],
@@ -84,6 +85,43 @@ export const ShowdexPlayerTitles: ShowdexPlayerTitle[] = [{
     dark: '#9C27B0',
   },
 
-  /** @todo add donators' usernames to this list */
+  userIds: [
+    'fr1e5',
+    'fubwubs',
+    'lunarvania',
+    'momalaharris',
+  ],
+}, {
+  title: 'Blaziken Patron',
+  icon: 'fire',
+  iconDescription: 'Fire Icon',
+
+  color: {
+    light: '#C62828',
+    dark: '#F44336',
+  },
+
+  userIds: [],
+}, {
+  title: 'Pop Bomb Patron',
+  icon: 'mouse',
+  iconDescription: 'Mouse Icon',
+
+  color: {
+    light: '#0277BD',
+    dark: '#29B6F6',
+  },
+
+  userIds: [],
+}, {
+  title: 'Supreme Overlord Patron',
+  icon: 'winged-sword',
+  iconDescription: 'Winged Sword Icon',
+
+  color: {
+    light: '#F57F17',
+    dark: '#FFB300',
+  },
+
   userIds: [],
 }];
