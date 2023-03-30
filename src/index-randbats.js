@@ -1,11 +1,11 @@
 var DATA = {};
 
 var SUPPORTED = [
-  'gen1randombattle', 'gen2randombattle',  'gen3randombattle',
-  'gen4randombattle', 'gen5randombattle', 'gen6randombattle',
-  'gen7randombattle', 'gen7letsgorandombattle', 'gen7randomdoublesbattle',
+  'gen9randombattle', 'gen9unratedrandombattle', 'gen9randomdoublesbattle',
   'gen8randombattlenodmax', 'gen8randombattle', 'gen8bdsprandombattle', 'gen8randomdoublesbattle',
-  'gen9randombattle', 'gen9unratedrandombattle', 'gen9randomdoublesbattle'
+  'gen7randombattle', 'gen7letsgorandombattle', 'gen7randomdoublesbattle',
+  'gen6randombattle', 'gen5randombattle', 'gen4randombattle', 'gen3randombattle',
+  'gen2randombattle', 'gen1randombattle',
 ];
 
 // Random Battle sets are generated based on battle-only forms which makes disambiguating sets
@@ -22,21 +22,27 @@ if (TOOLTIP) {
     (function (f) {
       var request = new XMLHttpRequest();
       request.addEventListener('load', function() {
-        var data = {};
-        var json = JSON.parse(request.responseText);
-        for (var name in json) {
-          var pokemon = json[name];
-          data[pokemon.level] = data[pokemon.level] || {};
-          var species = Dex.species.get(name);
-          var id = toID(species.forme === 'Gmax'
-            ? species.baseSpecies
-            : species.battleOnly || species.name);
-          data[pokemon.level][id] = data[pokemon.level][id] || [];
-          data[pokemon.level][id].push(Object.assign({name: name}, pokemon));
+        try {
+          var data = {};
+          var json = JSON.parse(request.responseText);
+          for (var name in json) {
+            var pokemon = json[name];
+            data[pokemon.level] = data[pokemon.level] || {};
+            // Dex.forGen not important here because we're not looking at stats
+            var species = Dex.species.get(name);
+            var id = toID(species.forme === 'Gmax'
+              ? species.baseSpecies
+              : species.battleOnly || species.name);
+            data[pokemon.level][id] = data[pokemon.level][id] || [];
+            data[pokemon.level][id].push(Object.assign({name: name}, pokemon));
+          }
+          DATA[f] = data;
+        } catch (err) {
+          console.error('Unable to load data for ' + f +
+            ' - please check to see if your Pokémon Showdown Randbats Tooltip is up to date.');
         }
-        DATA[f] = data;
       });
-      request.open('GET', 'https://pkmn.github.io/randbats/data/' + f + '.json');
+      request.open('GET', 'https://pkmn.github.io/randbats/data/stats/' + f + '.json');
       request.send(null);
     })(format);
   }
@@ -48,21 +54,26 @@ if (TOOLTIP) {
     var format = toID(this.battle.tier);
     if (!format || !format.includes('random')) return original;
 
-    var species = Dex.species.get(clientPokemon.speciesForme);
-    if (!species) return original;
-
     var gen = Number(format.charAt(3));
     var letsgo = format.includes('letsgo');
     var gameType = this.battle.gameType;
+
+    var species = Dex.forGen(gen).species.get(
+      clientPokemon.volatiles.formechange
+      ? clientPokemon.volatiles.formechange[1]
+      : clientPokemon.speciesForme);
+    if (!species) return original;
 
     if (!['singles', 'doubles'].includes(gameType)) {
       format = 'gen' + gen + 'randomdoublesbattle';
     } else if (format.includes('monotype') || format.includes('unrated')) {
       format = 'gen' + gen + 'randombattle';
+    } else if (format.endsWith('blitz')) {
+      format = format.slice(0, -5);
     }
     if (!DATA[format]) return original;
 
-    var data = DATA[format][species.name === 'Zoroark' ? 0 : clientPokemon.level];
+    var data = DATA[format][species.baseSpecies === 'Zoroark' ? 0 : clientPokemon.level];
     if (!data) return original;
 
     var cosmetic = species.cosmeticFormes && species.cosmeticFormes.includes(species.name);
@@ -77,13 +88,15 @@ if (TOOLTIP) {
 
     if (data.length === 1) {
       data[0].level = clientPokemon.level;
-      return original + displaySet(gen, gameType, letsgo, species, data[0]);
+      return original + displaySet(gen, gameType, letsgo, species, data[0], undefined, clientPokemon);
     }
     if (toID(forme) !== id) {
       var match = [];
       for (var set of data) {
         set.level = clientPokemon.level;
-        if (set.name === forme) match.push(displaySet(gen, gameType, letsgo, species, set));
+        if (set.name === forme) {
+          match.push(displaySet(gen, gameType, letsgo, species, set, undefined, clientPokemon));
+        }
       }
       if (match.length === 1) return original + match[0];
     }
@@ -92,12 +105,64 @@ if (TOOLTIP) {
       set.level = clientPokemon.level;
       // Technically different formes will have different base stats, but given at this stage
       // we're still in the base forme we simply use the base forme base stats for everything.
-      buf += displaySet(gen, gameType, letsgo, species, set, set.name);
+      buf += displaySet(gen, gameType, letsgo, species, set, set.name, clientPokemon);
     }
     return buf;
   }
 
-  function displaySet(gen, gameType, letsgo, species, data, name) {
+  function displaySet(gen, gameType, letsgo, species, data, name, clientPokemon) {
+    var noHP = true;
+    if (data.moves) {
+      for (var move in data.moves) {
+        if (move.startsWith('Hidden Power')) {
+          noHP = false;
+          break;
+        }
+      }
+    }
+
+    var buf = '<div style="border-top: 1px solid #888; background: #dedede">';
+    if (name) buf += '<p><b>' + name + '</b></p>';
+
+    var multi = !['singles', 'doubles'].includes(gameType);
+    if (data.roles) {
+      var roles = filter(data.roles, clientPokemon);
+      var i = 0;
+      for (var role of roles) {
+        buf += (i == 0 ? '<div>' : '<div style="border-top: 1px solid #888;">');
+        buf += '<p><span style="text-decoration: underline;">' + role[0] + '</span> ' +
+          '<small>(' + Math.round(role[1].weight * 100) + '%)</small>';
+          if (gen >= 3 && !letsgo) {
+            buf += '<p><small>Abilities:</small> ' + display(role[1].abilities) + '</p>';
+          }
+          if (gen >= 2 && !(letsgo && !role[1].items)) {
+            buf += '<p><small>Items:</small> ' +
+              (role[1].items ? display(role[1].items) : '(No Item)') + '</p>';
+          }
+        if (gen === 9) {
+          buf += '<p><small>Tera Types:</small> ' + display(role[1].teraTypes) + '</p>';
+        }
+        buf += '<p><small>Moves:</small> ' + display(role[1].moves, multi) + '</p>';
+        buf += displayStats(gen, letsgo, species, role[1], data.level, noHP) + '</div>';
+        i++;
+      }
+    } else {
+      if (gen >= 3 && !letsgo) {
+        buf += '<p><small>Abilities:</small> ' + display(data.abilities) + '</p>';
+      }
+      if (gen >= 2 && !(letsgo && !data.items)) {
+        buf += '<p><small>Items:</small> ' +
+          (data.items ? display(data.items) : '(No Item)') + '</p>';
+      }
+      buf += '<p><small>Moves:</small> ' + display(data.moves, multi) + '</p>';
+      buf += displayStats(gen, letsgo, species, data, data.level, noHP);
+    }
+
+    buf += '</div>';
+    return buf;
+  }
+
+  function displayStats(gen, letsgo, species, data, level, noHP) {
     var stats = {};
     for (var stat in species.baseStats) {
       stats[stat] = calc(
@@ -106,46 +171,11 @@ if (TOOLTIP) {
         species.baseStats[stat],
         'ivs' in data && stat in data.ivs ? data.ivs[stat] : (gen < 3 ? 30 : 31),
         'evs' in data && stat in data.evs ? data.evs[stat] : (gen < 3 ? 255 : letsgo ? 0 : 85),
-        data.level,
+        level,
         letsgo);
     }
 
-    var moves = data.moves;
-    var noHP = true;
-    var multi = !['singles', 'doubles'].includes(gameType);
-    if (gen < 9) {
-      // Gen 9 doesn't have the `moves` field anymore, but doesn't have HP anymore anyway
-      for (var move of moves) {
-        if (move.startsWith('Hidden Power')) noHP = false;
-      }
-    }
-
-    var buf = '<div style="border-top: 1px solid #888; background: #dedede">';
-    if (name) buf += '<p><b>' + name + '</b></p>';
-    if (gen >= 3 && !letsgo) {
-      buf += '<p><small>Abilities:</small> ' + data.abilities.join(', ') + '</p>';
-    }
-    if (gen >= 2 && !(letsgo && !data.items)) {
-      buf +=
-        '<p><small>Items:</small> ' + (data.items ? data.items.join(', ') : '(No Item)') + '</p>';
-    }
-    if (gen < 9) {
-      buf += '<p><small>Moves:</small> ' + moves.join(', ') + '</p>';
-    } else {
-      for (const roleName in data.roles) {
-        const roleData = data.roles[roleName];
-        const moves = roleData.moves;
-        buf += `<p><i>${roleName}</i><br><small>Moves:</small> ` + moves.join(', ');
-        const teraTypes = roleData.teraTypes;
-        if (teraTypes) {
-          buf += "<br><small>Tera Types:</small> ";
-          buf += teraTypes.join(', ');
-        }
-        buf += '</p>';
-      }
-    }
-
-    buf += '<p>';
+    var buf ='<p>';
     for (var statName of Dex.statNamesExceptHP) {
       if (gen === 1 && statName === 'spd') continue;
       var known = gen === 1 || (gen === 2 && noHP) ||
@@ -157,9 +187,36 @@ if (TOOLTIP) {
       buf += (italic ? '<i>' : '') + stats[statName] + (italic ? '</i>' : '');
     }
     buf += '</p>';
-
-    buf += '</div>';
     return buf;
+  }
+
+  function compare(a, b) {
+    return b[1] - a[1] || a[0].localeCompare(b[0]);
+  }
+
+  function filter(roles, clientPokemon) {
+    var all = Object.entries(roles);
+    if (!clientPokemon) return all;
+
+    var possible = [];
+    outer: for (var role of all) {
+      if (clientPokemon.terastallized && !role[1].teraTypes[clientPokemon.terastallized]) continue;
+      for (var moveslot of clientPokemon.moveTrack) {
+        if (!role[1].moves[moveslot[0]]) continue outer;
+      }
+      possible.push(role);
+    }
+    return possible;
+  }
+
+  function display(stats, multi) {
+    var buf = [];
+    for (var key in stats) {
+      if (stats[key] === 0 || (multi && key === 'Ally Switch')) continue;
+      buf.push(key + (stats[key] >= 1
+        ? '' : ' <small>(' + Math.round(stats[key] * 100) + '%)</small>'));
+    }
+    return buf.join(', ');
   }
 
   function tr(num) {
