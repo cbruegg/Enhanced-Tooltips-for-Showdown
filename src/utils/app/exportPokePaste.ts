@@ -8,7 +8,7 @@ import {
 // import type { GenerationNum } from '@smogon/calc';
 import type { CalcdexPokemon } from '@showdex/redux/store';
 import { formatId } from './formatId';
-import { replace } from './regex';
+import { replace } from '../battle/regex';
 
 /**
  * Internally-used helper function to export a `Showdown.StatsTable` to the PokePaste syntax.
