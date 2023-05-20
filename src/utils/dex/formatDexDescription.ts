@@ -1,7 +1,7 @@
 import { times } from '@showdex/consts/core';
 import { V } from '@use-gesture/core/dist/declarations/src/utils/maths';
 import { getQuickJSSync } from 'quickjs-emscripten';
-import { replace } from './regex';
+import { replace } from '../battle/regex';
 
 /**
  * Internally-used list of `replace()` formatters, where `regex` corresponds to the first argument and
