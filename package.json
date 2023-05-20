@@ -29,7 +29,7 @@
     "dev:chrome": "yarn clean:dev:chrome && NODE_ENV=development BUILD_TARGET=chrome node --conditions=development --experimental-specifier-resolution=node --trace-warnings -- ./scripts/dev",
     "dev:firefox": "yarn clean:dev:firefox && NODE_ENV=development BUILD_TARGET=firefox node --conditions=development --experimental-specifier-resolution=node --trace-warnings -- ./scripts/dev",
     "build": "yarn build:chrome && yarn build:firefox",
-    "build:chrome": "yarn clean:prod:chrome && NODE_ENV=production BUILD_TARGET=chrome node --conditions=production --experimental-specifier-resolution=node -- ./scripts/build",
+    "build:chrome": "yarn clean:prod:chrome && NODE_ENV=production BUILD_TARGET=chrome node --conditions=production --experimental-specifier-resolution=node --trace-warnings -- ./scripts/build",
     "build:firefox": "yarn clean:prod:firefox && NODE_ENV=production BUILD_TARGET=firefox node --conditions=production --experimental-specifier-resolution=node -- ./scripts/build"
   },
   "config": {
