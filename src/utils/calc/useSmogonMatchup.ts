@@ -1,11 +1,7 @@
 import * as React from 'react';
-import { type MoveName } from '@smogon/calc';
-import {
-  type CalcdexBattleField,
-  type CalcdexPlayer,
-  type CalcdexPokemon,
-  type ShowdexCalcdexSettings,
-} from '@showdex/redux/store';
+import { type GameType, type MoveName } from '@smogon/calc';
+import { type ShowdexCalcdexSettings } from '@showdex/interfaces/app';
+import { type CalcdexBattleField, type CalcdexPlayer, type CalcdexPokemon } from '@showdex/interfaces/calc';
 import { type CalcdexMatchupResult, calcSmogonMatchup } from './calcSmogonMatchup';
 
 export type SmogonMatchupHookCalculator = (
@@ -21,6 +17,7 @@ export type SmogonMatchupHookCalculator = (
  */
 export const useSmogonMatchup = (
   format: string,
+  gameType: GameType,
   playerPokemon: CalcdexPokemon,
   opponentPokemon: CalcdexPokemon,
   player?: CalcdexPlayer,
@@ -32,6 +29,7 @@ export const useSmogonMatchup = (
   playerMove,
 ) => calcSmogonMatchup(
   format,
+  gameType,
   playerPokemon,
   opponentPokemon,
   playerMove,
@@ -44,6 +42,7 @@ export const useSmogonMatchup = (
   allPlayers,
   field,
   format,
+  gameType,
   opponent,
   opponentPokemon,
   player,

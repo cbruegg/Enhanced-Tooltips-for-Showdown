@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import Svg from 'react-inlinesvg';
 import cx from 'classnames';
+import { MemberIcon } from '@showdex/components/app';
 import { BuildInfo } from '@showdex/components/debug';
 import {
   type BaseButtonProps,
@@ -9,10 +11,14 @@ import {
   Tooltip,
 } from '@showdex/components/ui';
 import { ShowdexDonorTiers, ShowdexPatronTiers } from '@showdex/consts/app';
-import { useAuthUsername, useColorScheme } from '@showdex/redux/store';
+import {
+  useAuthUsername,
+  useColorScheme,
+  useGlassyTerrain,
+  useHellodexState,
+} from '@showdex/redux/store';
 import { findPlayerTitle } from '@showdex/utils/app';
 import { env, getResourceUrl } from '@showdex/utils/core';
-import { type ElementSizeLabel } from '@showdex/utils/hooks';
 import { GradientButton } from '../GradientButton';
 import { PatronageTierRenderer } from './PatronageTierRenderer';
 import styles from './PatronagePane.module.scss';
@@ -20,7 +26,6 @@ import styles from './PatronagePane.module.scss';
 export interface PatronagePaneProps {
   className?: string;
   style?: React.CSSProperties;
-  containerSize?: ElementSizeLabel,
   onRequestClose?: BaseButtonProps['onPress'];
 }
 
@@ -30,25 +35,29 @@ const patronageUrl = env('hellodex-patronage-url');
 export const PatronagePane = ({
   className,
   style,
-  containerSize = 'md',
   onRequestClose,
 }: PatronagePaneProps): JSX.Element => {
+  const { t } = useTranslation('hellodex');
+  const state = useHellodexState();
+  const colorScheme = useColorScheme();
+  const glassyTerrain = useGlassyTerrain();
+
   const authUser = useAuthUsername();
   const authTitle = findPlayerTitle(authUser, true);
-  const colorScheme = useColorScheme();
 
   return (
     <div
       className={cx(
         styles.container,
         !!colorScheme && styles[colorScheme],
-        ['xs', 'sm'].includes(containerSize) && styles.verySmol,
+        glassyTerrain && styles.glassy,
+        ['xs', 'sm'].includes(state.containerSize) && styles.verySmol,
         className,
       )}
       style={style}
     >
       <Tooltip
-        content="Close Supporter Info"
+        content={t('patronage.header.closeTooltip')}
         offset={[0, 10]}
         delay={[1000, 50]}
         trigger="mouseenter"
@@ -57,7 +66,7 @@ export const PatronagePane = ({
         <BaseButton
           className={styles.closeButton}
           display="inline"
-          aria-label="Close Supporter Info"
+          aria-label={t('patronage.header.closeTooltip')}
           onPress={onRequestClose}
         >
           <Svg
@@ -85,17 +94,48 @@ export const PatronagePane = ({
                 ].join(', '),
               } : undefined}
             >
-              <Svg
+              {/* <Svg
                 className={styles.icon}
                 style={authTitle?.iconColor?.[colorScheme] ? {
                   color: authTitle.iconColor[colorScheme],
                 } : undefined}
                 src={getResourceUrl(`${authTitle?.icon || 'sparkle'}.svg`)}
                 description={authTitle?.iconDescription || 'Sparkle Icon'}
+              /> */}
+              <MemberIcon
+                className={styles.icon}
+                member={{
+                  name: authUser,
+                  showdownUser: true,
+                  periods: null,
+                }}
+                defaultSrc="sparkle"
               />
             </div>
 
-            <div className={styles.title}>
+            <Trans
+              t={t}
+              i18nKey={`patronage.header.${authTitle?.title ? 'supporterTitle' : 'defaultTitle'}`}
+              parent="div"
+              className={styles.title}
+              shouldUnescape
+              values={{ name: authUser || 'You' }}
+              components={{
+                dash: (
+                  <span
+                    className={styles.thin}
+                    style={{ opacity: 0.48 }}
+                  >
+                    &mdash;
+                  </span>
+                ),
+                thin: <span className={styles.thin} />,
+                heart: <i className="fa fa-heart" />,
+                supporter: <span style={{ color: authTitle?.color?.[colorScheme] }} />,
+              }}
+            />
+
+            {/* <div className={styles.title}>
               {authTitle?.title ? (
                 <>
                   <span className={styles.thin}>
@@ -103,9 +143,6 @@ export const PatronagePane = ({
                   </span>
                   {' '}
                   <i className="fa fa-heart" />
-                  {/* <span className={styles.thin}>
-                    's
-                  </span> */}
                   <br />
                   <span
                     style={authTitle.color?.[colorScheme] ? {
@@ -132,21 +169,24 @@ export const PatronagePane = ({
                   </span>
                 </>
               )}
-            </div>
+            </div> */}
           </div>
 
           <div className={styles.supportMethods}>
             <div className={styles.supportMethod}>
               <div className={styles.title}>
-                PayPal
+                {t('patronage.paypal.name')}
               </div>
 
               <div className={styles.info}>
-                <div className={styles.description} style={{ marginBottom: 15 }}>
-                  All donations are <em>one-time</em> contributions, entitling you to the benefits
-                  of the lowest Patreon tier, excluding benefits awarded to active pledges.
-                  Please visit our Patreon for specifics on awarded benefits.
-                </div>
+                <Trans
+                  t={t}
+                  i18nKey="patronage.paypal.description"
+                  parent="div"
+                  className={styles.description}
+                  style={{ marginBottom: 16 }}
+                  shouldUnescape
+                />
 
                 {ShowdexDonorTiers.map(PatronageTierRenderer('DonorTier', colorScheme))}
               </div>
@@ -154,30 +194,33 @@ export const PatronagePane = ({
               <div className={styles.buttonContainer}>
                 <GradientButton
                   className={styles.button}
-                  aria-label="Donate via PayPal"
+                  aria-label={t('patronage.paypal.action.aria')}
                   disabled={!donationUrl?.startsWith('https://')}
                   onPress={() => window.open(donationUrl, '_blank')}
                 >
-                  <strong>Donate</strong>
-                  <span style={{ margin: '0 5px' }}>
-                    via
-                  </span>
-                  <strong>PayPal</strong>
+                  <Trans
+                    t={t}
+                    i18nKey="patronage.paypal.action.label"
+                    shouldUnescape
+                  />
                 </GradientButton>
               </div>
             </div>
 
             <div className={styles.supportMethod}>
               <div className={styles.title}>
-                Patreon
+                {t('patronage.patreon.name')}
               </div>
 
               <div className={styles.info}>
-                <div className={styles.description} style={{ marginBottom: 15 }}>
-                  All Patreon tiers are <em>monthly</em> donations, entitling you to additional benefits
-                  compared to those of <em>one-time</em> donations. Please visit our Patreon for more details.
-                  Batteries not included.
-                </div>
+                <Trans
+                  t={t}
+                  i18nKey="patronage.patreon.description"
+                  parent="div"
+                  className={styles.description}
+                  style={{ marginBottom: 16 }}
+                  shouldUnescape
+                />
 
                 {ShowdexPatronTiers.map(PatronageTierRenderer('PatronTier', colorScheme, true))}
               </div>
@@ -185,15 +228,15 @@ export const PatronagePane = ({
               <div className={styles.buttonContainer}>
                 <GradientButton
                   className={styles.button}
-                  aria-label={authTitle ? 'Visit Our Patreon' : 'Become a Patron'}
+                  aria-label={t(`patronage.patreon.${authTitle?.title ? 'supporterAction' : 'defaultAction'}.aria`)}
                   disabled={!patronageUrl?.startsWith('https://')}
                   onPress={() => window.open(patronageUrl, '_blank')}
                 >
-                  <strong>{authTitle ? 'Visit' : 'Become'}</strong>
-                  <span style={{ margin: '0 5px' }}>
-                    {authTitle ? 'our' : 'a'}
-                  </span>
-                  <strong>{authTitle ? 'Patreon' : 'Patron'}</strong>
+                  <Trans
+                    t={t}
+                    i18nKey={`patronage.patreon.${authTitle?.title ? 'supporterAction' : 'defaultAction'}.label`}
+                    shouldUnescape
+                  />
                 </GradientButton>
               </div>
             </div>

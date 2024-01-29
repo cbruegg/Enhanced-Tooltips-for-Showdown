@@ -1,6 +1,6 @@
 import { type GenerationNum } from '@smogon/calc';
 import { PokemonStatNames } from '@showdex/consts/dex';
-import { type CalcdexPokemon, type CalcdexPokemonPreset } from '@showdex/redux/store';
+import { type CalcdexPokemon, type CalcdexPokemonPreset } from '@showdex/interfaces/calc';
 import { env, nonEmptyObject } from '@showdex/utils/core';
 import { logger } from '@showdex/utils/debug';
 import { detectGenFromFormat, detectLegacyGen } from '@showdex/utils/dex';
@@ -68,7 +68,7 @@ export const guessServerLegacySpread = (
     return null;
   }
 
-  if (__DEV__ && !pokemon.serverSourced) {
+  if (__DEV__ && pokemon.source !== 'server') {
     l.warn(
       'Attempting to guess the spread of non-server Pokemon', pokemon.ident || pokemon.speciesForme,
       '\n', 'format', format, 'gen', gen,

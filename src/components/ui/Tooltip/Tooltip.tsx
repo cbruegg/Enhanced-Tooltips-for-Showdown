@@ -33,6 +33,7 @@ export interface TooltipProps extends Omit<TooltipTippyProps, 'trigger'> {
   arrowStyle?: React.CSSProperties;
   content?: React.ReactNode;
   trigger?: TooltipTippyTrigger | TooltipTippyTrigger[];
+  derender?: boolean;
   children?: React.ReactElement;
 }
 
@@ -65,6 +66,7 @@ export const Tooltip = ({
   } = {},
   content,
   trigger,
+  derender,
   onMount,
   onHidden,
   children,
@@ -112,6 +114,7 @@ export const Tooltip = ({
       {...props}
       animation
       popperOptions={{
+        strategy: 'fixed',
         ...popperOptions,
         modifiers: [...popperModifiers, {
           name: 'arrow',
@@ -119,11 +122,14 @@ export const Tooltip = ({
             element: arrow,
             // padding: 15,
           },
-        }],
+        }].filter(Boolean),
       }}
       trigger={Array.isArray(trigger) ? trigger.join(' ') : trigger}
       zIndex={99}
-      render={(attributes, renderContent) => (
+      render={(
+        attributes,
+        renderContent,
+      ) => (
         <animated.div
           className={cx(
             styles.container,
@@ -133,7 +139,7 @@ export const Tooltip = ({
           style={{
             ...style,
             ...animationStyles,
-            ...(!mounted && { display: 'none' }),
+            ...((!mounted || derender) && { display: 'none' }),
           }}
           tabIndex={-1}
           {...attributes}

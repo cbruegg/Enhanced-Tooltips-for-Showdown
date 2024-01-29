@@ -1,0 +1,66 @@
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/flex';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+.container {
+  width: 100%;
+
+  &.big.standalone {
+    display: grid;
+    grid-template-columns: min-content minmax(0, 1fr);
+    grid-template-rows: max-content;
+    column-gap: 16px;
+    align-content: center;
+  }
+}
+
+.playerBar {
+  @include flex.row-between;
+  width: 100%;
+
+  .standalone & {
+    flex-direction: column;
+    // align-items: center;
+  }
+
+  .standalone.smol & {
+    flex-direction: column-reverse;
+  }
+}
+
+.playerInfo {
+  @include spacing.margin($top: 7px);
+  width: 100%;
+  flex: 1;
+
+  .skinnyBoi & {
+    max-width: 20%;
+  }
+}
+
+.sideControls {
+  @include spacing.margin($top: 7px, $bottom: 2px);
+
+  .smol & {
+    @include spacing.margin($top: 4px);
+  }
+}
+
+.teamList {
+  @include flex.row-end;
+  flex: 2;
+
+  .big.standalone & {
+    align-self: center;
+  }
+
+  .veryThicc.standalone & {
+    align-self: center;
+  }
+}
+.pokeCalc {
+  @include spacing.padding($top: 4px);
+}

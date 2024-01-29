@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import cx from 'classnames';
 import { useColorScheme } from '@showdex/redux/store';
+import { determineColorScheme } from '@showdex/utils/ui';
 import { type BaseTextFieldProps, BaseTextField } from '../TextField';
 import styles from './ValueField.module.scss';
 
@@ -87,10 +88,11 @@ export interface ValueFieldProps extends BaseTextFieldProps<number> {
    * @since 1.1.6
    */
   reverseColorScheme?: boolean;
+
+  onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 /* eslint-disable @typescript-eslint/indent -- this rule is broken af. see Issue #1824 in the typescript-eslint GitHub repo. */
-/* eslint-disable react/prop-types */
 
 export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
   className,
@@ -108,6 +110,7 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
   reverseColorScheme,
   input,
   disabled,
+  onContextMenu,
   ...props
 }: ValueFieldProps, forwardedRef): JSX.Element => {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -119,13 +122,7 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
 
   // grab the color scheme for applying the theme
   const currentColorScheme = useColorScheme();
-
-  const colorScheme = (!reverseColorScheme && currentColorScheme)
-    || (reverseColorScheme && (
-      (currentColorScheme === 'light' && 'dark')
-        || (currentColorScheme === 'dark' && 'light')
-    ))
-    || null;
+  const colorScheme = determineColorScheme(currentColorScheme, reverseColorScheme);
 
   // although react-final-form has meta.active,
   // we're keeping track of the focus state ourselves in case we don't wrap this in a Field
@@ -133,10 +130,10 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
   const [active, setActive] = React.useState<boolean>(false);
 
   // this is only a visual value, so that we don't forcibly change the user's value as they're typing it
-  const [inputValue, setInputValue] = React.useState<string>(
-    input?.value?.toString()
-      || fallbackValue?.toString(),
-  );
+  const [inputValue, setInputValue] = React.useState<string>((
+    typeof !!(input?.value || fallbackValue) === 'number'
+      && String(input?.value || fallbackValue)
+  ) || '');
 
   // type number fields don't do a good job preventing users from typing in non-numeric characters
   // (like '.' and 'e') nor does it enforce the `min` and `max` values if typed in manually.
@@ -318,7 +315,11 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
 
   // handle updates in final-form's input.value
   React.useEffect(() => {
-    const value = input?.value?.toString();
+    if (typeof input?.value !== 'number' || Number.isNaN(input.value)) {
+      return void setInputValue('');
+    }
+
+    const value = String(input.value);
 
     if (active || !value || value === inputValue) {
       return;
@@ -342,6 +343,10 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
         className,
       )}
       style={style}
+      onContextMenu={onContextMenu || ((e) => {
+        e?.preventDefault();
+        e?.stopPropagation();
+      })}
     >
       <BaseTextField
         ref={inputRef}
@@ -363,5 +368,4 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
   );
 });
 
-/* eslint-enable react/prop-types */
 /* eslint-enable @typescript-eslint/indent */

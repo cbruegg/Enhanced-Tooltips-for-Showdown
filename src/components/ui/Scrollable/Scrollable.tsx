@@ -2,8 +2,8 @@ import * as React from 'react';
 import SimpleBar from 'simplebar';
 import cx from 'classnames';
 import { useColorScheme } from '@showdex/redux/store';
-import { formatId } from '@showdex/utils/core';
-import { useUserAgent } from '@showdex/utils/hooks';
+// import { formatId } from '@showdex/utils/core';
+// import { useUserAgent } from '@showdex/utils/hooks';
 import styles from './Scrollable.module.scss';
 
 export interface ScrollableProps extends Omit<JSX.IntrinsicElements['div'], 'ref'> {
@@ -25,6 +25,10 @@ export interface ScrollableProps extends Omit<JSX.IntrinsicElements['div'], 'ref
 
   className?: string;
   style?: React.CSSProperties;
+  scrollClassName?: string;
+  scrollStyle?: React.CSSProperties;
+  contentClassName?: string;
+  contentStyle?: React.CSSProperties;
   children?: React.ReactNode;
 }
 
@@ -67,7 +71,13 @@ export const Scrollable = React.forwardRef<HTMLDivElement, ScrollableProps>(({
   contentRef: contentRefFromProps,
   className,
   style,
+  scrollClassName,
+  scrollStyle,
+  contentClassName,
+  contentStyle,
   children,
+  onScroll,
+  onWheel,
   ...props
 }: ScrollableProps, forwardedRef): JSX.Element => {
   const simpleBarRef = React.useRef<SimpleBar>(null);
@@ -76,15 +86,21 @@ export const Scrollable = React.forwardRef<HTMLDivElement, ScrollableProps>(({
   const contentRef = React.useRef<HTMLDivElement>(null);
 
   React.useImperativeHandle(forwardedRef, () => containerRef.current);
-  React.useImperativeHandle(scrollRefFromProps, () => scrollRef.current);
-  React.useImperativeHandle(contentRefFromProps, () => contentRef.current);
+  // React.useImperativeHandle(scrollRefFromProps, () => scrollRef.current);
+  // React.useImperativeHandle(contentRefFromProps, () => contentRef.current);
+  React.useImperativeHandle(scrollRefFromProps, () => scrollRef.current || simpleBarRef.current?.getScrollElement() as HTMLDivElement);
+  React.useImperativeHandle(contentRefFromProps, () => contentRef.current || simpleBarRef.current?.getContentElement() as HTMLDivElement);
 
-  const userAgent = useUserAgent();
-  const shouldRenderNative = formatId(userAgent?.os?.name) === 'macos'
-    || userAgent?.device?.type === 'mobile';
+  // update (2023/11/09): the big Z added custom scrollbars to Showdown in battle-log.css of pokemon-showdown-client,
+  // which is being applied to the <body> element (plus there's apparently no ez way of "restoring" the original scrollbar
+  // via CSS & I don't wish to apply the .native-scrollbar style Showdown-wide, just to Showdex-related stuff), so guess
+  // we'll now always use our custom scrollbar now regardless of OS
+  // const userAgent = useUserAgent();
+  // const shouldRenderNative = formatId(userAgent?.os?.name) === 'macos'
+  //   || userAgent?.device?.type === 'mobile';
 
   React.useEffect(() => {
-    if (shouldRenderNative || !containerRef.current) {
+    if (!containerRef.current || simpleBarRef.current) {
       return;
     }
 
@@ -112,21 +128,25 @@ export const Scrollable = React.forwardRef<HTMLDivElement, ScrollableProps>(({
 
       // note: not a good idea to make this into a prop
       scrollbarMinSize: 40,
+      // clickOnTrack: true,
+      // autoHide: true,
     });
 
     // scrollRef.current = simpleBarRef.current.getScrollElement() as HTMLDivElement;
     // contentRef.current = simpleBarRef.current.getContentElement() as HTMLDivElement;
 
-    return () => simpleBarRef.current?.unMount();
-  }, [
-    shouldRenderNative,
-  ]);
+    return () => {
+      simpleBarRef.current?.unMount();
+      simpleBarRef.current = null;
+    };
+  });
 
   const colorScheme = useColorScheme();
 
   // prevent the custom scrollbar from rendering (which sets the containerRef, letting SimpleBar instantiate)
   // if we haven't received anything back from the useUserAgent() hook
   // (something SHOULD be returned from the hook, even if the parsed properties are undefined)
+  /*
   if (shouldRenderNative || !Object.keys(userAgent || {}).length) {
     return (
       <div
@@ -142,6 +162,7 @@ export const Scrollable = React.forwardRef<HTMLDivElement, ScrollableProps>(({
       </div>
     );
   }
+  */
 
   // SimpleBar lets you define your own divs, as long as the classNames match up.
   // we just have to pass the refs to the scrolableNode and contentNode options.
@@ -162,7 +183,7 @@ export const Scrollable = React.forwardRef<HTMLDivElement, ScrollableProps>(({
         className,
       )}
       style={style}
-      data-simplebar
+      data-simplebar="init"
     >
       {/* {children} */}
 
@@ -175,11 +196,15 @@ export const Scrollable = React.forwardRef<HTMLDivElement, ScrollableProps>(({
           <div className={styles.offset}>
             <div
               ref={scrollRef}
-              className={styles.contentWrapper}
+              className={cx(styles.contentWrapper, scrollClassName)}
+              style={scrollStyle}
+              onScroll={onScroll}
+              onWheel={onWheel}
             >
               <div
                 ref={contentRef}
-                className={styles.content}
+                className={cx(styles.content, contentClassName)}
+                style={contentStyle}
               >
                 {children}
               </div>

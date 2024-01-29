@@ -1,8 +1,11 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import cx from 'classnames';
 import { PokemonTypeLabels } from '@showdex/consts/dex';
 import { useColorScheme } from '@showdex/redux/store';
+import { formatId } from '@showdex/utils/core';
 import { type ElementSizeLabel } from '@showdex/utils/hooks';
+import { determineColorScheme } from '@showdex/utils/ui';
 import styles from './PokeType.module.scss';
 
 export interface PokeTypeProps {
@@ -11,6 +14,7 @@ export interface PokeTypeProps {
   labelClassName?: string;
   labelStyle?: React.CSSProperties;
   type?: Showdown.TypeName;
+  override?: string;
   defaultLabel?: string;
   teraTyping?: boolean;
   reverseColorScheme?: boolean;
@@ -23,6 +27,7 @@ export const PokeType = ({
   style,
   labelClassName,
   labelStyle,
+  override,
   type,
   defaultLabel,
   highlight = true,
@@ -30,12 +35,9 @@ export const PokeType = ({
   containerSize,
   teraTyping,
 }: PokeTypeProps): JSX.Element => {
+  const { t } = useTranslation('pokedex');
   const currentColorScheme = useColorScheme();
-
-  const colorScheme = (!reverseColorScheme && currentColorScheme)
-    || (reverseColorScheme && currentColorScheme === 'light' && 'dark')
-    || (reverseColorScheme && currentColorScheme === 'dark' && 'light')
-    || null;
+  const colorScheme = determineColorScheme(currentColorScheme, reverseColorScheme);
 
   const shouldAbbreviate = ['xs', 'sm'].includes(containerSize);
 
@@ -49,10 +51,13 @@ export const PokeType = ({
 
   // TypeScript also can't infer that we've previously checked `type !== '???'` in labelIndex
   // (otherwise it would be `null`), so we gotta check again to keep it happy
-  const label = (
+  const label = override || (
     typeof labelIndex === 'number'
       && type !== '???' // this is also necessary for TypeScript lol
-      && PokemonTypeLabels[type]?.[labelIndex]
+      && t(
+        `types.${formatId(type)}.${labelIndex + 1}`,
+        PokemonTypeLabels[type]?.[labelIndex],
+      )
   ) || defaultLabel || '???';
 
   return (
@@ -72,7 +77,7 @@ export const PokeType = ({
         className={cx(styles.label, labelClassName)}
         style={labelStyle}
       >
-        {label}
+        <span>{label}</span>
       </span>
 
       {

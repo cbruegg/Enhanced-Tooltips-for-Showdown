@@ -1,8 +1,7 @@
 import { NIL as NIL_UUID, v4 as uuidv4, v5 as uuidv5 } from 'uuid';
-import { type CalcdexPlayerKey, type CalcdexPokemon, type CalcdexPokemonPreset } from '@showdex/redux/store';
+import { type CalcdexPlayerKey, type CalcdexPokemon, type CalcdexPokemonPreset } from '@showdex/interfaces/calc';
 import { detectPlayerKeyFromPokemon } from '@showdex/utils/battle';
 import { env, nonEmptyObject } from '@showdex/utils/core';
-import { getDexForFormat } from '@showdex/utils/dex';
 
 /* eslint-disable @typescript-eslint/indent */
 
@@ -43,7 +42,7 @@ export const calcPresetCalcdexId = (
   preset: CalcdexPokemonPreset,
 ): string => calcCalcdexId<Partial<Record<keyof CalcdexPokemonPreset, string>>>({
   // name: preset?.name,
-  // source: preset?.source,
+  source: preset?.source,
   format: preset?.format,
   gen: String(preset?.gen),
   speciesForme: preset?.speciesForme,
@@ -54,7 +53,8 @@ export const calcPresetCalcdexId = (
   nature: preset?.nature,
   item: preset?.item,
   // altItems: preset?.altItems?.join(','),
-  moves: preset?.moves?.sort().join(','), // sort moves in ABC order
+  // update (2023/10/11): HOLY FUCKKKKKKKKK the mystery of the sorting moves[] has been solved !!
+  moves: [...(preset?.moves || [])].sort().join(','), // sort moves in ABC order
   // altMoves: preset?.moves?.join(','),
   ivs: calcCalcdexId<Showdown.StatsTable>(preset?.ivs),
   evs: calcCalcdexId<Showdown.StatsTable>(preset?.evs),
@@ -65,6 +65,8 @@ export const calcPresetCalcdexId = (
   // gigantamax: String(!!preset?.gigantamax),
   // teraTypes: preset?.teraTypes?.join(','),
 });
+
+/* eslint-disable @typescript-eslint/indent */
 
 /**
  * Generates a unique ID used by the Calcdex to track Pokemon.
@@ -77,8 +79,10 @@ export const calcPresetCalcdexId = (
  *
  * @since 0.1.0
  */
-export const calcPokemonCalcdexId = (
-  pokemon: DeepPartial<Showdown.Pokemon> | DeepPartial<Showdown.ServerPokemon & { slot: number; }> | DeepPartial<CalcdexPokemon> = {},
+export const calcPokemonCalcdexId = <
+  TPokemon extends Partial<Showdown.PokemonDetails>,
+>(
+  pokemon: TPokemon,
   playerKey?: CalcdexPlayerKey,
 ): string => calcCalcdexId<Partial<Record<keyof CalcdexPokemon, string>>>({
   // ident: pokemon?.ident,
@@ -93,17 +97,16 @@ export const calcPokemonCalcdexId = (
   // ].filter(Boolean).join(': '),
 
   ident: [
-    playerKey || detectPlayerKeyFromPokemon(pokemon),
+    playerKey || (pokemon as CalcdexPokemon)?.playerKey || detectPlayerKeyFromPokemon(pokemon),
     uuidv4(), // random
   ].filter(Boolean).join(': '),
 
-  speciesForme: getDexForFormat()?.species.get(pokemon?.speciesForme)?.baseForme
-    || pokemon?.speciesForme,
-
+  speciesForme: pokemon?.speciesForme,
   level: String(pokemon?.level ?? 100),
   gender: pokemon?.gender || 'N', // seems like 'N'-gendered Pokemon occasionally report back with an empty string
-  // shiny: String(pokemon?.shiny), // bad idea, subject to change mid-battle
 });
+
+/* eslint-enable @typescript-eslint/indent */
 
 export const calcSideCalcdexId = (
   side: Partial<Showdown.Side>,

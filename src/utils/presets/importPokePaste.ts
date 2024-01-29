@@ -5,30 +5,37 @@ import {
   type MoveName,
 } from '@smogon/calc';
 import { PokemonNatures, PokemonNeutralNatures, PokemonTypes } from '@showdex/consts/dex';
-import { type CalcdexPokemonPreset, type CalcdexPokemonPresetSource } from '@showdex/redux/store';
+import { type CalcdexPokemonPreset, type CalcdexPokemonPresetSource } from '@showdex/interfaces/calc';
 import { calcPresetCalcdexId } from '@showdex/utils/calc';
 import { clamp, env, formatId } from '@showdex/utils/core';
-import { detectGenFromFormat, detectLegacyGen, getDexForFormat } from '@showdex/utils/dex';
+import {
+  detectGenFromFormat,
+  detectLegacyGen,
+  determineDefaultLevel,
+  getDefaultSpreadValue,
+  getDexForFormat,
+  parseBattleFormat,
+} from '@showdex/utils/dex';
 import { capitalize } from '@showdex/utils/humanize';
 
 // note: speciesForme should be handled last since it will test() true against any line technically
-const PokePasteLineParsers: Partial<Record<keyof CalcdexPokemonPreset, RegExp>> = {
-  level: /^\s*Level:\s*(\d+)$/i,
-  ability: /^\s*Ability:\s*(.+)$/i,
-  shiny: /^\s*Shiny:\s*([A-Z]+)$/i,
-  happiness: /^\s*Happiness:\s*(\d+)$/i,
+export const PokePasteLineParsers: Partial<Record<keyof CalcdexPokemonPreset, RegExp>> = {
+  level: /^\s*Level:\s*(\d+)\s*$/i,
+  ability: /^\s*Ability:\s*(.+)\s*$/i,
+  shiny: /^\s*Shiny:\s*([A-Z]+)\s*$/i,
+  happiness: /^\s*Happiness:\s*(\d+)\s*$/i,
   // dynamaxLevel: /^\s*Dynamax Level:\s*(\d+)$/i, // unsupported
-  gigantamax: /^\s*Gigantamax:\s*([A-Z]+)$/i,
-  teraTypes: /^\s*Tera\s*Type:\s*([A-Z]+)$/i,
-  ivs: /^\s*IVs:\s*(\d.+)$/i,
-  evs: /^\s*EVs:\s*(\d.+)$/i,
-  nature: /^\s*([A-Z]+)\s+Nature$/i,
-  moves: /^\s*-\s*([A-Z0-9\(\)\[\]\-\x20]+[A-Z0-9\(\)\[\]])(?:\s*[\/,]\s*([A-Z0-9\(\)\[\]\-\x20]+[A-Z0-9\(\)\[\]]))?(?:\s*[\/,]\s*([A-Z0-9\(\)\[\]\-\x20]+[A-Z0-9\(\)\[\]]))?$/i,
+  gigantamax: /^\s*Gigantamax:\s*([A-Z]+)\s*$/i,
+  teraTypes: /^\s*Tera\s*Type:\s*([A-Z]+)\s*$/i,
+  ivs: /^\s*IVs:\s*(\d.+)\s*$/i,
+  evs: /^\s*EVs:\s*(\d.+)\s*$/i,
+  nature: /^\s*([A-Z]+)\s+Nature\s*$/i,
+  moves: /^\s*-\s*([A-Z0-9\(\)\[\]\-\x20]+[A-Z0-9\(\)\[\]])(?:\s*[\/,]\s*([A-Z0-9\(\)\[\]\-\x20]+[A-Z0-9\(\)\[\]]))?(?:\s*[\/,]\s*([A-Z0-9\(\)\[\]\-\x20]+[A-Z0-9\(\)\[\]]))?\s*$/i,
   name: /^=+\s*(?:\[([A-Z0-9]+)\]\s*)(.+[^\s])\s*={3}$/i,
-  speciesForme: /(?:\s*\(([A-Z\xC0-\xFF0-9.':\-\x20]+[A-Z\xC0-\xFF0-9.%])\))?(?:\s*\(([MF])\))?(?:\s*@\s*([A-Z0-9\-\x20]+[A-Z0-9]))?$/i,
+  speciesForme: /(?:\s*\(([A-Z\xC0-\xFF0-9.':\-\x20]+[A-Z\xC0-\xFF0-9.%])\))?(?:\s*\(([MF])\))?(?:\s*@\s*([A-Z0-9\-\x20]+[A-Z0-9]))?\s*$/i,
 };
 
-const PokePasteSpreadParsers: Partial<Record<Showdown.StatName, RegExp>> = {
+export const PokePasteSpreadParsers: Partial<Record<Showdown.StatName, RegExp>> = {
   hp: /(\d+)\s*HP/i,
   atk: /(\d+)\s*Atk/i,
   def: /(\d+)\s*Def/i,
@@ -64,7 +71,7 @@ const PokePasteSpreadParsers: Partial<Record<Showdown.StatName, RegExp>> = {
  *   - Flamethrower
  * `, 'gen8ou');
  *
- * CalcdexPokemonPreset {
+ * {
  *   // note: this is some random uuid for the example's sake
  *   calcdexId: 'fb1961f0-75f7-11ed-b30e-2d3f6d915c0a',
  *   id: 'fb1961f0-75f7-11ed-b30e-2d3f6d915c0a', // same as calcdexId
@@ -101,7 +108,7 @@ const PokePasteSpreadParsers: Partial<Record<Showdown.StatName, RegExp>> = {
  *     'Flamethrower',
  *   ],
  *   altMoves: [],
- * }
+ * } as CalcdexPokemonPreset
  * ```
  * @since 1.0.7
  */
@@ -118,8 +125,10 @@ export const importPokePaste = (
   const dex = getDexForFormat(format);
   const gen = detectGenFromFormat(format, env.int<GenerationNum>('calcdex-default-gen'));
   const legacy = detectLegacyGen(format);
-  const defaultIv = legacy ? 30 : 31;
-  const defaultEv = legacy ? 252 : 0;
+
+  const defaultLevel = determineDefaultLevel(format);
+  const defaultIv = getDefaultSpreadValue('iv', format);
+  const defaultEv = getDefaultSpreadValue('ev', format);
 
   // this will be our final return value
   const preset: CalcdexPokemonPreset = {
@@ -131,7 +140,7 @@ export const importPokePaste = (
     format,
 
     speciesForme: null,
-    level: 100,
+    level: defaultLevel,
     shiny: false,
 
     ivs: {
@@ -524,6 +533,12 @@ export const importPokePaste = (
     if (speciesTypes?.length) {
       preset.teraTypes = [...speciesTypes];
     }
+  }
+
+  const { base: baseFormat } = parseBattleFormat(preset.format);
+
+  if (baseFormat) {
+    preset.format = baseFormat;
   }
 
   preset.calcdexId = calcPresetCalcdexId(preset);

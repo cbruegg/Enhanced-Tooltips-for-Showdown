@@ -1,10 +1,11 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import cx from 'classnames';
 import { type TooltipProps, BaseButton, Tooltip } from '@showdex/components/ui';
-import { type CalcdexPokemon, useColorScheme } from '@showdex/redux/store';
+import { type CalcdexPokemon } from '@showdex/interfaces/calc';
+import { useColorScheme } from '@showdex/redux/store';
 import { formatId } from '@showdex/utils/core';
 import { getDexForFormat } from '@showdex/utils/dex';
-import { useUserAgent } from '@showdex/utils/hooks';
 import { Picon } from '../Picon';
 import styles from './PokeFormeTooltip.module.scss';
 
@@ -18,7 +19,7 @@ export interface PokeFormeTooltipProps {
   columnWidth?: number;
   disabled?: boolean;
   children?: TooltipProps['children'];
-  onPokemonChange?: (pokemon: DeepPartial<CalcdexPokemon>) => void;
+  onPokemonChange?: (pokemon: Partial<CalcdexPokemon>) => void;
   onRequestClose?: () => void;
 }
 
@@ -36,12 +37,9 @@ export const PokeFormeTooltip = ({
   onRequestClose,
   ...props
 }: PokeFormeTooltipProps): JSX.Element => {
+  const { t } = useTranslation('pokedex');
   const dex = getDexForFormat(format);
   const colorScheme = useColorScheme();
-
-  // detect non-macOS cause the Tippy's positioning is really fucked on Windows (and probably Linux)
-  const userAgent = useUserAgent();
-  const nonMacOS = !['macos', 'ios'].includes(formatId(userAgent?.os?.name));
 
   const {
     speciesForme,
@@ -51,12 +49,17 @@ export const PokeFormeTooltip = ({
 
   const altFormesCount = altFormes?.length || 0;
   const formeKey = transformedForme ? 'transformedForme' : 'speciesForme';
+  const currentForme = transformedForme || speciesForme;
 
-  const handleFormePress = (forme: string) => {
-    const currentForme = transformedForme || speciesForme;
+  const dexForme = dex.species.get(currentForme);
+  const baseForme = (dexForme?.exists && dexForme.baseSpecies) || null;
+  const tBaseForme = t(`pokedex:species.${formatId(baseForme)}`, baseForme);
 
+  const handleFormePress = (
+    forme: string,
+  ) => {
     // don't fire the callback if the forme is the same
-    if (currentForme === forme) {
+    if (currentForme?.replace('-Tera', '') === forme) {
       return;
     }
 
@@ -82,8 +85,17 @@ export const PokeFormeTooltip = ({
           }}
         >
           {altFormes?.map((altForme) => {
-            const dexForme = dex?.species.get(altForme);
-            const selected = (transformedForme || speciesForme) === altForme;
+            if (!altForme || !altForme.startsWith(baseForme) || altForme.endsWith('-Tera')) {
+              return null;
+            }
+
+            // const dexAltForme = dex?.species.get(altForme);
+            const tAltForme = t(`pokedex:species.${formatId(altForme)}`, altForme);
+            const formeName = tBaseForme === tAltForme
+              ? t('common:labels.base', tBaseForme)
+              : tAltForme.replace(`${tBaseForme}-`, '');
+
+            const selected = currentForme?.replace('-Tera', '') === altForme;
 
             return (
               <BaseButton
@@ -103,7 +115,7 @@ export const PokeFormeTooltip = ({
                 />
 
                 <div className={styles.piconLabel}>
-                  {dexForme?.forme || 'Base'}
+                  {formeName}
                 </div>
               </BaseButton>
             );
@@ -112,7 +124,6 @@ export const PokeFormeTooltip = ({
       )}
       visible={visible}
       interactive
-      popperOptions={nonMacOS ? { strategy: 'fixed' } : undefined}
       placement="top-start"
       offset={[0, 7]}
       disabled={!speciesForme || !altFormesCount || disabled}

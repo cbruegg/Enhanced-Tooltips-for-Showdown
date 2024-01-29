@@ -1,9 +1,9 @@
 import { PokemonPokePasteStatMap } from '@showdex/consts/dex';
-import { type CalcdexPokemon } from '@showdex/redux/store';
+import { type CalcdexPokemon } from '@showdex/interfaces/calc';
 import { formatId, nonEmptyObject } from '@showdex/utils/core';
 import {
   detectGenFromFormat,
-  detectLegacyGen,
+  getDefaultSpreadValue,
   getDexForFormat,
   hasNickname,
 } from '@showdex/utils/dex';
@@ -108,7 +108,6 @@ export const exportPokePaste = (
 
   const dex = getDexForFormat(format);
   const gen = detectGenFromFormat(format);
-  const legacy = detectLegacyGen(format);
 
   const {
     name,
@@ -123,7 +122,8 @@ export const exportPokePaste = (
     level,
     // happiness, // doesn't exist in CalcdexPokemon atm
     types,
-    teraType,
+    teraType: revealedTeraType,
+    dirtyTeraType,
     nature,
     ivs,
     evs,
@@ -183,6 +183,8 @@ export const exportPokePaste = (
 
   // Tera Type: <teraType>
   // (<teraType> shouldn't print when '???' or matches the default Tera type, i.e., the first type of the Pokemon)
+  const teraType = dirtyTeraType || revealedTeraType;
+
   if (teraType && teraType !== '???' && teraType !== types[0]) {
     output.push(`Tera Type: ${teraType}`);
   }
@@ -202,8 +204,8 @@ export const exportPokePaste = (
   // IVs: <value> <stat> ...[/ <value> <stat>] (where <value> is not 31 [or 30, if legacy])
   // EVs: <value> <stat> ...[/ <value> <stat>] (where <value> is not 0) -- only in non-legacy
   // (where <stat> is HP, Atk, Def, SpA, SpD, or Spe)
-  const defaultIv = legacy ? 30 : 31;
-  const defaultEv = legacy ? 252 : 0;
+  const defaultIv = getDefaultSpreadValue('iv', format);
+  const defaultEv = getDefaultSpreadValue('ev', format);
 
   if (nonEmptyObject(ivs)) {
     // in legacy gens, max DV is 15, which equates to 30 IVs (NOT 31!)

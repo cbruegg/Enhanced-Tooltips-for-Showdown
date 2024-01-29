@@ -1,8 +1,7 @@
 import * as ReactDOM from 'react-dom/client';
 import { type RootStore, type ShowdexSliceState, calcdexSlice } from '@showdex/redux/store';
-import { createHtmlRoom } from './createHtmlRoom';
+import { createHtmlRoom, getBattleRoom } from '@showdex/utils/host';
 import { getCalcdexRoomId } from './getCalcdexRoomId';
-import { getBattleRoom } from './getBattleRoom';
 
 /**
  * Creates an `HtmlRoom` via `createHtmlRoom()` specially made to house a `Calcdex`.
@@ -20,8 +19,8 @@ import { getBattleRoom } from './getBattleRoom';
  */
 export const createCalcdexRoom = (
   battleId: string,
-  focus?: boolean,
   store?: RootStore,
+  focus?: boolean,
 ): Showdown.HtmlRoom => {
   if (!battleId) {
     return null;

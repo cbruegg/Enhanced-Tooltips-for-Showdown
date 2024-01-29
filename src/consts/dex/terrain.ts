@@ -32,6 +32,7 @@ export const TerrainNames: Terrain[] = Object.values(PseudoWeatherMap).sort();
  *
  * @note `desc` properties are commented out atm to not include them in the bundle.
  * @see https://smogon.com/dex/ss
+ * @deprecated As of v1.2.1, these are stored in translation strings in `@showdex/assets/i18n`.
  * @since 1.0.3
  */
 export const TerrainDescriptions: Record<Terrain, FieldConditionDescription> = {
@@ -83,4 +84,16 @@ export const TerrainDescriptions: Record<Terrain, FieldConditionDescription> = {
     //   + "Secret Power has a 30% chance to lower the target's Speed by 1 stage. "
     //   + 'Fails if the current terrain is Psychic Terrain.',
   },
+};
+
+/**
+ * Type mappings for the *Terrain Pulse* move, which is dependent on the `Terrain`.
+ *
+ * @since 1.2.0
+ */
+export const TerrainPulseTypeConditions: Partial<Record<Showdown.TypeName, Terrain>> = {
+  Electric: 'Electric',
+  Grass: 'Grassy',
+  Fairy: 'Misty',
+  Psychic: 'Psychic',
 };

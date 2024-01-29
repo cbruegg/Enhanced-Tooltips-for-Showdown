@@ -29,9 +29,15 @@ declare namespace Showdown {
     scene: BattleSceneStub;
 
     /**
+     * @deprecated Seems to be `viewpointSwitched` now >:((((((
      * @default false
      */
     sidesSwitched: boolean;
+
+    /**
+     * @default false
+     */
+    viewpointSwitched: boolean;
 
     stepQueue: string[];
 
@@ -268,6 +274,27 @@ declare namespace Showdown {
     roomid: string;
 
     /**
+     * @example
+     * ```ts
+     * // example from gen9nationaldexmonotype:
+     * {
+     *   'HP Percentage Mod': 1,
+     *   'Endless Battle Clause': 1,
+     *   'Same Type Clause': 1,
+     *   'Terastal Clause': 1,
+     *   'Species Clause': 1,
+     *   'OHKO Clause': 1,
+     *   'Evasion Clause': 1,
+     *   'Evasion Abilities Clause': 1,
+     *   'Evasion Items Clause': 1,
+     *   'Evasion Moves Clause': 1,
+     *   'Sleep Clause Mod': 1
+     * }
+     * ```
+     */
+    rules: Record<string, number>;
+
+    /**
      * @default false
      */
     hardcoreMode: boolean;
@@ -297,6 +324,7 @@ declare namespace Showdown {
     calcdexReactRoot?: import('react-dom/client').Root;
     calcdexInit?: boolean;
     calcdexStateInit?: boolean;
+    calcdexSheetsAccepted?: boolean;
     calcdexDestroyed?: boolean;
     nonce?: string;
 

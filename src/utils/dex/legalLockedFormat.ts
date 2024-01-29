@@ -17,13 +17,14 @@ export const legalLockedFormat = (format: string) => {
   // e.g., 'gen9vgc2023series1' -> 'vgc2023series1'
   const genlessFormat = getGenlessFormat(format);
 
-  return LegalLockedFormats.some((f) => {
-    // reject any formats that's just '//' lol
-    // '//'.slice(1, -1) -> '' (empty string) btw
-    if (f.startsWith('/') && f.endsWith('/') && f.slice(1, -1).length) {
-      return new RegExp(f.slice(1, -1), 'i').test(genlessFormat);
-    }
-
-    return genlessFormat.endsWith(f);
-  });
+  // update (2024/01/12): following the v1.2.1 release, people started having an issue with getGenlessFormat() returning
+  // null (resulting in their Calcdex/Honkdex crashing with an 'endsWith' of null TypeError); after going Sherlock
+  // Holmes on dis bich, turns out it's caused by named Teambuilder teams & boxes without a format, which gets parsed
+  // as 'gen9', which is the only condition (other than `format` being falsy, which we already checked for) that
+  // results in null... but anyway, this is fine cause 'gen9' is definitely not legal locked LOL
+  return !!genlessFormat && LegalLockedFormats.some((f) => (
+    typeof f === 'string'
+      ? genlessFormat.endsWith(f)
+      : f?.test(genlessFormat)
+  ));
 };

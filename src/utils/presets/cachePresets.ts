@@ -1,11 +1,11 @@
 import LzString from 'lz-string';
 import { type GenerationNum } from '@smogon/calc';
-import { type CalcdexPokemonPreset, type CalcdexPokemonPresetSource } from '@showdex/redux/store';
-import { clearStoredItem, setStoredItem } from '@showdex/utils/core';
+import { type CalcdexPokemonPreset, type CalcdexPokemonPresetSource } from '@showdex/interfaces/calc';
 import { logger } from '@showdex/utils/debug';
 import { getGenlessFormat } from '@showdex/utils/dex';
 import { fileSize } from '@showdex/utils/humanize';
 import { dehydratePresets } from '@showdex/utils/hydro';
+import { purgeLocalStorageItem, writeLocalStorageItem } from '@showdex/utils/storage';
 import { getCachedPresets } from './getCachedPresets';
 
 const l = logger('@showdex/utils/presets/cachePresets()');
@@ -31,18 +31,20 @@ const l = logger('@showdex/utils/presets/cachePresets()');
  *     name of the game LOL (as of 2023/07/01).
  * * `LocalStorage` key is configurable via the `STORAGE_PRESET_CACHE_KEY` env.
  *
+ * @deprecated As of v1.2.0, Showdex is now using IndexedDB for all things locally stored. Use `writePresetsDb()` from
+ *   `@showdex/utils/storage` instead.
  * @since 1.1.6
  */
 export const cachePresets = (
   presets: CalcdexPokemonPreset[],
-  format?: GenerationNum | string,
+  format?: string | GenerationNum,
   source?: CalcdexPokemonPresetSource,
 ): void => {
-  l.debug(
-    '\n', 'presets', presets,
-    '\n', 'format', format,
-    '\n', 'source', source,
-  );
+  // l.debug(
+  //   '\n', 'presets', presets,
+  //   '\n', 'format', format,
+  //   '\n', 'source', source,
+  // );
 
   if (!presets?.length) {
     return;
@@ -71,7 +73,7 @@ export const cachePresets = (
       && !!preset.speciesForme
   ));
 
-  l.debug('validPresets', validPresets);
+  // l.debug('validPresets', validPresets);
 
   if (!validPresets.length) {
     return null;
@@ -81,7 +83,7 @@ export const cachePresets = (
   // (note: not passing `format` here since we want the entire cache in memory to manipulate it)
   let [cachedPresets = []] = getCachedPresets();
 
-  l.debug('cachedPresets', '(pre)', cachedPresets);
+  // l.debug('cachedPresets', '(pre)', cachedPresets);
 
   // there are 2 possible "modes" based on the input args:
   // 1. `format` isn't provided, so just append/replace the provided `presets`
@@ -115,11 +117,11 @@ export const cachePresets = (
     cachedPresets.push(...validPresets);
   }
 
-  l.debug('cachedPresets', '(post)', cachedPresets);
+  // l.debug('cachedPresets', '(post)', cachedPresets);
 
   // if there's nothing in the cache, delete the key
   if (!cachedPresets.length) {
-    return clearStoredItem('storage-preset-cache-key');
+    return purgeLocalStorageItem('local-storage-deprecated-preset-cache-key');
   }
 
   // otherwise, compress the cache & store it in `LocalStorage`
@@ -168,5 +170,5 @@ export const cachePresets = (
   );
 
   // finally store the compressed presets
-  setStoredItem('storage-preset-cache-key', compressedPresets);
+  writeLocalStorageItem('local-storage-deprecated-preset-cache-key', compressedPresets);
 };

@@ -1,18 +1,19 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import cx from 'classnames';
 import { ValueField } from '@showdex/components/form';
 import {
+  type BaseButtonProps,
   type TooltipProps,
   BaseButton,
   ToggleButton,
   Tooltip,
 } from '@showdex/components/ui';
-import { eacute } from '@showdex/consts/core';
-import { PokemonStatuses, PokemonStatusTitles } from '@showdex/consts/dex';
-import { type CalcdexPokemon, useColorScheme } from '@showdex/redux/store';
+import { PokemonStatuses } from '@showdex/consts/dex';
+import { type CalcdexPokemon } from '@showdex/interfaces/calc';
+import { useColorScheme } from '@showdex/redux/store';
 import { calcPokemonCurrentHp, calcPokemonHpPercentage, calcPokemonMaxHp } from '@showdex/utils/calc';
-import { formatId } from '@showdex/utils/core';
-import { useUserAgent } from '@showdex/utils/hooks';
+import { clamp, formatId } from '@showdex/utils/core';
 import { PokeStatus } from '../PokeStatus';
 import styles from './PokeStatusTooltip.module.scss';
 
@@ -23,7 +24,7 @@ export interface PokeStatusTooltipProps {
   visible?: boolean;
   disabled?: boolean;
   children?: TooltipProps['children'];
-  onPokemonChange?: (pokemon: DeepPartial<CalcdexPokemon>) => void;
+  onPokemonChange?: (pokemon: Partial<CalcdexPokemon>) => void;
   onRequestClose?: () => void;
 }
 
@@ -37,12 +38,8 @@ export const PokeStatusTooltip = ({
   onPokemonChange,
   onRequestClose,
 }: PokeStatusTooltipProps): JSX.Element => {
+  const { t } = useTranslation('pokedex');
   const colorScheme = useColorScheme();
-
-  // do the same non-macOS Tippy fucked position workaround in PokeFormeTooltip lmao
-  // (I should look into a better tooltip library or make my own at some point hmm)
-  const userAgent = useUserAgent();
-  const nonMacOS = !['macos', 'ios'].includes(formatId(userAgent?.os?.name));
 
   const {
     ident,
@@ -57,19 +54,46 @@ export const PokeStatusTooltip = ({
   // const pokemonKey = calcdexId || friendlyPokemonKey;
 
   const maxHp = calcPokemonMaxHp(pokemon);
+  const actualHp = calcPokemonCurrentHp(pokemon, true);
   const hp = calcPokemonCurrentHp(pokemon);
-  const hpPercentage = Math.round(calcPokemonHpPercentage(pokemon) * 100);
+  const hpPercentage = clamp(0, Math.round(calcPokemonHpPercentage(pokemon) * 100), 100);
 
   const status = dirtyStatus ?? (currentStatus || 'ok');
-
-  const statusLabel = !hp
-    ? 'Fainted'
+  const currentStatusLabel = !hp
+    ? t('nonvolatiles.fnt.0')
     : status === 'ok'
-      ? 'Healthy'
-      : (PokemonStatusTitles[status] || 'Status');
+      ? t('nonvolatiles.ok.0')
+      : t(`nonvolatiles.${formatId(status)}.0`, 'Status');
+
+  const [hoveredStatus, setHoveredStatus] = React.useState<string>(null);
+  const statusLabel = t(
+    `nonvolatiles.${formatId(hoveredStatus || currentStatusLabel)}.0`,
+    hoveredStatus || currentStatusLabel,
+  );
+
+  const handleHover = (
+    s: CalcdexPokemon['dirtyStatus'],
+  ): BaseButtonProps['onHover'] => (
+    event,
+  ) => {
+    if (!event?.hovering) {
+      if (hoveredStatus) {
+        setHoveredStatus(null);
+      }
+
+      return;
+    }
+
+    if (hoveredStatus === s) {
+      return;
+    }
+
+    setHoveredStatus(s);
+  };
 
   const showHpResetButton = typeof dirtyHp === 'number'
-    && dirtyHp !== rawHp;
+    && typeof rawHp === 'number'
+    && dirtyHp !== actualHp;
 
   const showStatusResetButton = !!dirtyStatus
     && (!currentStatus || dirtyStatus !== currentStatus);
@@ -91,7 +115,7 @@ export const PokeStatusTooltip = ({
               <ValueField
                 className={styles.hpField}
                 // inputClassName={styles.hpFieldInput}
-                label={`Current HP value of the Pok${eacute}mon ${friendlyPokemonKey}`}
+                label={`Current HP value of ${friendlyPokemonKey}`}
                 hideLabel
                 hint={hp}
                 min={0}
@@ -115,7 +139,7 @@ export const PokeStatusTooltip = ({
                   <ToggleButton
                     className={styles.hpResetButton}
                     forceColorScheme={colorScheme === 'light' ? 'dark' : 'light'}
-                    label="Reset"
+                    label={t('calcdex:poke.info.status.resetHpLabel', 'Reset')}
                     absoluteHover
                     active
                     onPress={() => onPokemonChange?.({
@@ -126,18 +150,13 @@ export const PokeStatusTooltip = ({
               </div>
 
               <div className={styles.hpLabel}>
-                HP
+                {t('stats.hp.1')}
               </div>
-
-              {/* <div className={styles.hpSlash}>
-                /
-              </div> */}
 
               <ValueField
                 className={styles.hpField}
                 style={{ marginLeft: '0.64em' }}
-                // inputClassName={styles.hpFieldInput}
-                label={`Current HP % of the Pok${eacute}mon ${friendlyPokemonKey}`}
+                label={`Current HP % of ${friendlyPokemonKey}`}
                 hideLabel
                 hint={hpPercentage}
                 min={0}
@@ -151,7 +170,7 @@ export const PokeStatusTooltip = ({
                 input={{
                   value: hpPercentage,
                   onChange: (value: number) => onPokemonChange?.({
-                    dirtyHp: Math.round(maxHp * (value / 100)),
+                    dirtyHp: Math.ceil((value / 100) * maxHp),
                   }),
                 }}
               />
@@ -172,7 +191,7 @@ export const PokeStatusTooltip = ({
                 <ToggleButton
                   className={styles.groupResetButton}
                   forceColorScheme={colorScheme === 'light' ? 'dark' : 'light'}
-                  label="Reset"
+                  label={t('calcdex:poke.info.status.resetStatusLabel', 'Reset')}
                   absoluteHover
                   active
                   onPress={() => onPokemonChange?.({
@@ -217,6 +236,7 @@ export const PokeStatusTooltip = ({
                     hoverScale={1}
                     activeScale={selected ? 0.98 : undefined}
                     disabled={!alive}
+                    onHover={handleHover(option)}
                     onPress={() => onPokemonChange?.({
                       dirtyStatus: selected ? 'ok' : option,
                     })}
@@ -238,7 +258,6 @@ export const PokeStatusTooltip = ({
       )}
       visible={visible}
       interactive
-      popperOptions={nonMacOS ? { strategy: 'fixed' } : undefined}
       placement="top-start"
       offset={[0, 7]}
       disabled={!speciesForme || disabled}

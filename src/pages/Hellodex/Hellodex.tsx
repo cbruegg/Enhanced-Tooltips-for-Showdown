@@ -1,29 +1,47 @@
 import * as React from 'react';
-// import useSize from '@react-hook/size';
+import { Trans, useTranslation } from 'react-i18next';
 import Svg from 'react-inlinesvg';
 import cx from 'classnames';
 import { BuildInfo } from '@showdex/components/debug';
-import { BaseButton, Button, Scrollable } from '@showdex/components/ui';
+import { useSandwich } from '@showdex/components/layout';
+import {
+  BaseButton,
+  Button,
+  ContextMenu,
+  Scrollable,
+  useContextMenu,
+} from '@showdex/components/ui';
 import {
   useAuthUsername,
+  useBattleRecord,
+  useBattleRecordReset,
+  useCalcdexDuplicator,
   useCalcdexSettings,
   useCalcdexState,
   useColorScheme,
+  useGlassyTerrain,
   useHellodexSettings,
+  useHellodexState,
+  useHonkdexSettings,
+  useUpdateSettings,
 } from '@showdex/redux/store';
-import { findPlayerTitle, openUserPopup } from '@showdex/utils/app';
+import { findPlayerTitle, getCalcdexRoomId } from '@showdex/utils/app';
 import { env, getResourceUrl } from '@showdex/utils/core';
-import { useElementSize, useRoomNavigation } from '@showdex/utils/hooks';
+import { useRandomUuid, useRoomNavigation } from '@showdex/utils/hooks';
+import { openUserPopup } from '@showdex/utils/host';
 import { BattleRecord } from './BattleRecord';
 import { FooterButton } from './FooterButton';
 import { GradientButton } from './GradientButton';
-import { InstanceButton } from './InstanceButton';
+import { type InstanceButtonRef, InstanceButton } from './InstanceButton';
 import { PatronagePane } from './PatronagePane';
 import { SettingsPane } from './SettingsPane';
+import { useHellodexSize } from './useHellodexSize';
 import styles from './Hellodex.module.scss';
 
 export interface HellodexProps {
-  openCalcdexInstance?: (battleId: string) => void;
+  onRequestCalcdex?: (battleId: string) => void;
+  onRequestHonkdex?: (instanceId?: string) => void;
+  onRemoveHonkdex?: (...instanceIds: string[]) => void;
 }
 
 const packageVersion = `v${env('package-version', 'X.X.X')}`;
@@ -33,20 +51,17 @@ const buildSuffix = env('build-suffix');
 const forumUrl = env('hellodex-forum-url');
 const repoUrl = env('hellodex-repo-url');
 const communityUrl = env('hellodex-community-url');
-// const releasesUrl = env('hellodex-releases-url');
-// const bugsUrl = env('hellodex-bugs-url');
-// const featuresUrl = env('hellodex-features-url');
 
 export const Hellodex = ({
-  openCalcdexInstance,
+  onRequestCalcdex,
+  onRequestHonkdex,
+  onRemoveHonkdex,
 }: HellodexProps): JSX.Element => {
-  const colorScheme = useColorScheme();
+  const { t } = useTranslation('hellodex');
   const contentRef = React.useRef<HTMLDivElement>(null);
+  const instanceRefs = React.useRef<Record<string, InstanceButtonRef>>({});
 
-  const { size } = useElementSize(contentRef, {
-    initialWidth: 400,
-    initialHeight: 700,
-  });
+  useHellodexSize(contentRef);
 
   const authName = useAuthUsername();
   const authTitle = findPlayerTitle(authName, true);
@@ -55,19 +70,54 @@ export const Hellodex = ({
   // (only needs to be loaded once and seems to persist even after closing the Hellodex tab)
   useRoomNavigation();
 
+  const colorScheme = useColorScheme();
+  const glassyTerrain = useGlassyTerrain();
   const settings = useHellodexSettings();
   const calcdexSettings = useCalcdexSettings();
+  const honkdexSettings = useHonkdexSettings();
+  const updateSettings = useUpdateSettings();
+
+  const state = useHellodexState();
+  const calcdexState = useCalcdexState();
   const neverOpens = calcdexSettings?.openOnStart === 'never';
 
-  const calcdexState = useCalcdexState();
-  const instancesEmpty = !Object.keys(calcdexState).length;
+  const instances = Object.values(calcdexState).reverse().filter((b) => (
+    !!b?.battleId
+      && (b.operatingMode === 'battle' || honkdexSettings?.visuallyEnabled)
+  ));
 
-  // donate button visibility
+  const instancesEmpty = !instances.length;
   const showDonateButton = settings?.showDonateButton;
 
+  const battleRecord = useBattleRecord();
+  const resetBattleRecord = useBattleRecordReset();
+  const dupeInstance = useCalcdexDuplicator();
+
   // pane visibilities
-  const [patronageVisible, setPatronageVisible] = React.useState(false);
-  const [settingsVisible, setSettingsVisible] = React.useState(false);
+  const {
+    active: patronageVisible,
+    requestOpen: openPatronagePane,
+    notifyClose: closePatronagePane,
+  } = useSandwich();
+
+  const {
+    active: settingsVisible,
+    requestOpen: openSettingsPane,
+    notifyClose: closeSettingsPane,
+  } = useSandwich();
+
+  const toggleSettingsPane = settingsVisible ? closeSettingsPane : openSettingsPane;
+
+  const {
+    show: showContextMenu,
+    // hideAll: hideContextMenus,
+    hideAfter,
+  } = useContextMenu();
+
+  const contextMenuId = useRandomUuid();
+  const calcdexMenuId = useRandomUuid();
+  const honkdexMenuId = useRandomUuid();
+  const recordMenuId = useRandomUuid();
 
   return (
     <div
@@ -75,7 +125,12 @@ export const Hellodex = ({
         'showdex-module',
         styles.container,
         !!colorScheme && styles[colorScheme],
+        glassyTerrain && styles.glassy,
       )}
+      onContextMenu={(e) => showContextMenu({
+        event: e,
+        id: contextMenuId,
+      })}
     >
       <BuildInfo
         position="top-right"
@@ -85,22 +140,20 @@ export const Hellodex = ({
         ref={contentRef}
         className={cx(
           styles.content,
-          ['xs', 'sm'].includes(size) && styles.verySmol,
+          ['xs', 'sm'].includes(state.containerSize) && styles.verySmol,
         )}
       >
         {
           patronageVisible &&
           <PatronagePane
-            containerSize={size}
-            onRequestClose={() => setPatronageVisible(false)}
+            onRequestClose={closePatronagePane}
           />
         }
 
         {
           settingsVisible &&
           <SettingsPane
-            inBattle={['xs', 'sm'].includes(size)}
-            onRequestClose={() => setSettingsVisible(false)}
+            onRequestClose={closeSettingsPane}
           />
         }
 
@@ -112,33 +165,46 @@ export const Hellodex = ({
 
         <div className={styles.topContent}>
           <div className={styles.banner}>
-            <div className={styles.authors}>
-              <Button
-                className={styles.authorButton}
-                labelClassName={styles.label}
-                label="BOT Keith"
-                hoverScale={1}
-                absoluteHover
-                onPress={() => openUserPopup('sumfuk')}
-              />
+            <Trans
+              t={t}
+              i18nKey="header.title"
+              parent="div"
+              className={styles.authors}
+              shouldUnescape
+              components={{
+                and: <div className={styles.ampersand} />,
+                keith: (
+                  <Button
+                    className={styles.authorButton}
+                    labelClassName={styles.label}
+                    label="BOT Keith"
+                    hoverScale={1}
+                    absoluteHover
+                    onPress={() => openUserPopup('sumfuk')}
+                  />
+                ),
+                cameron: (
+                  <Button
+                    className={styles.authorButton}
+                    labelClassName={styles.label}
+                    label="analogcam"
+                    hoverScale={1}
+                    absoluteHover
+                    onPress={() => openUserPopup('camdawgboi')}
+                  />
+                ),
+              }}
+            />
 
-              <div className={styles.ampersand}>
-                &amp;
-              </div>
+            <Trans
+              t={t}
+              i18nKey="header.subtitle"
+              parent="div"
+              className={styles.presents}
+              shouldUnescape
+            />
 
-              <Button
-                className={styles.authorButton}
-                labelClassName={styles.label}
-                label="analogcam"
-                hoverScale={1}
-                absoluteHover
-                onPress={() => openUserPopup('camdawgboi')}
-              />
-            </div>
-            <div className={styles.presents}>
-              Present
-            </div>
-
+            {/* besides BuildInfo's, this is the only other visually hardcoded "Showdex" not affected by i18n */}
             <div className={styles.extensionName}>
               Showdex
             </div>
@@ -169,86 +235,135 @@ export const Hellodex = ({
                   />
 
                   <div className={styles.emptyLabel}>
-                    {neverOpens ? (
-                      <>
-                        Calculator will never open based on your configured
-                        {' '}
-                        <Button
-                          className={styles.spectateButton}
-                          labelClassName={styles.spectateButtonLabel}
-                          label="settings"
-                          tooltip="Open Settings"
-                          hoverScale={1}
-                          absoluteHover
-                          onPress={() => setSettingsVisible(true)}
-                        />
-                        .
-                      </>
-                    ) : (
-                      <>
-                        Calculator will automatically open when you
-
-                        {
-                          ['always', 'playing'].includes(calcdexSettings?.openOnStart) &&
-                          <>
-                            {' '}
-                            <strong>play</strong>
-                          </>
-                        }
-
-                        {
-                          calcdexSettings?.openOnStart === 'always' &&
-                          <>
-                            {' '}or
-                          </>
-                        }
-
-                        {
-                          ['always', 'spectating'].includes(calcdexSettings?.openOnStart) &&
-                          <>
-                            {' '}
-                            <Button
-                              className={cx(
-                                styles.spectateButton,
-                                typeof app === 'undefined' && styles.disabled,
-                              )}
-                              labelClassName={styles.spectateButtonLabel}
-                              label="spectate"
-                              tooltip="View Active Battles"
-                              hoverScale={1}
-                              absoluteHover
-                              disabled={typeof app === 'undefined'}
-                              onPress={() => app.joinRoom('battles', 'battles')}
-                            />
-                          </>
-                        }
-
-                        {' '}a battle.
-                      </>
-                    )}
+                    <Trans
+                      t={t}
+                      i18nKey={'instances.empty.' + (
+                        (neverOpens && 'openNever')
+                          || (calcdexSettings?.openOnStart === 'playing' && 'openPlaying')
+                          || (calcdexSettings?.openOnStart === 'spectating' && 'openSpectating')
+                          || 'openAlways'
+                      )}
+                      shouldUnescape
+                      components={{
+                        settings: (
+                          <Button
+                            className={styles.spectateButton}
+                            labelClassName={styles.spectateButtonLabel}
+                            aria-label={t('instances.empty.settingsTooltip')}
+                            tooltip={t('instances.empty.settingsTooltip')}
+                            hoverScale={1}
+                            absoluteHover
+                            onPress={openSettingsPane}
+                          />
+                        ),
+                        spectate: (
+                          <Button
+                            className={cx(
+                              styles.spectateButton,
+                              typeof app === 'undefined' && styles.disabled,
+                            )}
+                            labelClassName={styles.spectateButtonLabel}
+                            aria-label={t('instances.empty.spectateTooltip')}
+                            tooltip={t('instances.empty.spectateTooltip')}
+                            hoverScale={1}
+                            absoluteHover
+                            disabled={typeof app === 'undefined'}
+                            onPress={() => app.joinRoom('battles', 'battles')}
+                          />
+                        ),
+                      }}
+                    />
                   </div>
+
+                  {
+                    honkdexSettings?.visuallyEnabled &&
+                    <>
+                      <div className={styles.divider}>
+                        <div className={styles.dividerLine} />
+                        <div className={styles.dividerLabel}>
+                          <Trans
+                            t={t}
+                            i18nKey="instances.honkdex.orSeparator"
+                            shouldUnescape
+                          />
+                        </div>
+                        <div className={styles.dividerLine} />
+                      </div>
+
+                      <GradientButton
+                        className={styles.honkButton}
+                        aria-label={t('instances.honkdex.newAria')}
+                        hoverScale={1}
+                        onPress={() => onRequestHonkdex?.()}
+                      >
+                        <Trans
+                          t={t}
+                          i18nKey="instances.honkdex.newLabel.0"
+                          shouldUnescape
+                        />
+                        <i
+                          className="fa fa-car"
+                          style={{ padding: '0 8px' }}
+                        />
+                        <Trans
+                          t={t}
+                          i18nKey="instances.honkdex.newLabel.1"
+                          shouldUnescape
+                        />
+                      </GradientButton>
+                    </>
+                  }
                 </div>
               ) : (
                 <Scrollable className={styles.scrollableInstances}>
                   <div className={styles.instances}>
-                    {Object.values(calcdexState).reverse().filter((b) => !!b?.battleId).map(({
-                      battleId,
-                      format,
-                      active,
-                      playerCount,
-                      p1,
-                      p2,
-                    }) => (
+                    {
+                      honkdexSettings?.visuallyEnabled &&
+                      <GradientButton
+                        className={cx(styles.instanceButton, styles.newHonkButton)}
+                        display="block"
+                        aria-label={t('instances.honkdex.newAria')}
+                        hoverScale={1}
+                        onPress={() => onRequestHonkdex()}
+                      >
+                        <i
+                          className="fa fa-plus"
+                          style={{ fontSize: 10, lineHeight: 11 }}
+                        />
+                        <i
+                          className="fa fa-car"
+                          style={{ padding: '0 8px' }}
+                        />
+                        <Trans
+                          t={t}
+                          i18nKey="instances.honkdex.newLabel.1"
+                          shouldUnescape
+                        />
+                      </GradientButton>
+                    }
+
+                    {instances.map((instance) => (
                       <InstanceButton
-                        key={`Hellodex:InstanceButton:${battleId}`}
+                        ref={(r) => { instanceRefs.current[instance.battleId] = r; }}
+                        key={`Hellodex:InstanceButton:${instance.battleId}`}
                         className={styles.instanceButton}
-                        format={format}
+                        instance={instance}
                         authName={authName}
-                        playerName={p1?.name}
-                        opponentName={p2?.name}
-                        active={active}
-                        hasMorePlayers={playerCount > 2}
-                        onPress={() => openCalcdexInstance?.(battleId)}
+                        onPress={() => (
+                          instance.operatingMode === 'standalone'
+                            ? onRequestHonkdex
+                            : onRequestCalcdex
+                        )?.(instance.battleId)}
+                        onRequestRemove={() => onRemoveHonkdex?.(instance.battleId)}
+                        onContextMenu={(e) => {
+                          showContextMenu({
+                            id: instance.operatingMode === 'battle' ? calcdexMenuId : honkdexMenuId,
+                            event: e,
+                            props: { instanceId: instance.battleId },
+                          });
+
+                          e.stopPropagation();
+                        }}
                       />
                     ))}
 
@@ -265,6 +380,10 @@ export const Hellodex = ({
               settings?.showBattleRecord &&
               <BattleRecord
                 className={styles.battleRecord}
+                onContextMenu={(e) => {
+                  showContextMenu({ id: recordMenuId, event: e });
+                  e.stopPropagation();
+                }}
               />
             }
           </div>
@@ -279,38 +398,34 @@ export const Hellodex = ({
             >
               <GradientButton
                 className={styles.donateButton}
-                aria-label="Support Showdex"
-                onPress={() => {
-                  setPatronageVisible(true);
-                  setSettingsVisible(false);
-                }}
+                aria-label={t('donate.aria')}
+                onPress={openPatronagePane}
               >
                 {authTitle?.title ? (
                   <i
                     className="fa fa-heart"
-                    style={{ padding: '0 7px' }}
+                    style={{ padding: '0 8px' }}
                   />
                 ) : (
-                  <>
-                    <strong>Show</strong>
-                    <span>dex</span>
-                    <strong style={{ margin: '0 7px' }}>
-                      Some
-                    </strong>
-                    <strong>Love</strong>
-                  </>
+                  <Trans
+                    t={t}
+                    i18nKey="donate.label"
+                    shouldUnescape
+                  />
                 )}
               </GradientButton>
 
-              <div className={styles.donateFootnote}>
-                {authTitle?.title ? (
-                  <>Thanks for supporting Showdex!</>
-                ) : (
-                  <>
-                    If you enjoyed this extension,
-                    please consider supporting further development.
-                  </>
+              <div
+                className={cx(
+                  styles.donateFootnote,
+                  !!authTitle?.title && styles.withTitle,
                 )}
+              >
+                <Trans
+                  t={t}
+                  i18nKey={`donate.footnote.${authTitle?.title ? 'supporter' : 'default'}`}
+                  shouldUnescape
+                />
               </div>
             </div>
           }
@@ -325,20 +440,16 @@ export const Hellodex = ({
           >
             <FooterButton
               className={cx(styles.linkItem, styles.settingsButton)}
-              // iconClassName={styles.settingsIcon}
               labelClassName={styles.linkButtonLabel}
               iconAsset={settingsVisible ? 'close-circle.svg' : 'cog.svg'}
               iconDescription={settingsVisible ? 'Close Circle Icon' : 'Cog Icon'}
-              label={settingsVisible ? 'Close' : 'Settings'}
-              aria-label="Showdex Extension Settings"
-              tooltip={`${settingsVisible ? 'Close' : 'Open'} Showdex Settings`}
-              onPress={() => {
-                setPatronageVisible(false);
-                setSettingsVisible(!settingsVisible);
-              }}
+              label={t(`footer.settings.${settingsVisible ? 'closeLabel' : 'openLabel'}`)}
+              aria-label={t(`footer.settings.${settingsVisible ? 'closeTooltip' : 'openTooltip'}`)}
+              tooltip={t(`footer.settings.${settingsVisible ? 'closeTooltip' : 'openTooltip'}`)}
+              onPress={toggleSettingsPane}
             />
 
-            {
+            {/*
               (forumUrl || repoUrl || communityUrl).startsWith('https://') &&
               <div
                 className={cx(
@@ -346,7 +457,7 @@ export const Hellodex = ({
                   styles.linkSeparator,
                 )}
               />
-            }
+            */}
 
             {
               forumUrl?.startsWith('https://') &&
@@ -356,9 +467,9 @@ export const Hellodex = ({
                 labelClassName={styles.linkButtonLabel}
                 iconAsset="signpost.svg"
                 iconDescription="Signpost Icon"
-                label="Smogon"
-                aria-label="Showdex Thread on Smogon Forums"
-                tooltip="Discuss on Smogon Forums"
+                label={t('footer.smogon.label')}
+                aria-label={t('footer.smogon.tooltip')}
+                tooltip={t('footer.smogon.tooltip')}
                 onPress={() => window.open(forumUrl, '_blank', 'noopener,noreferrer')}
               />
             }
@@ -370,9 +481,9 @@ export const Hellodex = ({
                 labelClassName={styles.linkButtonLabel}
                 iconAsset="github-face.svg"
                 iconDescription="GitHub Octocat Icon"
-                label="GitHub"
-                aria-label="Showdex Source Code on GitHub"
-                tooltip="Peep the Source Code on GitHub"
+                label={t('footer.github.label')}
+                aria-label={t('footer.github.tooltip')}
+                tooltip={t('footer.github.tooltip')}
                 onPress={() => window.open(repoUrl, '_blank', 'noopener,noreferrer')}
               />
             }
@@ -384,9 +495,9 @@ export const Hellodex = ({
                 labelClassName={styles.linkButtonLabel}
                 iconAsset="discord.svg"
                 iconDescription="Discord Clyde Icon"
-                label="Discord"
-                aria-label="Official Showdex Discord"
-                tooltip="Join Our Discord Community!"
+                label={t('footer.discord.label')}
+                aria-label={t('footer.discord.tooltip')}
+                tooltip={t('footer.discord.tooltip')}
                 onPress={() => window.open(communityUrl, '_blank', 'noopener,noreferrer')}
               />
             }
@@ -450,12 +561,253 @@ export const Hellodex = ({
           </BaseButton>
 
           <div className={cx(styles.credits, styles.hideWhenSmol)}>
-            created with <i className="fa fa-heart" /> by
+            <Trans
+              t={t}
+              i18nKey="footer.created"
+              shouldUnescape
+              components={{ love: <i className="fa fa-heart" /> }}
+            />
             <br />
             BOT Keith &amp; analogcam
           </div>
         </div>
       </div>
+
+      <ContextMenu
+        id={contextMenuId}
+        itemKeyPrefix="Hellodex:ContextMenu"
+        items={[
+          {
+            key: 'new-honk',
+            entity: 'item',
+            props: {
+              label: t('contextMenu.newHonk', 'New Honk'),
+              icon: 'fa-car',
+              hidden: !honkdexSettings?.visuallyEnabled,
+              onPress: hideAfter(onRequestHonkdex),
+            },
+          },
+          {
+            key: 'spectate-battles',
+            entity: 'item',
+            props: {
+              label: t('contextMenu.spectate', 'Spectate Battles'),
+              icon: 'sword',
+              iconStyle: { transform: 'scale(1.15)' },
+              disabled: typeof app?.joinRoom !== 'function',
+              onPress: hideAfter(() => app.joinRoom('battles', 'battles')),
+            },
+          },
+          {
+            key: 'settings-hr',
+            entity: 'separator',
+          },
+          {
+            key: 'open-settings',
+            entity: 'item',
+            props: {
+              theme: settingsVisible ? 'info' : 'default',
+              label: t(
+                `contextMenu.${settingsVisible ? 'close' : 'settings'}`,
+                settingsVisible ? 'Close' : 'Settings',
+              ),
+              icon: settingsVisible ? 'close-circle' : 'cog',
+              iconStyle: settingsVisible ? undefined : { transform: 'scale(1.25)' },
+              onPress: hideAfter(toggleSettingsPane),
+            },
+          },
+          {
+            key: 'close-patronage',
+            entity: 'item',
+            props: {
+              theme: 'info',
+              label: t('contextMenu.close', 'Close'),
+              icon: 'close-circle',
+              hidden: !patronageVisible,
+              onPress: hideAfter(closePatronagePane),
+            },
+          },
+        ]}
+      />
+
+      <ContextMenu
+        id={calcdexMenuId}
+        itemKeyPrefix="InstanceButton:Calcdex:ContextMenu"
+        items={[
+          {
+            key: 'open-calcdex',
+            entity: 'item',
+            props: {
+              label: t('instances.calcdex.contextMenu.open', 'Open'),
+              icon: 'external-link',
+              iconStyle: { strokeWidth: 3, transform: 'scale(1.2)' },
+              onPress: ({ props: p }) => hideAfter(() => {
+                const id = (p as Record<'instanceId', string>)?.instanceId;
+
+                if (!id) {
+                  return;
+                }
+
+                onRequestCalcdex(id);
+              })(),
+            },
+          },
+          {
+            key: 'dupe-calcdex',
+            entity: 'item',
+            props: {
+              label: t('instances.calcdex.contextMenu.convertHonk', 'Convert to Honk'),
+              icon: 'fa-car',
+              hidden: !honkdexSettings?.visuallyEnabled,
+              onPress: ({ props: p }) => hideAfter(() => {
+                const id = (p as Record<'instanceId', string>)?.instanceId;
+
+                if (!id) {
+                  return;
+                }
+
+                dupeInstance(
+                  instances.find((i) => i?.battleId === id)
+                    || { battleId: id },
+                );
+              })(),
+            },
+          },
+          {
+            key: 'close-hr',
+            entity: 'separator',
+            props: {
+              hidden: !calcdexSettings?.destroyOnClose,
+            },
+          },
+          {
+            key: 'close-battle',
+            entity: 'item',
+            props: {
+              theme: 'error',
+              label: t('instances.calcdex.contextMenu.closeBattle', 'Leave Battle'),
+              icon: 'door-exit',
+              iconStyle: { transform: 'scale(1.2)' },
+              disabled: typeof app?.leaveRoom !== 'function',
+              hidden: !calcdexSettings?.destroyOnClose,
+              onPress: ({ props: p }) => hideAfter(() => {
+                const id = (p as Record<'instanceId', string>)?.instanceId;
+
+                if (!id || typeof app?.leaveRoom !== 'function') {
+                  return;
+                }
+
+                app.leaveRoom(getCalcdexRoomId(id));
+                app.leaveRoom(id);
+              })(),
+            },
+          },
+        ]}
+      />
+
+      <ContextMenu
+        id={honkdexMenuId}
+        itemKeyPrefix="InstanceButton:Honkdex:ContextMenu"
+        items={[
+          {
+            key: 'open-honkdex',
+            entity: 'item',
+            props: {
+              label: t('instances.honkdex.contextMenu.open', 'Open'),
+              icon: 'external-link',
+              iconStyle: { strokeWidth: 3, transform: 'scale(1.2)' },
+              onPress: ({ props: p }) => hideAfter(() => {
+                const id = (p as Record<'instanceId', string>)?.instanceId;
+
+                if (!id) {
+                  return;
+                }
+
+                onRequestHonkdex(id);
+              })(),
+            },
+          },
+          {
+            key: 'dupe-honkdex',
+            entity: 'item',
+            props: {
+              label: t('instances.honkdex.contextMenu.dupe', 'Duplicate'),
+              icon: 'copy-plus',
+              iconStyle: { strokeWidth: 3, transform: 'scale(1.2)' },
+              onPress: ({ props: p }) => hideAfter(() => {
+                const id = (p as Record<'instanceId', string>)?.instanceId;
+
+                if (!id) {
+                  return;
+                }
+
+                dupeInstance(
+                  instances.find((i) => i?.battleId === id)
+                    || { battleId: id },
+                );
+              })(),
+            },
+          },
+          {
+            key: 'remove-hr',
+            entity: 'separator',
+          },
+          {
+            key: 'remove-honkdex',
+            entity: 'item',
+            props: {
+              theme: 'error',
+              label: t('instances.honkdex.contextMenu.remove', 'Delete'),
+              // icon: 'fa-times-circle',
+              icon: 'trash-close',
+              iconStyle: { transform: 'scale(1.2)' },
+              onPress: ({ props: data }) => hideAfter(() => {
+                const id = (data as Record<'instanceId', string>)?.instanceId;
+
+                if (!id) {
+                  return;
+                }
+
+                instanceRefs.current[id]?.queueRemoval();
+              })(),
+            },
+          },
+        ]}
+      />
+
+      <ContextMenu
+        id={recordMenuId}
+        itemKeyPrefix="BattleRecord:ContextMenu"
+        items={[
+          {
+            key: 'reset-record',
+            entity: 'item',
+            props: {
+              label: t('battleRecord.contextMenu.reset', 'Reset'),
+              icon: 'fa-refresh',
+              disabled: !battleRecord?.wins && !battleRecord?.losses,
+              onPress: hideAfter(resetBattleRecord),
+            },
+          },
+          {
+            key: 'hide-separator',
+            entity: 'separator',
+          },
+          {
+            key: 'hide-record',
+            entity: 'item',
+            props: {
+              theme: 'warning',
+              label: t('battleRecord.contextMenu.hide', 'Hide'),
+              icon: 'close-circle',
+              disabled: !settings?.showBattleRecord,
+              onPress: hideAfter(() => updateSettings({
+                hellodex: { showBattleRecord: false },
+              })),
+            },
+          },
+        ]}
+      />
     </div>
   );
 };

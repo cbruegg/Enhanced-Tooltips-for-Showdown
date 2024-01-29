@@ -1,4 +1,3 @@
-import { AllPlayerKeys } from '@showdex/consts/battle';
 import {
   type CalcdexBattleField,
   type CalcdexBattleRules,
@@ -7,10 +6,25 @@ import {
   type CalcdexPlayerSide,
   type CalcdexPokemon,
   type CalcdexPokemonPreset,
-} from '@showdex/redux/store';
+  type CalcdexPokemonPresetSpread,
+  CalcdexPlayerKeys as AllPlayerKeys,
+} from '@showdex/interfaces/calc';
 import { nonEmptyObject } from '@showdex/utils/core';
 import { detectUsageAlt } from '@showdex/utils/presets/detectUsageAlt'; /** @todo reorganize me */
 import { clonePlayerSideConditions } from './clonePlayerSideConditions';
+
+/**
+ * Clones a bunch of `CalcdexPokemonPresetSpread[]`'s.
+ *
+ * @since 1.2.0
+ */
+export const clonePresetSpreads = (
+  spreads: CalcdexPokemonPresetSpread[],
+): CalcdexPokemonPresetSpread[] => (spreads || []).map((spread) => ({
+  ...spread,
+  ivs: { ...spread?.ivs },
+  evs: { ...spread?.evs },
+}));
 
 /**
  * Clones a single `CalcdexPokemonPreset`.
@@ -54,6 +68,10 @@ export const clonePreset = (
 
   if (nonEmptyObject(output.evs)) {
     output.evs = { ...output.evs };
+  }
+
+  if (Array.isArray(output.spreads)) {
+    output.spreads = clonePresetSpreads(output.spreads);
   }
 
   return output;
@@ -151,6 +169,10 @@ export const clonePokemon = (
     output.revealedMoves = [...output.revealedMoves];
   }
 
+  if (nonEmptyObject(output.stellarMoveMap)) {
+    output.stellarMoveMap = { ...output.stellarMoveMap };
+  }
+
   if (nonEmptyObject(output.moveOverrides)) {
     output.moveOverrides = Object.entries(output.moveOverrides).reduce((prev, [key, value]) => {
       prev[key] = {
@@ -167,6 +189,17 @@ export const clonePokemon = (
 
   if (nonEmptyObject(output.dirtyBoosts)) {
     output.dirtyBoosts = { ...output.dirtyBoosts };
+  }
+
+  if (nonEmptyObject(output.autoBoostMap)) {
+    output.autoBoostMap = Object.entries(output.autoBoostMap).reduce((prev, [key, value]) => {
+      prev[key] = {
+        ...value,
+        boosts: { ...value?.boosts },
+      };
+
+      return prev;
+    }, {} as typeof output['autoBoostMap']);
   }
 
   if (nonEmptyObject(output.baseStats)) {

@@ -1,20 +1,5 @@
-import { type CalcdexPokemonPreset } from '@showdex/redux/store';
+import { type CalcdexPokemonPreset } from '@showdex/interfaces/calc';
 import { reverseObjectKv } from '@showdex/utils/core';
-import { type HydroHeader } from './header';
-
-/**
- * Hydrated object from dehydrated presets.
- *
- * @since 1.1.6
- */
-export interface HydroPresetsHydration extends HydroHeader {
-  /**
-   * Hydrated presets.
-   *
-   * @since 1.1.6
-   */
-  presets?: CalcdexPokemonPreset[];
-}
 
 /* eslint-disable @typescript-eslint/indent */
 
@@ -27,8 +12,11 @@ export type HydroPresetsDehydrationKeys = Exclude<keyof CalcdexPokemonPreset,
   | 'id'
   | 'gen'
   | 'ability'
+  | 'nature'
   | 'item'
   | 'moves'
+  | 'ivs'
+  | 'evs'
 >;
 
 /* eslint-enable @typescript-eslint/indent */
@@ -58,9 +46,10 @@ export const HydroPresetsDehydrationMap: Record<HydroPresetsDehydrationKeys, str
   altAbilities: 'abl',
   altItems: 'itm',
   altMoves: 'mov',
-  nature: 'ntr',
-  ivs: 'ivs',
-  evs: 'evs',
+  // nature: 'ntr',
+  // ivs: 'ivs',
+  // evs: 'evs',
+  spreads: 'spr',
   pokeball: 'pkb',
 };
 

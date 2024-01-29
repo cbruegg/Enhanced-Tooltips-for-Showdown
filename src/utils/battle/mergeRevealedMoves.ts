@@ -1,8 +1,8 @@
 import { type MoveName } from '@smogon/calc';
 import { PokemonPivotMoves } from '@showdex/consts/dex';
-import { type CalcdexPokemon } from '@showdex/redux/store';
+import { type CalcdexPokemon } from '@showdex/interfaces/calc';
 import { getDexForFormat } from '@showdex/utils/dex';
-import { flattenAlts } from '@showdex/utils/presets/flattenAlts'; /** @todo reorganize me */
+import { flattenAlts } from '@showdex/utils/presets';
 
 /**
  * Intelligently uses hardcoded intelligence to merge the `pokemon`'s currently set `moves`
@@ -13,7 +13,7 @@ import { flattenAlts } from '@showdex/utils/presets/flattenAlts'; /** @todo reor
  * @since 1.0.4
  */
 export const mergeRevealedMoves = (
-  pokemon: DeepPartial<CalcdexPokemon>,
+  pokemon: Partial<CalcdexPokemon>,
 ): MoveName[] => {
   const {
     types,

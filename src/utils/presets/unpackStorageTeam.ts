@@ -1,9 +1,9 @@
 import { type AbilityName, type ItemName, type MoveName } from '@smogon/calc';
 import { PokemonNatures, PokemonNeutralNatures, PokemonTypes } from '@showdex/consts/dex';
-import { type CalcdexPokemonPreset } from '@showdex/redux/store';
+import { type CalcdexPokemonPreset } from '@showdex/interfaces/calc';
 import { calcPresetCalcdexId } from '@showdex/utils/calc';
 import { clamp } from '@showdex/utils/core';
-import { detectGenFromFormat, detectLegacyGen, getDexForFormat } from '@showdex/utils/dex';
+import { detectGenFromFormat, getDefaultSpreadValue, getDexForFormat } from '@showdex/utils/dex';
 
 /**
  * Converts a single `packedTeam` from the Teambuilder into `CalcdexPokemonPreset[]`s.
@@ -13,6 +13,9 @@ import { detectGenFromFormat, detectLegacyGen, getDexForFormat } from '@showdex/
  *   deliminated by newlines (i.e., `'\n'`).
  * * While we could've tapped into Showdown's `Storage.fastUnpackTeam()`, the logic has been reimplemented
  *   for finer control over how the `CalcdexPokemonPreset` is assembled.
+ * * Update (2024/01/12): Discovered an edge case where formatless teams & boxes will be saved as `'gen9'` (or whatever
+ *   the current gen is), so we'll parse it as `'gen9unknown'` as to not break anything expecting a format... like the
+ *   great `endsWith()` crash of v1.2.1 due to `getGenlessFormat()` in `legalLockedFormat()` returning `null` LOL.
  * * Guaranteed to at least return an empty array (i.e., `[]`) if unpacking fails at any point.
  *
  * There is a very specific format that Showdown uses when packing each team into `LocalStorage`:
@@ -92,9 +95,8 @@ export const unpackStorageTeam = (
     return output;
   }
 
-  const legacy = detectLegacyGen(format);
-  const defaultIv = legacy ? 30 : 31;
-  const defaultEv = legacy ? 252 : 0;
+  const defaultIv = getDefaultSpreadValue('iv', format);
+  const defaultEv = getDefaultSpreadValue('ev', format);
 
   const packedPokemon = packedTeam
     .slice(teamIndex + 1)
@@ -144,6 +146,12 @@ export const unpackStorageTeam = (
         spe: defaultEv,
       },
     };
+
+    // update (2024/01/12): handling an edge case where if you don't set a format, the team gets saved as 'gen9', e.g.,
+    // 'gen9]showdex-v1.2.1/badteam|badaludon|archaludon|assaultvest|stamina|dracometeor,flashcannon,...'
+    if (preset.format === `gen${preset.gen}`) {
+      preset.format += 'unknown'; // e.g., 'gen9unknown'
+    }
 
     const [
       nickname,

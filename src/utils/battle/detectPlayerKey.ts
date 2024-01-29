@@ -1,23 +1,31 @@
-import { type CalcdexPlayerKey, type CalcdexPokemon } from '@showdex/redux/store';
-import { getAuthUsername } from '@showdex/utils/app';
+import { type CalcdexPlayerKey } from '@showdex/interfaces/calc';
+import { getAuthUsername } from '@showdex/utils/host';
 import { detectPokemonIdent } from './detectPokemonIdent';
+
+const PokemonPlayerKeyRegex = /^(p\d)[a-z]?:/;
+
+/* eslint-disable @typescript-eslint/indent */
 
 /**
  * Attempts to detect the player key from the `ident` of the passed-in `pokemon`.
  *
  * @since 0.1.0
  */
-export const detectPlayerKeyFromPokemon = (
-  pokemon: DeepPartial<Showdown.Pokemon> | DeepPartial<Showdown.ServerPokemon> | DeepPartial<CalcdexPokemon> = {},
+export const detectPlayerKeyFromPokemon = <
+  TPokemon extends Partial<Showdown.PokemonDetails>,
+>(
+  pokemon: TPokemon,
 ): CalcdexPlayerKey => {
   const ident = detectPokemonIdent(pokemon);
 
-  if (!ident || !/^p\d+:/.test(ident)) {
+  if (!ident) {
     return null;
   }
 
-  return ident.slice(0, ident.indexOf(':')) as CalcdexPlayerKey;
+  return PokemonPlayerKeyRegex.exec(ident)?.[1] as CalcdexPlayerKey;
 };
+
+/* eslint-enable @typescript-eslint/indent */
 
 /**
  * Attempts to detect the player key of the logged-in user from the passed-in `battle`.
@@ -28,12 +36,8 @@ export const detectPlayerKeyFromPokemon = (
  * @since 1.0.2
  */
 export const detectAuthPlayerKeyFromBattle = (
-  battle: DeepPartial<Showdown.Battle>,
+  battle: Partial<Showdown.Battle>,
 ): CalcdexPlayerKey => {
-  if (typeof app === 'undefined') {
-    return null;
-  }
-
   const authName = getAuthUsername();
 
   if (!authName) {
@@ -61,7 +65,7 @@ export const detectAuthPlayerKeyFromBattle = (
  * @since 0.1.0
  */
 export const detectPlayerKeyFromBattle = (
-  battle: DeepPartial<Showdown.Battle>,
+  battle: Partial<Showdown.Battle>,
 ): CalcdexPlayerKey => {
   // check if the logged in user is a player in the battle
   const authKey = detectAuthPlayerKeyFromBattle(battle);

@@ -1,16 +1,15 @@
 import { type ItemName } from '@smogon/calc';
 import { type DropdownOption } from '@showdex/components/form';
 import { eacute } from '@showdex/consts/core';
-import { type CalcdexPokemon, type CalcdexPokemonPreset } from '@showdex/redux/store';
-import { formatId } from '@showdex/utils/core';
-import { getDexForFormat, guessTableFormatKey, legalLockedFormat } from '@showdex/utils/dex';
+import { type CalcdexPokemon, type CalcdexPokemonAlt, type CalcdexPokemonUsageAlt } from '@showdex/interfaces/calc';
+import { formatId, nonEmptyObject } from '@showdex/utils/core';
+import { detectGenFromFormat, guessTableFormatKey } from '@showdex/utils/dex';
 import { percentage } from '@showdex/utils/humanize';
 import {
+  type CalcdexPokemonUsageAltSorter,
   detectUsageAlt,
   flattenAlt,
   flattenAlts,
-  usageAltPercentFinder,
-  usageAltPercentSorter,
 } from '@showdex/utils/presets';
 
 export type CalcdexPokemonItemOption = DropdownOption<ItemName>;
@@ -37,8 +36,10 @@ const findItemGroupIndices = (
   // headerName is a search string, so format it as such
   const headerId = formatId(headerName);
 
-  const determinedStartIndex = items
-    .findIndex((value) => Array.isArray(value) && formatId(value[1])?.[startsWith ? 'startsWith' : 'includes'](headerId));
+  const determinedStartIndex = items.findIndex((value) => (
+    Array.isArray(value)
+      && formatId(value[1])?.[startsWith ? 'startsWith' : 'includes'](headerId)
+  ));
 
   const startIndex = determinedStartIndex > -1
     ? determinedStartIndex + 1
@@ -67,36 +68,37 @@ const findItemGroupIndices = (
  */
 export const buildItemOptions = (
   format: string,
-  pokemon: DeepPartial<CalcdexPokemon>,
-  usage?: CalcdexPokemonPreset,
-  showAll?: boolean,
+  pokemon: CalcdexPokemon,
+  config?: {
+    usageAlts?: CalcdexPokemonAlt<ItemName>[];
+    usageFinder?: (value: ItemName) => string;
+    usageSorter?: CalcdexPokemonUsageAltSorter<ItemName>;
+    translate?: (value: ItemName) => string;
+    translateHeader?: (value: string) => string;
+  },
 ): CalcdexPokemonItemOption[] => {
+  const gen = detectGenFromFormat(format);
   const options: CalcdexPokemonItemOption[] = [];
 
-  if (!pokemon?.speciesForme) {
+  if (!pokemon?.speciesForme || gen < 2) {
     return options;
   }
 
-  const dex = getDexForFormat(format);
+  const { altItems } = pokemon;
 
   const {
-    altItems,
-  } = pokemon;
+    usageAlts,
+    usageFinder: findUsagePercent,
+    usageSorter,
+    translate: translateFromConfig,
+    translateHeader: translateHeaderFromConfig,
+  } = config || {};
+
+  const translate = (v: ItemName) => translateFromConfig?.(v) || v;
+  const translateHeader = (v: string, d?: string) => translateHeaderFromConfig?.(v) || d || v;
 
   // keep track of what moves we have so far to avoid duplicate options
   const filterItems: ItemName[] = [];
-
-  // prioritize using usage stats from the current set first,
-  // then fallback to using the stats from the supplied `usage` set, if any
-  const usageAltSource = detectUsageAlt(altItems?.[0])
-    ? altItems
-    : detectUsageAlt(usage?.altItems?.[0])
-      ? usage.altItems
-      : null;
-
-  // create usage percent finder (to show them in any of the option groups)
-  const findUsagePercent = usageAltPercentFinder(usageAltSource, true);
-  const usageSorter = usageAltPercentSorter(findUsagePercent);
 
   if (altItems?.length) {
     const hasUsageStats = altItems
@@ -107,47 +109,45 @@ export const buildItemOptions = (
       : flattenAlts(altItems).sort(usageSorter);
 
     options.push({
-      label: 'Pool',
-      options: poolItems.map((alt) => ({
-        label: flattenAlt(alt),
-        rightLabel: Array.isArray(alt) ? percentage(alt[1], 2) : findUsagePercent(alt),
-        value: flattenAlt(alt),
-      })),
+      label: translateHeader('Pool'),
+      options: poolItems.map((alt) => {
+        const flat = flattenAlt(alt);
+
+        filterItems.push(flat);
+
+        return {
+          label: translate(flat),
+          rightLabel: Array.isArray(alt) ? percentage(alt[1], alt[1] === 1 ? 0 : 2) : findUsagePercent(alt),
+          value: flat,
+        };
+      }),
     });
-
-    filterItems.push(...flattenAlts(poolItems));
   }
 
-  if (!dex) {
-    return options;
-  }
+  const usageItems = usageAlts?.filter((a) => (
+    detectUsageAlt(a)
+      && !filterItems.includes(a[0])
+  )) as CalcdexPokemonUsageAlt<ItemName>[];
 
-  if (typeof BattleTeambuilderTable === 'undefined' || !format || !BattleTeambuilderTable.items?.length) {
-    const allItems = Object.values(BattleItems || {})
-      .map((item) => item?.name as ItemName)
-      .filter((n) => !!n && !filterItems.includes(n))
-      .sort(usageSorter);
+  if (usageItems?.length) {
+    options.push({
+      label: translateHeader('Usage'),
+      options: usageItems.map((alt) => {
+        const flat = flattenAlt(alt);
 
-    if (allItems.length) {
-      options.push({
-        label: 'All',
-        options: allItems.map((name) => ({
-          label: name,
-          rightLabel: findUsagePercent(name),
-          value: name,
-        })),
-      });
-    }
+        filterItems.push(flat);
 
-    return options;
+        return {
+          label: translate(flat),
+          rightLabel: percentage(alt[1], alt[1] === 1 ? 0 : 2),
+          value: flat,
+        };
+      }),
+    });
   }
 
   const formatKey = guessTableFormatKey(format);
-
-  // const { items } = BattleTeambuilderTable;
-  const items = !!format && formatKey in BattleTeambuilderTable && BattleTeambuilderTable[formatKey]?.items?.length
-    ? BattleTeambuilderTable[formatKey].items
-    : BattleTeambuilderTable.items;
+  const items = BattleTeambuilderTable[formatKey]?.items || BattleTeambuilderTable?.items;
 
   // use the BattleTeambuilderTable to group items by:
   // Popular, Items, Pokemon-Specific, Usually Useless & Useless
@@ -166,15 +166,17 @@ export const buildItemOptions = (
 
     if (popularItems.length) {
       options.push({
-        label: 'Popular',
-        options: popularItems.map((name) => ({
-          label: name,
-          rightLabel: findUsagePercent(name),
-          value: name,
-        })),
-      });
+        label: translateHeader('Popular Items', 'Popular'),
+        options: popularItems.map((name) => {
+          filterItems.push(name);
 
-      filterItems.push(...popularItems);
+          return {
+            label: translate(name),
+            rightLabel: findUsagePercent(name),
+            value: name,
+          };
+        }),
+      });
     }
   }
 
@@ -187,15 +189,17 @@ export const buildItemOptions = (
 
     if (itemsItems.length) {
       options.push({
-        label: 'Items',
-        options: itemsItems.map((name) => ({
-          label: name,
-          rightLabel: findUsagePercent(name),
-          value: name,
-        })),
-      });
+        label: translateHeader('Items'),
+        options: itemsItems.map((name) => {
+          filterItems.push(name);
 
-      filterItems.push(...itemsItems);
+          return {
+            label: translate(name),
+            rightLabel: findUsagePercent(name),
+            value: name,
+          };
+        }),
+      });
     }
   }
 
@@ -208,15 +212,17 @@ export const buildItemOptions = (
 
     if (specificItems.length) {
       options.push({
-        label: `Pok${eacute}mon-Specific`,
-        options: specificItems.map((name) => ({
-          label: name,
-          rightLabel: findUsagePercent(name),
-          value: name,
-        })),
-      });
+        label: translateHeader(`Pok${eacute}mon-Specific Items`, `Pok${eacute}mon-Specific`),
+        options: specificItems.map((name) => {
+          filterItems.push(name);
 
-      filterItems.push(...specificItems);
+          return {
+            label: translate(name),
+            rightLabel: findUsagePercent(name),
+            value: name,
+          };
+        }),
+      });
     }
   }
 
@@ -229,15 +235,17 @@ export const buildItemOptions = (
 
     if (usuallyUselessItems.length) {
       options.push({
-        label: 'Usually Useless',
-        options: usuallyUselessItems.map((name) => ({
-          label: name,
-          rightLabel: findUsagePercent(name),
-          value: name,
-        })),
-      });
+        label: translateHeader('Usually Useless Items', 'Usually Useless'),
+        options: usuallyUselessItems.map((name) => {
+          filterItems.push(name);
 
-      filterItems.push(...usuallyUselessItems);
+          return {
+            label: translate(name),
+            rightLabel: findUsagePercent(name),
+            value: name,
+          };
+        }),
+      });
     }
   }
 
@@ -250,34 +258,56 @@ export const buildItemOptions = (
 
     if (uselessItems.length) {
       options.push({
-        label: 'Useless',
-        options: uselessItems.map((name) => ({
-          label: name,
-          rightLabel: findUsagePercent(name),
-          value: name,
-        })),
-      });
+        label: translateHeader('Useless Items', 'Useless'),
+        options: uselessItems.map((name) => {
+          filterItems.push(name);
 
-      filterItems.push(...uselessItems);
+          return {
+            label: translate(name),
+            rightLabel: findUsagePercent(name),
+            value: name,
+          };
+        }),
+      });
     }
   }
 
-  if (showAll || !legalLockedFormat(format)) {
-    const otherItems = Object.values(BattleItems || {})
+  if (!nonEmptyObject(items)) {
+    const allItems = Object.values(BattleItems || {})
       .map((item) => item?.name as ItemName)
       .filter((n) => !!n && !filterItems.includes(n))
       .sort(usageSorter);
 
-    if (otherItems.length) {
+    if (allItems.length) {
       options.push({
-        label: 'All',
-        options: otherItems.map((name) => ({
-          label: name,
-          rightLabel: findUsagePercent(name),
-          value: name,
-        })),
+        label: translateHeader('Other'),
+        options: allItems.map((name) => {
+          filterItems.push(name);
+
+          return {
+            label: translate(name),
+            rightLabel: findUsagePercent(name),
+            value: name,
+          };
+        }),
       });
     }
+  }
+
+  const otherItems = Object.values(BattleItems || {})
+    .map((item) => item?.name as ItemName)
+    .filter((n) => !!n && !filterItems.includes(n))
+    .sort(usageSorter);
+
+  if (otherItems.length) {
+    options.push({
+      label: translateHeader('All'),
+      options: otherItems.map((name) => ({
+        label: translate(name),
+        rightLabel: findUsagePercent(name),
+        value: name,
+      })),
+    });
   }
 
   return options;
