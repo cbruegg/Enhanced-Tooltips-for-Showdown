@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A17450B32B68500200F60D56 /* i18n.fr.json in Resources */ = {isa = PBXBuildFile; fileRef = A17450B12B68500200F60D56 /* i18n.fr.json */; };
+		A17450B42B68500200F60D56 /* i18n.fr.json in Resources */ = {isa = PBXBuildFile; fileRef = A17450B12B68500200F60D56 /* i18n.fr.json */; };
+		A17450B52B68500200F60D56 /* i18n.fr.json in Resources */ = {isa = PBXBuildFile; fileRef = A17450B12B68500200F60D56 /* i18n.fr.json */; };
+		A17450B62B68500200F60D56 /* i18n.fr.json in Resources */ = {isa = PBXBuildFile; fileRef = A17450B12B68500200F60D56 /* i18n.fr.json */; };
+		A17450B72B68500200F60D56 /* i18n.en.json in Resources */ = {isa = PBXBuildFile; fileRef = A17450B22B68500200F60D56 /* i18n.en.json */; };
+		A17450B82B68500200F60D56 /* i18n.en.json in Resources */ = {isa = PBXBuildFile; fileRef = A17450B22B68500200F60D56 /* i18n.en.json */; };
+		A17450B92B68500200F60D56 /* i18n.en.json in Resources */ = {isa = PBXBuildFile; fileRef = A17450B22B68500200F60D56 /* i18n.en.json */; };
+		A17450BA2B68500200F60D56 /* i18n.en.json in Resources */ = {isa = PBXBuildFile; fileRef = A17450B22B68500200F60D56 /* i18n.en.json */; };
 		A193CE6A28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */; };
 		A193CE6B28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */; };
 		A193CE6C28FB2CC800A3E5C2 /* error-circle-outline.svg in Resources */ = {isa = PBXBuildFile; fileRef = A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */; };
@@ -174,6 +182,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A17450B12B68500200F60D56 /* i18n.fr.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = i18n.fr.json; path = ../../../../dist/chrome/i18n.fr.json; sourceTree = "<group>"; };
+		A17450B22B68500200F60D56 /* i18n.en.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = i18n.en.json; path = ../../../../dist/chrome/i18n.en.json; sourceTree = "<group>"; };
 		A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "error-circle-outline.svg"; path = "../../../../dist/chrome/error-circle-outline.svg"; sourceTree = "<group>"; };
 		A193CE6828FB2CC800A3E5C2 /* cog.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cog.svg; path = ../../../../dist/chrome/cog.svg; sourceTree = "<group>"; };
 		A193CE6928FB2CC800A3E5C2 /* close-circle.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "close-circle.svg"; path = "../../../../dist/chrome/close-circle.svg"; sourceTree = "<group>"; };
@@ -353,6 +363,8 @@
 		A1AB7C702798AEFB00725B12 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A17450B22B68500200F60D56 /* i18n.en.json */,
+				A17450B12B68500200F60D56 /* i18n.fr.json */,
 				A193CE6928FB2CC800A3E5C2 /* close-circle.svg */,
 				A193CE6828FB2CC800A3E5C2 /* cog.svg */,
 				A193CE6728FB2CC800A3E5C2 /* error-circle-outline.svg */,
@@ -509,11 +521,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1BBC4FC28DCA1F0006216ED /* main.js in Resources */,
+				A17450B32B68500200F60D56 /* i18n.fr.json in Resources */,
 				A1BBC4E428DCA1F0006216ED /* icon.png in Resources */,
 				A1AB7C542798AEFA00725B12 /* Icon.png in Resources */,
 				A1BBC53C28DCA1F0006216ED /* info-circle.svg in Resources */,
 				A1BBC4F028DCA1F0006216ED /* icon48.png in Resources */,
 				A1BBC51828DCA1F0006216ED /* content.js in Resources */,
+				A17450B72B68500200F60D56 /* i18n.en.json in Resources */,
 				A1BBC4E828DCA1F0006216ED /* background.js in Resources */,
 				A1AB7C2B2798AEFA00725B12 /* LaunchScreen.storyboard in Resources */,
 				A1ABECBB27D128460043CAB3 /* manifest.json in Resources */,
@@ -554,6 +568,7 @@
 				A1BBC51D28DCA1F0006216ED /* icon19.png in Resources */,
 				A1AB7C552798AEFA00725B12 /* Icon.png in Resources */,
 				A1BBC4F528DCA1F0006216ED /* icon128.png in Resources */,
+				A17450B82B68500200F60D56 /* i18n.en.json in Resources */,
 				A1BBC52128DCA1F0006216ED /* icon32.png in Resources */,
 				A1BBC52928DCA1F0006216ED /* sparkle.svg in Resources */,
 				A1AB7C572798AEFA00725B12 /* Style.css in Resources */,
@@ -573,6 +588,7 @@
 				A1BBC4FD28DCA1F0006216ED /* main.js in Resources */,
 				A1BBC53928DCA1F0006216ED /* apple-touch-icon.png in Resources */,
 				A1BBC4E128DCA1F0006216ED /* sword.svg in Resources */,
+				A17450B42B68500200F60D56 /* i18n.fr.json in Resources */,
 				A1BBC53128DCA1F0006216ED /* github-face.svg in Resources */,
 				A1BBC53528DCA1F0006216ED /* remove-circle.svg in Resources */,
 				A1BBC4F128DCA1F0006216ED /* icon48.png in Resources */,
@@ -598,7 +614,9 @@
 				A1BBC4E228DCA1F0006216ED /* sword.svg in Resources */,
 				A193CE7428FB2CC800A3E5C2 /* close-circle.svg in Resources */,
 				A1BBC53A28DCA1F0006216ED /* apple-touch-icon.png in Resources */,
+				A17450B92B68500200F60D56 /* i18n.en.json in Resources */,
 				A193CE7028FB2CC800A3E5C2 /* cog.svg in Resources */,
+				A17450B52B68500200F60D56 /* i18n.fr.json in Resources */,
 				A1BBC53628DCA1F0006216ED /* remove-circle.svg in Resources */,
 				A1BBC51228DCA1F0006216ED /* tize.svg in Resources */,
 				A1BBC51A28DCA1F0006216ED /* content.js in Resources */,
@@ -630,7 +648,9 @@
 				A1BBC4E328DCA1F0006216ED /* sword.svg in Resources */,
 				A193CE7528FB2CC800A3E5C2 /* close-circle.svg in Resources */,
 				A1BBC53B28DCA1F0006216ED /* apple-touch-icon.png in Resources */,
+				A17450BA2B68500200F60D56 /* i18n.en.json in Resources */,
 				A193CE7128FB2CC800A3E5C2 /* cog.svg in Resources */,
+				A17450B62B68500200F60D56 /* i18n.fr.json in Resources */,
 				A1BBC53728DCA1F0006216ED /* remove-circle.svg in Resources */,
 				A1BBC51328DCA1F0006216ED /* tize.svg in Resources */,
 				A1BBC51B28DCA1F0006216ED /* content.js in Resources */,
