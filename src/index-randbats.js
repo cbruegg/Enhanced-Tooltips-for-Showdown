@@ -2,7 +2,7 @@ var DATA = {};
 
 var SUPPORTED = [
   'gen9randombattle', 'gen9unratedrandombattle', 'gen9randomdoublesbattle',
-  'gen8randombattlenodmax', 'gen8randombattle', 'gen8bdsprandombattle', 'gen8randomdoublesbattle',
+  'gen8randombattlenodmax', 'gen8randombattle', 'gen8randomdoublesbattle', 'gen8bdsprandombattle',
   'gen7randombattle', 'gen7letsgorandombattle', 'gen7randomdoublesbattle',
   'gen6randombattle', 'gen5randombattle', 'gen4randombattle', 'gen3randombattle',
   'gen2randombattle', 'gen1randombattle',
@@ -27,6 +27,11 @@ if (TOOLTIP) {
           var json = JSON.parse(request.responseText);
           for (var name in json) {
             var pokemon = json[name];
+            // Zoroark has an actual level but the "Illusion Level Mod" means the server will lie
+            // about its level making it difficult to find. Instead we special case things here and
+            // below to always just set Zororak's level to 0 for searching (the actual clientPokemon
+            // level gets used for computing stats)
+            if (name.startsWith('Zoroark')) pokemon.level = 0;
             data[pokemon.level] = data[pokemon.level] || {};
             // Dex.forGen not important here because we're not looking at stats
             var species = Dex.species.get(name);
@@ -83,8 +88,13 @@ if (TOOLTIP) {
     var forme = cosmetic ? species.baseSpecies : clientPokemon.speciesForme;
     if (forme.startsWith('Pikachu')) forme = forme.endsWith('Gmax') ? 'Pikachu-Gmax' : 'Pikachu';
 
+    var d = data;
     data = data[id];
     if (!data) return original;
+
+    if (id === 'greninja' && 'greninjabond' in d) {
+      data = data.concat(d['greninjabond']);
+    }
 
     if (data.length === 1) {
       data[0].level = clientPokemon.level;
@@ -127,6 +137,7 @@ if (TOOLTIP) {
     var multi = !['singles', 'doubles'].includes(gameType);
     if (data.roles) {
       var roles = filter(data.roles, clientPokemon);
+      if (!roles.length) return '';
       var i = 0;
       for (var role of roles) {
         buf += (i == 0 ? '<div>' : '<div style="border-top: 1px solid #888;">');
@@ -202,11 +213,21 @@ if (TOOLTIP) {
     outer: for (var role of all) {
       if (clientPokemon.terastallized && !role[1].teraTypes[clientPokemon.terastallized]) continue;
       for (var moveslot of clientPokemon.moveTrack) {
-        if (!role[1].moves[moveslot[0]]) continue outer;
+        if (!role[1].moves[moveslot[0]] &&
+            (moveslot[0] !== 'Hidden Power' || !hasHiddenPower(role[1].moves))) {
+          continue outer;
+        }
       }
       possible.push(role);
     }
     return possible;
+  }
+
+  function hasHiddenPower(moves) {
+    for (var move in moves) {
+      if (move.startsWith('Hidden Power')) return true;
+    }
+    return false;
   }
 
   function display(stats, multi) {
