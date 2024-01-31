@@ -20,11 +20,17 @@ export function supportsRegexLookBehindNatively(): boolean {
   }
 }
 
-export function replace(str: string, regex: string, replacement: string): string {
+function isSupportedNatively(regex: string): boolean {
   const containsLookbehind = regex.includes('?<=') || regex.includes('?<!');
-  if (!containsLookbehind || supportsRegexLookBehindNatively()) {
+  return !containsLookbehind || supportsRegexLookBehindNatively();
+}
+
+export function replace(str: string, regex: string, replacement: string): string {
+  if (isSupportedNatively(regex)) {
     return str.replace(RegExp(regex), replacement);
   }
+
+  console.log('Using fallback regex replace implementation');
 
   const QuickJs = getQuickJSSync();
   const vm = QuickJs.newContext();
@@ -39,6 +45,68 @@ export function replace(str: string, regex: string, replacement: string): string
   replacementHandle.dispose();
 
   const result = vm.evalCode('str.replace(RegExp(regex), replacement)');
+  if (result.error) {
+    console.warn('Could not run regex', vm.dump(result.error));
+    result.error.dispose();
+    return '';
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+  const resultStr = vm.dump((result as any).value) as string;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+  (result as any).value.dispose();
+  vm.dispose();
+  return resultStr;
+}
+
+export function test(regex: string, str: string): boolean {
+  if (isSupportedNatively(regex)) {
+    return RegExp(regex).test(str);
+  }
+
+  console.log('Using fallback regex test implementation');
+
+  const QuickJs = getQuickJSSync();
+  const vm = QuickJs.newContext();
+  const regexHandle = vm.newString(regex);
+  const strHandle = vm.newString(str);
+  vm.setProp(vm.global, 'regex', regexHandle);
+  vm.setProp(vm.global, 'str', strHandle);
+  regexHandle.dispose();
+  strHandle.dispose();
+
+  const result = vm.evalCode('RegExp(regex).test(str)');
+  if (result.error) {
+    console.warn('Could not run regex', vm.dump(result.error));
+    result.error.dispose();
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+  const resultBool = vm.dump((result as any).value) as boolean;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+  (result as any).value.dispose();
+  vm.dispose();
+  return resultBool;
+}
+
+export function matchAndReturnFirst(regex: string, str: string): string {
+  if (isSupportedNatively(regex)) {
+    return RegExp(regex).exec(str)[0];
+  }
+
+  console.log('Using fallback regex matchAndReturnFirst implementation');
+
+  const QuickJs = getQuickJSSync();
+  const vm = QuickJs.newContext();
+  const regexHandle = vm.newString(regex);
+  const strHandle = vm.newString(str);
+  vm.setProp(vm.global, 'regex', regexHandle);
+  vm.setProp(vm.global, 'str', strHandle);
+  regexHandle.dispose();
+  strHandle.dispose();
+
+  const result = vm.evalCode('RegExp(regex).exec(str)[0]');
   if (result.error) {
     console.warn('Could not run regex', vm.dump(result.error));
     result.error.dispose();

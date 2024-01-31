@@ -1,5 +1,7 @@
 // import { parseBattleFormat } from './parseBattleFormat';
 
+import { test } from '../battle/regex';
+
 /*
  * Known mappings of **genless** formats to `BattleTeambuilderTableFormatCode`'s.
  *
@@ -54,31 +56,31 @@
  * @since 1.2.1
  */
 const KnownFormatSlices: [
-  test: RegExp,
+  test: string,
   ...codes: Showdown.BattleTeambuilderTableFormatCode[],
 ][] = [
-  [/ubers?(?:uu)?|nationaldexdoubles/, 'Uber'],
-  [/vgc20(?:10|16|19|22)|(?:bss|battlespot|battlestadium).*(?:series(?:10|11)$)/, 'Restricted Legendary'],
-  [/(?:bss|battlespot|battlestadium).*series13$/, 'CAP'], // refers to index 0 in `
-  [/vgc\d{2,4}|bss|battlespot|battlestadium/, 'Regular'],
-  [/bdsp|letsgo|stadium/, 'Uber'],
-  [/mono(?:type|threat)/, 'Uber'],
-  [/doublesubers/, 'DUber'],
-  [/doublesou/, 'DOU'],
-  [/doublesuu/, 'DUU'],
-  [/doublesnu/, 'DNU', 'DUU'],
-  [/ou/, 'OU'], // ordering is purposefully after all the d[ou]bles
-  [/uu|gen3ru/, 'UU'],
-  [/ru/, 'RU', 'UU'],
-  [/nu/, 'NU', 'RU', 'UU'],
-  [/pu/, 'PU', 'NU'],
-  [/zu/, 'ZU', 'PU', 'NU'],
-  [/(?<!cap)lc/, 'LC'],
-  [/caplc/, 'CAP LC'], // special case, handled separately if detected
-  [/cap/, 'CAP'], // also special case ('CAP' isn't an actual BattleTeambuilderTableFormat key)
-  [/^gen9.*(?:hackmons|bh$)/, 'CAP'], // refers to index 0 in `bh` for Mythical Pokemon
-  [/hackmons|(?:bh$)/, 'AG', 'Uber'],
-  [/anythinggoes|(?:^gen\dag)|(?:ag$)/, 'AG'],
+  ['ubers?(?:uu)?|nationaldexdoubles', 'Uber'],
+  ['vgc20(?:10|16|19|22)|(?:bss|battlespot|battlestadium).*(?:series(?:10|11)$)', 'Restricted Legendary'],
+  ['(?:bss|battlespot|battlestadium).*series13$', 'CAP'], // refers to index 0 in `
+  ['vgc\d{2,4}|bss|battlespot|battlestadium', 'Regular'],
+  ['bdsp|letsgo|stadium', 'Uber'],
+  ['mono(?:type|threat)', 'Uber'],
+  ['doublesubers', 'DUber'],
+  ['doublesou', 'DOU'],
+  ['doublesuu', 'DUU'],
+  ['doublesnu', 'DNU', 'DUU'],
+  ['ou', 'OU'], // ordering is purposefully after all the d[ou]bles
+  ['uu|gen3ru', 'UU'],
+  ['ru', 'RU', 'UU'],
+  ['nu', 'NU', 'RU', 'UU'],
+  ['pu', 'PU', 'NU'],
+  ['zu', 'ZU', 'PU', 'NU'],
+  ['(?<!cap)lc', 'LC'],
+  ['caplc', 'CAP LC'], // special case, handled separately if detected
+  ['cap', 'CAP'], // also special case ('CAP' isn't an actual BattleTeambuilderTableFormat key)
+  ['^gen9.*(?:hackmons|bh$)', 'CAP'], // refers to index 0 in `bh` for Mythical Pokemon
+  ['hackmons|(?:bh$)', 'AG', 'Uber'],
+  ['anythinggoes|(?:^gen\dag)|(?:ag$)', 'AG'],
 ];
 
 /**
@@ -109,7 +111,7 @@ export const guessTableFormatSlice = (
   const [
     ,
     ...codes
-  ] = KnownFormatSlices.find(([r]) => r.test(format)) || ([null] as typeof KnownFormatSlices[number]);
+  ] = KnownFormatSlices.find(([r]) => test(r, format)) || ([null] as typeof KnownFormatSlices[number]);
 
   return codes;
 };

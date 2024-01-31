@@ -1,3 +1,4 @@
+import { replace } from '../battle/regex';
 import { env } from './getEnv';
 import { getExtensionId } from './getExtensionId';
 import { getExtensionProtocol } from './getExtensionProtocol';
@@ -14,11 +15,11 @@ export const getResourceUrl = (
   if (env('build-target') === 'standalone') {
     const prefix = env('standalone-resource-prefix');
 
-    return (
+    return replace(
       protocol
         ? `${protocol}://${prefix || ''}/${fileName}`
-        : `/${prefix || ''}/${fileName}`
-    ).replace(/(?<!:)\/{2,}/g, '/');
+        : `/${prefix || ''}/${fileName}`,
+      '/(?<!:)\/{2,}/g', '/');
   }
 
   // we should have a protocol at this point (optional only for 'standalone' build targets)

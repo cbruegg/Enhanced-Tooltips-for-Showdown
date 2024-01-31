@@ -1,5 +1,6 @@
 import { nonEmptyObject } from '@showdex/utils/core';
 import { detectGenFromFormat } from './detectGenFromFormat';
+import { matchAndReturnFirst, replace, test } from '../battle/regex';
 
 /**
  * Known mappings of formats to the `BattleTeambuilderTableFormat`.
@@ -17,24 +18,24 @@ import { detectGenFromFormat } from './detectGenFromFormat';
  * @see https://github.com/smogon/pokemon-showdown-client/blob/7c015469da5fd83bed8c283ed3c9e908796d3c97/play.pokemonshowdown.com/src/battle-dex-search.ts#L916-L991
  * @since 1.0.3
  */
-const KnownFormats: [test: RegExp, replacement: string][] = [
-  [/hackmons?|(?:bh$)/, 'bh'],
-  [/bdsp.*(doubles)?/, 'gen8bdsp$1'],
-  [/letsgo/, 'gen7letsgo'],
-  [/vgc2020/, 'gen8dlc1doubles'],
-  [/vgc2023reg(?:ulation)?e/, 'gen9predlcdoubles'],
-  [/vgc2023reg(?:ulation)?d/, 'gen9dlc1doubles'],
-  [/^gen(\d).*(?<!cap)lc/, 'gen$1lc'],
-  [/^gen(\d)(?:vgc|bss|battlespot|battlestadium)/, 'gen$1vgc'],
-  [/^gen(\d).*f(?:ree)?f(?:or)?a(?:ll)?/, 'gen$1doubles'],
-  [/^gen(\d).+doubles/, 'gen$1doubles'],
-  [/^gen(\d).*partnersincrime/, 'gen$1doubles'],
-  [/^gen(\d)metronome/, 'gen$1metronome'],
-  [/^gen(\d)(?:nd|nat(?:ional)?dex)/, 'gen$1natdex'],
-  [/^gen(\d)stadium/, 'gen$1stadium'],
-  [/^gen(\d).*nfe/, 'gen$1nfe'],
-  [/^gen(\d)predlc.+(doubles)?/, 'gen$1predlc$2'],
-  [/^gen(\d)dlc(\d).+(doubles)?/, 'gen$1dlc$2$3'],
+const KnownFormats: [test: string, replacement: string][] = [
+  ['hackmons?|(?:bh$)', 'bh'],
+  ['bdsp.*(doubles)?', 'gen8bdsp$1'],
+  ['letsgo', 'gen7letsgo'],
+  ['vgc2020', 'gen8dlc1doubles'],
+  ['vgc2023reg(?:ulation)?e', 'gen9predlcdoubles'],
+  ['vgc2023reg(?:ulation)?d', 'gen9dlc1doubles'],
+  ['^gen(\d).*(?<!cap)lc', 'gen$1lc'],
+  ['^gen(\d)(?:vgc|bss|battlespot|battlestadium)', 'gen$1vgc'],
+  ['^gen(\d).*f(?:ree)?f(?:or)?a(?:ll)?', 'gen$1doubles'],
+  ['^gen(\d).+doubles', 'gen$1doubles'],
+  ['^gen(\d).*partnersincrime', 'gen$1doubles'],
+  ['^gen(\d)metronome', 'gen$1metronome'],
+  ['^gen(\d)(?:nd|nat(?:ional)?dex)', 'gen$1natdex'],
+  ['^gen(\d)stadium', 'gen$1stadium'],
+  ['^gen(\d).*nfe', 'gen$1nfe'],
+  ['^gen(\d)predlc.+(doubles)?', 'gen$1predlc$2'],
+  ['^gen(\d)dlc(\d).+(doubles)?', 'gen$1dlc$2$3'],
 ];
 
 /**
@@ -63,12 +64,12 @@ export const guessTableFormatKey = (
   }
 
   // first sniff out any special formats, like gen8bdsp & gen9dlc1
-  const knownFormat = KnownFormats.find(([regex]) => regex.test(format));
+  const knownFormat = KnownFormats.find(([regex]) => test(regex, format));
 
   if (knownFormat?.length) {
     const [regex, replacement] = knownFormat;
-    const [match] = regex.exec(format);
-    const key = match?.replace(regex, replacement) as Showdown.BattleTeambuilderTableFormat;
+    const match = matchAndReturnFirst(regex, format);
+    const key = replace(match, regex, replacement) as Showdown.BattleTeambuilderTableFormat;
 
     if (key in BattleTeambuilderTable) {
       return key;
