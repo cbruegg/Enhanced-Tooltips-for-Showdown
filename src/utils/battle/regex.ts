@@ -25,9 +25,9 @@ function isSupportedNatively(regex: string): boolean {
   return !containsLookbehind || supportsRegexLookBehindNatively();
 }
 
-export function replace(str: string, regex: string, replacement: string): string {
+export function replace(str: string, regex: string, replacement: string, flags?: string): string {
   if (isSupportedNatively(regex)) {
-    return str.replace(RegExp(regex), replacement);
+    return str.replace(RegExp(regex, flags), replacement);
   }
 
   console.log('Using fallback regex replace implementation');
@@ -37,14 +37,16 @@ export function replace(str: string, regex: string, replacement: string): string
   const regexHandle = vm.newString(regex);
   const strHandle = vm.newString(str);
   const replacementHandle = vm.newString(replacement);
+  const flagsHandle = flags ? vm.newString(flags) : vm.undefined;
   vm.setProp(vm.global, 'regex', regexHandle);
   vm.setProp(vm.global, 'str', strHandle);
   vm.setProp(vm.global, 'replacement', replacementHandle);
+  vm.setProp(vm.global, 'flags', flagsHandle);
   regexHandle.dispose();
   strHandle.dispose();
   replacementHandle.dispose();
 
-  const result = vm.evalCode('str.replace(RegExp(regex), replacement)');
+  const result = vm.evalCode('str.replace(RegExp(regex, flags), replacement)');
   if (result.error) {
     console.warn('Could not run regex', vm.dump(result.error));
     result.error.dispose();

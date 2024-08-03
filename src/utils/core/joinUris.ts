@@ -1,3 +1,5 @@
+import { replace } from '../battle/regex';
+
 /**
  * What's a "uris" ?? LOL idk but this joins together URIs (Universal Resource Indentifiers).
  *
@@ -12,7 +14,13 @@
 export const joinUris = (
   baseUrl: string,
   ...uris: string[]
-): string => (!baseUrl ? null : [
-  baseUrl,
-  ...uris,
-].filter(Boolean).join('/').replace(/(?<!\w:)\/{2,}/gi, '/'));
+): string => {
+  const joined = (!baseUrl ? null : [
+    baseUrl,
+    ...uris,
+  ].filter(Boolean).join('/'));
+
+  const regex = '(?<!\\w:)\\/{2,}';
+  const result = replace(joined, regex, '/', 'gi');
+  return result;
+};
