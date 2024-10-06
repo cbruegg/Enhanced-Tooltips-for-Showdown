@@ -1029,7 +1029,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 2.11;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1064,7 +1064,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 2.11;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1102,7 +1102,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 2.11;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1142,7 +1142,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 2.11;
 				OTHER_LDFLAGS = (
 					"-framework",
