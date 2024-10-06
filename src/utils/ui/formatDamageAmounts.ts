@@ -1,6 +1,5 @@
 // import { bullop } from '@showdex/consts/core';
 import { percentage } from '@showdex/utils/humanize';
-import { replace } from '../battle/regex';
 
 /**
  * Optional options for `formatDamageAmounts()`.
@@ -142,12 +141,13 @@ export const formatDamageAmounts = (
   }
 
   const totalCount = parsedAmounts.length || 1;
-  const zeroRegex = `(?<=\\.)([1-9]+)?0+(?=${suffix})`; // e.g., '25.00%' -> '25.%', '62.50%', -> '62.5%'
+  const zeroRegex = new RegExp(`(?<=\\.)([1-9]+)?0+(?=${suffix})`);
   const decimalRegex = new RegExp(`\\.(?=${suffix})`);
 
   return Object.entries(countedAmounts).map(([amount, count]) => {
     const percent = count / totalCount;
-    const formatted = replace(percentage(percent, precision, prefix, suffix), zeroRegex, '$1')
+    const formatted = percentage(percent, precision, prefix, suffix)
+      .replace(zeroRegex, '$1') // e.g., '25.00%' -> '25.%', '62.50%', -> '62.5%'
       .replace(decimalRegex, ''); // e.g., '25.%' -> '25%', '62.5%' -> '62.5%'
 
     return [amount, formatted].join(amountDelimiter);

@@ -24,6 +24,7 @@ import {
   writeMetaDb,
 } from '@showdex/utils/storage';
 
+const baseUrl = joinUris(env('bakedex-base-url'), env('bakedex-api-prefix'));
 const maxAge: Duration = { [env('bakedex-update-interval-unit', 'weeks')]: env.int('bakedex-update-interval', 2) };
 
 const fetchOptions: Parameters<typeof runtimeFetch>[1] = {
@@ -43,9 +44,6 @@ export const bakeBakedexBundles = async (
     store?: RootStore;
   },
 ): Promise<void> => {
-  // Had to move baseUrl into the function to avoid regex use during import of this function in main.ts,
-  // before QuickJS is initialized
-  const baseUrl = joinUris(env('bakedex-base-url'), env('bakedex-api-prefix'));
   const { db: database, store } = { ...config };
   const db = database || showdexedDb.value;
   const enabled = env.bool('bakedex-enabled');

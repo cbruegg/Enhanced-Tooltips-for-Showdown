@@ -1,7 +1,6 @@
 import { type Result } from '@smogon/calc';
 import { PokemonStatNames } from '@showdex/consts/dex';
 import { logger } from '@showdex/utils/debug';
-import { replace } from '../battle/regex';
 
 /**
  * Parsed matchup description from the calculated `result.desc()`.
@@ -251,7 +250,7 @@ export const parseMatchupDescription = (
     : null;
 
   if (output.koChance) {
-    output.koChance = replace(output.koChance, '(?<=\s+)and(?=\s+)', '&');
+    output.koChance = output.koChance.replace(/(?<=\s+)and(?=\s+)/, '&');
   }
 
   // update (2024/07/21): patron priority request

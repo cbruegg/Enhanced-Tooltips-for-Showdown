@@ -8,7 +8,6 @@ import {
   getDexForFormat,
   hasNickname,
 } from '@showdex/utils/dex';
-import { replace } from '../battle/regex';
 
 /**
  * Internally-used helper function to export a `Showdown.StatsTable` to the PokePaste syntax.
@@ -246,7 +245,7 @@ export const exportPokePaste = (
     // (though, the Teambuilder will accept the former, i.e., 'Hidden Power Fire')
     output.push(...moves.filter(Boolean).map((moveName) => '- ' + (
       moveName?.includes('Hidden Power')
-        ? replace(moveName, '(?<=Hidden\sPower\s)(\w+)$', '[$1]')
+        ? moveName.replace(/(?<=Hidden\sPower\s)(\w+)$/, '[$1]')
         : moveName
     )));
   }
