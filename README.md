@@ -36,6 +36,9 @@ This repository incorporates code from multiple plugins:
 ### Local Development
 
 ```bash
+brew install node@18
+brew unlink node@18 # to not let it be the default on the system
+export PATH="/opt/homebrew/Cellar/node@18/18.20.8/bin:$PATH"
 yarn install && yarn build:chrome
 ```
 
