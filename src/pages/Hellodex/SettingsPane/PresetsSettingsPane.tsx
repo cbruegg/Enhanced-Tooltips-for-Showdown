@@ -1,3 +1,9 @@
+/**
+ * @file `PresetsSettingsPane.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.3
+ */
+
 import * as React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Field } from 'react-final-form';
@@ -202,7 +208,8 @@ export const PresetsSettingsPane = ({
             label: bundle.label || bundle.name,
             tooltip: bundle.gen && bundle.format ? (
               <div className={styles.tooltipContent}>
-                Gen {bundle.gen} &bull; {GenLabels[bundle.gen]?.label}{' '}
+                Gen {bundle.gen} &bull;{'\x20'}
+                {t(`pokedex:gens.${GenLabels[bundle.gen]?.slug}.label`, GenLabels[bundle.gen]?.label)}{'\x20'}
                 {parseBattleFormat(getGenfulFormat(bundle.gen, bundle.format)).label}
                 <br />
                 <strong>{bundle.name}</strong>

@@ -1,14 +1,13 @@
 /**
- * battle-dex.d.ts
- *
- * Adapted from `pokemon-showdown-client/src/battle-dex.ts`.
- *
+ * @file `battle-dex.d.ts` - Adapted from `pokemon-showdown-client/play.pokemonshowdown.com/src/battle-dex.ts`.
  * @author Keith Choison <keith@tize.io>
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
+ * @since 0.1.0
  */
 
 declare namespace Showdown {
+  type ID = string & { __isID: true; };
   type ColorScheme = 'light' | 'dark';
   type ColorSchemeOption = ColorScheme | 'system';
 

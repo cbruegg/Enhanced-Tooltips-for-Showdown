@@ -1,24 +1,22 @@
 ////
 /// @group position
-/// @author Keith Choison
+/// @access public
+/// @author Keith Choison <keith@tize.io>
+/// @since 0.1.0
 ////
 
 @use 'sass:meta';
 @use 'functions/list';
 
-@mixin -position(
-  $position: relative,
+///
+/// @access private
+///
+@mixin -inset(
   $top: null,
   $right: null,
   $bottom: null,
   $left: null,
 ) {
-  @if not list.includes('absolute' 'fixed' 'relative', $position) {
-    @error 'Invalid $position value passed to the -position() mixin: #{$position}';
-  }
-
-  position: $position;
-
   @if $top {
     top: $top;
   }
@@ -34,6 +32,141 @@
   @if $left {
     left: $left;
   }
+}
+
+@mixin inset(
+  $all: null,
+  $a: null,
+  $x: null,
+  $y: null,
+  $top: null,
+  $t: null,
+  $right: null,
+  $r: null,
+  $bottom: null,
+  $b: null,
+  $left: null,
+  $l: null,
+) {
+  @include -inset(
+    $top: if($top, $top, if($t, $t, if($y, $y, if($a, $a, $all)))),
+    $right: if($right, $right, if($r, $r, if($x, $x, if($a, $a, $all)))),
+    $bottom: if($bottom, $bottom, if($b, $b, if($y, $y, if($a, $a, $all)))),
+    $left: if($left, $left, if($l, $l, if($x, $x, if($a, $a, $all)))),
+  );
+}
+
+@mixin inset-all($all) {
+  @include inset($all: $all);
+}
+
+@mixin inset-none {
+  @include inset-all(0);
+}
+
+///
+/// @alias inset-none()
+///
+@mixin inset-0 {
+  @include inset-none;
+}
+
+@mixin inset-xy($x: null, $y: null) {
+  @include inset($x: $x, $y: $y);
+}
+
+@mixin inset-x($x) {
+  @include inset-xy($x: $x);
+}
+
+@mixin inset-x-none {
+  @include inset-x(0);
+}
+
+///
+/// @alias inset-x-none()
+///
+@mixin inset-x-0 {
+  @include inset-x-none;
+}
+
+@mixin inset-y($y) {
+  @include inset-xy($y: $y);
+}
+
+@mixin inset-y-none {
+  @include inset-y(0);
+}
+
+///
+/// @alias inset-y-none()
+///
+@mixin inset-y-0 {
+  @include inset-y-none;
+}
+
+@mixin top($top) {
+  @include inset($top: $top);
+}
+
+@mixin top-none {
+  @include top(0);
+}
+
+///
+/// @alias top-none()
+///
+@mixin top-0 {
+  @include top-none;
+}
+
+@mixin right($right) {
+  @include inset($right: $right);
+}
+
+@mixin right-none {
+  @include right(0);
+}
+
+///
+/// @alias right-none()
+///
+@mixin right-0 {
+  @include right-none;
+}
+
+@mixin bottom($bottom) {
+  @include inset($bottom: $bottom);
+}
+
+@mixin bottom-none {
+  @include bottom(0);
+}
+
+///
+/// @alias bottom-none()
+///
+@mixin bottom-0 {
+  @include bottom-none;
+}
+
+@mixin left($left) {
+  @include inset($left: $left);
+}
+
+@mixin left-none {
+  @include left(0);
+}
+
+///
+/// @alias left-none()
+///
+@mixin left-0 {
+  @include left-none;
+}
+
+@mixin unset-all {
+  @include inset-all(unset);
 }
 
 // translate
@@ -53,32 +186,91 @@
   }
 }
 
-// unset all
+///
+/// @access private
+///
+@mixin -position(
+  $position: relative,
+  $all: null,
+  $x: null,
+  $y: null,
+  $top: null,
+  $right: null,
+  $bottom: null,
+  $left: null,
+) {
+  @if not list.includes('relative' 'absolute' 'fixed' 'sticky', $position) {
+    @error 'Invalid $position value passed to the -position() mixin: #{$position}';
+  }
 
-@mixin unset-all {
-  top: unset;
-  right: unset;
-  bottom: unset;
-  left: unset;
+  position: $position;
+  @include inset(
+    $all: $all,
+    $x: $x,
+    $y: $y,
+    $top: $top,
+    $right: $right,
+    $bottom: $bottom,
+    $left: $left,
+  );
+}
+
+// relative
+
+@mixin relative {
+  @include -position($position: relative);
+}
+
+///
+/// @alias relative()
+///
+@mixin rel {
+  @include relative;
 }
 
 // absolute
 
 @mixin absolute(
+  $all: null,
+  $x: null,
+  $y: null,
   $top: null,
   $right: null,
   $bottom: null,
   $left: null,
-  $x: null,
-  $y: null,
-  $all: null,
 ) {
   @include -position(
     $position: absolute,
-    $top: if($top, $top, if($y, $y, $all)),
-    $right: if($right, $right, if($x, $x, $all)),
-    $bottom: if($bottom, $bottom, if($y, $y, $all)),
-    $left: if($left, $left, if($x, $x, $all)),
+    $all: $all,
+    $x: $x,
+    $y: $y,
+    $top: $top,
+    $right: $right,
+    $bottom: $bottom,
+    $left: $left,
+  );
+}
+
+///
+/// @alias absolute()
+///
+@mixin abs(
+  $a: null,
+  $x: null,
+  $y: null,
+  $t: null,
+  $r: null,
+  $b: null,
+  $l: null,
+) {
+  @include absolute(
+    $all: $a,
+    $x: $x,
+    $y: $y,
+    $top: $t,
+    $right: $r,
+    $bottom: $b,
+    $left: $l,
   );
 }
 
@@ -86,20 +278,84 @@
   @include absolute($x: $x, $y: $y);
 }
 
+///
+/// @alias absolute-xy()
+///
 @mixin absolute-axis($horizontal: null, $vertical: null) {
-  @include absolute($x: $horizontal, $y: $vertical);
+  @include absolute-xy($x: $horizontal, $y: $vertical);
 }
 
 @mixin absolute-all($margin) {
   @include absolute($all: $margin);
 }
 
+///
+/// @alias absolute-all()
+///
 @mixin absolute-square($margin) {
-  @include absolute($all: $margin);
+  @include absolute-all($margin);
 }
 
 @mixin absolute-fill {
-  @include absolute($all: 0);
+  @include absolute-all(0);
+}
+
+///
+/// @alias absolute-fill()
+///
+@mixin abs-fill {
+  @include absolute-fill;
+}
+
+@mixin absolute-0 {
+  @include absolute-fill;
+}
+
+///
+/// @alias absolute-0()
+///
+@mixin abs-0 {
+  @include absolute-0;
+}
+
+@mixin absolute-xy($x: null, $y: null) {
+  @include absolute($x: $x, $y: $y);
+}
+
+///
+/// @alias absolute-xy()
+///
+@mixin abs-xy($x: null, $y: null) {
+  @include absolute-xy($x: $x, $y: $y);
+}
+
+///
+/// @alias absolute-xy()
+///
+@mixin absolute-axis($vertical: null, $horizontal: null) {
+  @include absolute-xy($x: $horizontal, $y: $vertical);
+}
+
+@mixin absolute-x($x) {
+  @include absolute-xy($x: $x);
+}
+
+///
+/// @alias absolute-x()
+///
+@mixin abs-x($x) {
+  @include absolute-x($x);
+}
+
+@mixin absolute-y($y) {
+  @include absolute-xy($y: $y);
+}
+
+///
+/// @alias absolute-y()
+///
+@mixin abs-y($y) {
+  @include absolute-y($y);
 }
 
 @mixin absolute-anchor(
@@ -129,27 +385,49 @@
   @include translate($x: $translate-x, $y: $translate-y);
 }
 
+///
+/// @alias absolute-center()
+///
+@mixin abs-anchor(
+  $x: null,
+  $y: null,
+  $x-prop: left,
+  $y-prop: top,
+) {
+  @include absolute-anchor($x: $x, $y: $y, $x-prop: $x-prop, $y-prop: $y-prop);
+}
+
 @mixin absolute-center($x-prop: left, $y-prop: top) {
   @include absolute-anchor($x: 50%, $y: 50%, $x-prop: $x-prop, $y-prop: $y-prop);
+}
+
+///
+/// @alias absolute-center()
+///
+@mixin abs-center($x-prop: left, $y-prop: top) {
+  @include absolute-center($x-prop: $x-prop, $y-prop: $y-prop);
 }
 
 // fixed
 
 @mixin fixed(
+  $all: null,
+  $x: null,
+  $y: null,
   $top: null,
   $right: null,
   $bottom: null,
   $left: null,
-  $x: null,
-  $y: null,
-  $all: null,
 ) {
   @include -position(
     $position: fixed,
-    $top: if($top, $top, if($y, $y, $all)),
-    $right: if($right, $right, if($x, $x, $all)),
-    $bottom: if($bottom, $bottom, if($y, $y, $all)),
-    $left: if($left, $left, if($x, $x, $all)),
+    $all: $all,
+    $x: $x,
+    $y: $y,
+    $top: $top,
+    $right: $right,
+    $bottom: $bottom,
+    $left: $left,
   );
 }
 
@@ -157,20 +435,41 @@
   @include fixed($x: $x, $y: $y);
 }
 
+///
+/// @alias fixed-xy()
+///
 @mixin fixed-axis($horizontal: null, $vertical: null) {
-  @include fixed($x: $horizontal, $y: $vertical);
+  @include fixed-xy($x: $horizontal, $y: $vertical);
 }
 
 @mixin fixed-all($margin) {
   @include fixed($all: $margin);
 }
 
+///
+/// @alias fixed-all()
+///
 @mixin fixed-square($margin) {
-  @include fixed($all: $margin);
+  @include fixed-all($margin);
 }
 
 @mixin fixed-fill {
-  @include fixed($all: 0);
+  @include fixed-all(0);
+}
+
+///
+/// @alias fixed-fill()
+///
+@mixin fixed-0 {
+  @include fixed-fill;
+}
+
+@mixin fixed-x($x) {
+  @include fixed-xy($x: $x);
+}
+
+@mixin fixed-y($y) {
+  @include fixed-xy($y: $y);
 }
 
 @mixin fixed-anchor(
@@ -202,4 +501,65 @@
 
 @mixin fixed-center($x-prop: left, $y-prop: top) {
   @include fixed-anchor($x: 50%, $y: 50%, $x-prop: $x-prop, $y-prop: $y-prop);
+}
+
+// sticky
+
+@mixin sticky(
+  $all: null,
+  $x: null,
+  $y: null,
+  $top: null,
+  $right: null,
+  $bottom: null,
+  $left: null,
+  $t: null,
+  $r: null,
+  $b: null,
+  $l: null,
+) {
+  @include -position(
+    $position: sticky,
+    $all: $all,
+    $x: $x,
+    $y: $y,
+    $top: if($top, $top, $t),
+    $right: if($right, $right, $r),
+    $bottom: if($bottom, $bottom, $b),
+    $left: if($left, $left, $l),
+  );
+}
+
+@mixin sticky-all($all) {
+  @include sticky($all: $all);
+}
+
+@mixin sticky-fill {
+  @include sticky-all(0);
+}
+
+///
+/// @alias sticky-fill()
+///
+@mixin sticky-0 {
+  @include sticky-fill;
+}
+
+@mixin sticky-xy($x: null, $y: null) {
+  @include sticky($x: $x, $y: $y);
+}
+
+///
+/// @alias sticky-xy()
+///
+@mixin sticky-axis($vertical: null, $horizontal: null) {
+  @include sticky-xy($x: $horizontal, $y: $vertical);
+}
+
+@mixin sticky-x($x) {
+  @include sticky-xy($x: $x);
+}
+
+@mixin sticky-y($y) {
+  @include sticky-xy($y: $y);
 }

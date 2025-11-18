@@ -1,8 +1,16 @@
+///
+/// @group BattleInfo
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.2.0
+///
+
 @use 'config/colors';
 @use 'config/fonts';
 @use 'functions/color';
 @use 'mixins/flex';
 @use 'mixins/font';
+@use 'mixins/position';
 @use 'mixins/spacing';
 @use 'mixins/transition';
 
@@ -11,34 +19,14 @@
   grid-template-columns: min-content minmax(150px, 1fr);
   column-gap: 12px;
   align-content: center;
-  @include spacing.padding($all: 8px);
-  border-radius: 12px;
-  @include transition.apply(box-shadow);
-
-  &.light {
-    box-shadow: (
-      0 0 1px color.alpha(colors.$black, 0.16),
-      0 0 6px color.alpha(colors.$gray-dark, 0.16),
-    );
-
-    &.mina {
-      box-shadow: (
-        0 0 1px color.alpha(#770629, 0.32),
-        0 0 16px color.alpha(#9F1641, 0.16),
-      );
-    }
-  }
-
-  &.dark {
-    box-shadow: (
-      0 0 1px color.alpha(colors.$white, 0.32),
-      0 0 6px color.alpha(colors.$black, 0.4),
-    );
-  }
 }
 
 button.toggleButton {
   font-size: 8px;
+
+  i {
+    line-height: 7px;
+  }
 }
 
 .genWarning {
@@ -105,32 +93,36 @@ div.genOptionButton {
 }
 
 .honkInfo {
-  @include flex.column;
+  @include flex.col;
   align-self: center;
-  @include spacing.padding($right: 6px);
+  row-gap: 6px;
 }
 
 .honkProps {
-  @include flex.row($align: center);
-  @include spacing.margin($top: 6px);
+  @include flex.row-start;
+  flex-wrap: wrap;
+  column-gap: 12px;
+  row-gap: 4px;
 }
 
 .honkName {
-  @include spacing.padding($x: 4px);
+  @include spacing.p($l: 4px, $r: 6px);
   @include font.apply(fonts.$primary, ( font-weight: 500 ));
   font-size: 14px;
   letter-spacing: 0.1px;
   line-height: 15px;
+
+  &::before {
+    @include position.inset-x(-8px);
+  }
+
+  &::after {
+    @include position.inset-x(-12px);
+  }
 }
 
 .honkStatus {
-  @include spacing.margin($left: 12px);
-  // @include font.apply(fonts.$mono);
-  // font-size: 10px;
-  // line-height: 11px;
-  // opacity: 0.64;
-  // user-select: none;
-  // @include transition.apply(color);
+  // @include spacing.margin($left: 12px);
 
   &.saved {
     .light & {
@@ -141,4 +133,13 @@ div.genOptionButton {
       color: colors.$green;
     }
   }
+}
+
+.tooltipContent {
+  max-width: 248px;
+  font-size: 10px;
+  text-align: center;
+  line-height: 12px;
+  white-space: normal;
+  user-select: none;
 }

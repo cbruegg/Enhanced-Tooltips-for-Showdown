@@ -1,3 +1,9 @@
+/**
+ * @file SideControls.tsx
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import cx from 'classnames';
@@ -87,7 +93,7 @@ export const SideControls = ({
           label={t('sideControls.dupeLabel', 'Dupe')}
           absoluteHover
           disabled={!selectedPokemon?.speciesForme}
-          onPress={() => dupePokemon(
+          onPress={() => void dupePokemon(
             playerKey,
             selectedPokemon,
             `${l.scope}:ToggleButton~Dupe:onPress()`,
@@ -98,7 +104,7 @@ export const SideControls = ({
           className={styles.actionButton}
           absoluteHover
           disabled={!selectedPokemon?.speciesForme}
-          onPress={() => movePokemon(
+          onPress={() => void movePokemon(
             playerKey,
             selectedPokemon,
             playerKey === 'p1' ? 'p2' : 'p1',
@@ -114,7 +120,7 @@ export const SideControls = ({
           className={styles.actionButton}
           absoluteHover
           disabled={!selectedPokemon?.speciesForme}
-          onPress={() => removePokemon(
+          onPress={() => void removePokemon(
             playerKey,
             selectedPokemon,
             true,

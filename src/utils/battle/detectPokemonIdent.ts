@@ -1,3 +1,9 @@
+/**
+ * @file `detectPokemonIdent.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
+ */
+
 // import { type CalcdexPokemon } from '@showdex/redux/store';
 
 /* eslint-disable @typescript-eslint/indent */
@@ -16,7 +22,7 @@ export const detectPokemonIdent = <
   pokemon: TPokemon,
 ): string => [
   // 'p1', 'p2', etc.
-  ('side' in pokemon ? (pokemon as Partial<Showdown.Pokemon>).side?.sideid : null)
+  ('side' in (pokemon || {}) && (pokemon as Partial<Showdown.Pokemon>).side?.sideid)
     || pokemon?.searchid?.split?.(':')[0]
     || pokemon?.ident?.split?.(':')[0],
 
@@ -28,6 +34,7 @@ export const detectPokemonIdent = <
     || pokemon?.name, // terrible cause it could be a nickname, but if we're here, oh well
 ].filter(Boolean).join(': ') // e.g., 'p1: Pikachu'
   || pokemon?.ident
-  || pokemon?.searchid?.split?.('|')[0];
+  || pokemon?.searchid?.split?.('|')[0]
+  || null;
 
 /* eslint-enable @typescript-eslint/indent */

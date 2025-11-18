@@ -1,4 +1,8 @@
-import { eacute } from '@showdex/consts/core';
+/**
+ * @file `formes.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.0.5
+ */
 
 /**
  * List of Pokemon base formes with alternate formes that are just completely **fucked** in any preset API.
@@ -22,6 +26,7 @@ import { eacute } from '@showdex/consts/core';
  * @since 1.0.5
  */
 export const PokemonPresetFuckedBaseFormes: string[] = [
+  'Aegislash', // -> Aegislash-Blade
   'Basculin', // -> Basculin-Blue-Striped -> Basculin-White-Striped
   // 'Basculegion', // -> Basculegion-F (technically a Hisuian Pokemon--only available in PLA)
   'Burmy', // -> Burmy-Sandy -> Burmy-Trash
@@ -32,7 +37,7 @@ export const PokemonPresetFuckedBaseFormes: string[] = [
   'Dudunsparce', // -> Dudunsparce-Three-Segment -> (it's time to) Dudududududududunsparce-Seven-Segment
   'Eevee', // -> Eevee-Starter
   'Eiscue', // -> Eiscue-Noice
-  `Flab${eacute}b${eacute}`, // -> Flabébé-Blue -> Flabébé-Orange -> Flabébé-White -> Flabébé-Yellow (eacutes will be removed by formatId() btw)
+  'Flabébé', // -> Flabébé-Blue -> Flabébé-Orange -> Flabébé-White -> Flabébé-Yellow (eacutes will be removed by formatId() btw)
   'Floette', // -> Floette-Blue -> Floette-Orange -> Floette-White -> Floette-Yellow
   'Florges', // -> Florges-Blue -> Florges-Orange -> Florges-White -> Florges-Yellow
   'Furfrou', // -> Furfrou-Dandy -> Furfrou-Debutante -> Furfrou-Diamond -> Furfrou-Heart -> Furfrou-Kabuki -> Furfrou-La Reine -> Furfrou-Matron -> Furfrou-Pharaoh -> Furfrou-Star
@@ -94,7 +99,6 @@ export const PokemonPresetFuckedBaseFormes: string[] = [
  * @since 1.1.7
  */
 export const PokemonPresetFuckedBattleFormes: string[] = [
-  'Aegislash-Blade', // <- Aegislash (battleOnly)
   'Darmanitan-Galar-Zen', // <- Darmanitan-Galar (battleOnly)
   'Darmanitan-Zen', // <- Darmanitan (battleOnly)
   'Genesect-Burn', // <- Genesect (changesFrom)
@@ -107,4 +111,6 @@ export const PokemonPresetFuckedBattleFormes: string[] = [
   'Ogerpon-Cornerstone-Tera', // <- Ogerpon-Cornerstone (battleOnly)
   'Ogerpon-Hearthflame-Tera', // <- Ogerpon-Hearthflame (battleOnly)
   'Ogerpon-Wellspring-Tera', // <- Ogerpon-Wellspring (battleOnly)
+  'Zacian-Crowned', // <- Zacian (changesFrom); note: non-Rusted item presets may exist!
+  'Zamazenta-Crowned', // <- Zamazenta (changesFrom); note: same goes for this good doggo
 ];

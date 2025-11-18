@@ -1,10 +1,13 @@
 ////
 /// @group font
-/// @author Keith Choison
+/// @access public
+/// @author Keith Choison <keith@tize.io>
+/// @since 0.1.0
 ////
 
 @use 'sass:meta';
 @use 'sass:map';
+@use 'config/fonts';
 
 @mixin apply($font, $overrides: null) {
   $props: (
@@ -26,4 +29,25 @@
       @warn 'Font prop `#{$prop}` was ignored because no value was set.';
     }
   }
+}
+
+///
+/// Applies the primary font.
+///
+@mixin primary($weight: 400) {
+  @include apply(fonts.$primary, ( font-weight: $weight ));
+}
+
+///
+/// Applies the monospaced font.
+///
+@mixin monospace($weight: 400) {
+  @include apply(fonts.$mono, ( font-weight: $weight ));
+}
+
+///
+/// @alias monospace()
+///
+@mixin mono($weight: 400) {
+  @include monospace($weight);
 }

@@ -1,0 +1,430 @@
+///
+/// @group ComposerTheme
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.3.0
+///
+
+@use 'sass:map';
+@use 'config/colors';
+@use 'functions/color';
+@use 'functions/string';
+@use 'mixins/font';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+$headers: (
+  h1: (
+    margin-top: 16px,
+    margin-bottom: 12px,
+    font-weight: 600,
+    font-size: 42px,
+  ),
+
+  h2: (
+    margin-top: 16px,
+    margin-bottom: 12px,
+    font-weight: 600,
+    font-size: 32px,
+  ),
+
+  h3: (
+    margin-top: 16px,
+    margin-bottom: 12px,
+    font-weight: 600,
+    font-size: 24px,
+  ),
+
+  h4: (
+    margin-top: 16px,
+    margin-bottom: 12px,
+    font-weight: 600,
+    font-size: 20px,
+  ),
+
+  h5: (
+    margin-top: 16px,
+    margin-bottom: 12px,
+    font-weight: 600,
+    font-size: 16px,
+  ),
+
+  h6: (
+    margin-top: 16px,
+    margin-bottom: 12px,
+    font-weight: 600,
+    font-size: 14px,
+    letter-spacing: 0.25px,
+    text-transform: uppercase,
+  ),
+);
+
+$code-block: (
+  margin-x: 0,
+  margin-y: 16px,
+  padding-x: 8px,
+  padding-y: 10px,
+  font-size: 12px,
+  line-height: 1.5,
+  tab-size: 2,
+  background-color: (
+    light: color.alpha(colors.$black, 0.04),
+    dark: color.alpha(colors.$white, 0.04),
+  ),
+  border-radius: 16px,
+  box-shadow: (
+    light: (
+      0 0 1px color.alpha(colors.$black, 0.08),
+      0 0 4px color.alpha(#121212, 0.16),
+    ),
+    dark: (
+      0 0 1px color.alpha(colors.$white, 0.16),
+      0 0 4px color.alpha(#EEEEEE, 0.24),
+    ),
+  ),
+
+  gutter: (
+    min-width: 42px,
+    padding-x: 12px,
+    padding-y: 10px,
+    color: (
+      light: color.alpha(colors.$black, 0.48),
+      dark: color.alpha(colors.$white, 0.48),
+    ),
+    background-color: (
+      light: color.alpha(colors.$black, 0.06),
+      dark: color.alpha(colors.$white, 0.06),
+    ),
+    border-color: (
+      light: color.alpha(colors.$black, 0.08),
+      dark: color.alpha(colors.$white, 0.08),
+    ),
+    border-width: 1px,
+  ),
+
+  language: (
+    padding-x: 12px,
+    padding-y: 8px,
+    font-weight: 600,
+    font-size: 10px,
+    color: (
+      light: color.alpha(colors.$black, 0.32),
+      dark: color.alpha(colors.$white, 0.32),
+    ),
+    letter-spacing: 0.5px,
+  ),
+
+  token-colors: (
+    attribute: (
+      light: #E91E63,
+      dark: #F06292,
+    ),
+    comment: (
+      light: #9E9E9E,
+      dark: #BDBDBD,
+    ),
+    function: (
+      light: #0288D1,
+      dark: #4FC3F7,
+    ),
+    operator: (
+      light: #0097A7,
+      dark: #4DD0E1,
+    ),
+    property: (
+      light: #AD1457,
+      dark: #E91E63,
+    ),
+    punctuation: (
+      light: #424242,
+      dark: #9E9E9E,
+    ),
+    selector: (
+      light: #009688,
+      dark: #4DB6AC,
+    ),
+    variable: (
+      light: #FF9800,
+      dark: #FFA726,
+    ),
+  ),
+);
+
+$code-block: map.set(
+  $code-block,
+  padding-left,
+  map.get($code-block, padding-x) + map.get($code-block, gutter, min-width) + 4px,
+);
+
+$list: (
+  indent-spacing: 8px, // margin-left for <ul>'s & <ol>'s
+  item: (
+    margin-x: 24px,
+    margin-y: 8px,
+  ),
+);
+
+$paragraph: (
+  spacing: 8px, // between paragraphs
+  letter-spacing: normal,
+);
+
+$quote: (
+  indent-padding: 16px, // padding-left
+  padding-y: 0.32rem, // increases the "line-height" when quotes are sandwiched together
+  font-weight: 500,
+  font-size: 16px,
+  color: (
+    light: colors.$black,
+    dark: colors.$white,
+  ),
+  letter-spacing: normal,
+  border-width: 3px,
+  border-color: (
+    light: color.alpha(colors.$black, 0.24),
+    dark: color.alpha(colors.$white, 0.24),
+  ),
+);
+
+$text-code: (
+  padding-x: 0.4rem,
+  padding-y: 2px,
+  font-size: ( // should be a relative % cause <code> could be in an <h1>, for instance
+    default: 94%,
+    paragraph: 80%,
+  ),
+  background-color: (
+    light: color.alpha(colors.$black, 0.08),
+    dark: color.alpha(colors.$white, 0.08),
+  ),
+  border-radius: 10px,
+  box-shadow: (
+    light: (
+      0 0 1px color.alpha(colors.$black, 0.16),
+      0 0 3px color.alpha(#121212, 0.16),
+    ),
+    dark: (
+      0 0 1px color.alpha(colors.$white, 0.16),
+      0 0 3px color.alpha(#EEEEEE, 0.16),
+    ),
+  ),
+);
+
+.ltr {
+  text-align: left;
+  direction: ltr;
+}
+
+.rtl {
+  text-align: right;
+  direction: rtl;
+}
+
+.textBold {
+  font-weight: 700;
+}
+
+.textItalic {
+  font-style: italic;
+}
+
+.textUnderline {
+  text-decoration: underline;
+}
+
+.textStrike {
+  text-decoration: line-through;
+}
+
+.textUnderlineStrike {
+  text-decoration: underline line-through;
+}
+
+.textCode {
+  display: inline-block;
+  @include spacing.p($x: map.get($text-code, padding-x), $y: map.get($text-code, padding-y));
+  @include font.mono;
+  font-size: map.get($text-code, font-size, default);
+  border-radius: map.get($text-code, border-radius);
+
+  .paragraph & {
+    font-size: map.get($text-code, font-size, paragraph);
+  }
+
+  [data-showdex-scheme='light'] & {
+    background-color: map.get($text-code, background-color, light);
+    box-shadow: map.get($text-code, box-shadow, light);
+  }
+
+  [data-showdex-scheme='dark'] & {
+    background-color: map.get($text-code, background-color, dark);
+    box-shadow: map.get($text-code, box-shadow, dark);
+  }
+}
+
+@each $header, $props in $headers {
+  $margin-top: map.get($props, margin-top);
+  $margin-bottom: map.get($props, margin-bottom);
+  $font-weight: map.get($props, font-weight);
+  $font-size: map.get($props, font-size);
+  $letter-spacing: map.get($props, letter-spacing);
+  $text-transform: map.get($props, text-transform);
+
+  .#{$header} {
+    @include spacing.m(
+      $x: 0,
+      $t: if($margin-top, $margin-top, 0),
+      $b: if($margin-bottom, $margin-bottom, 0),
+    );
+    @include spacing.p-0;
+
+    @if $font-weight {
+      font-weight: $font-weight;
+    }
+
+    @if $font-size {
+      font-size: $font-size;
+    }
+
+    @if $letter-spacing {
+      letter-spacing: $letter-spacing;
+    }
+
+    @if $text-transform {
+      text-transform: $text-transform;
+    }
+  }
+}
+
+.link {
+  text-decoration: none;
+}
+
+.listOrdered, .listUnordered {
+  @include spacing.m($y: 0, $r: 0, $l: map.get($list, indent-spacing));
+  @include spacing.p-0;
+}
+
+.listItem {
+  @include spacing.m($x: map.get($list, item, margin-x), $y: map.get($list, item, margin-y));
+}
+
+.listNestedItem {
+  list-style-type: none;
+}
+
+.paragraph {
+  @include position.rel;
+  @include spacing.my(map.get($paragraph, spacing));
+  @include font.primary;
+  letter-spacing: map.get($paragraph, letter-spacing);
+}
+
+.quote {
+  @include spacing.m-0;
+  @include spacing.p($y: map.get($quote, padding-y), $l: map.get($quote, indent-padding));
+  @include font.primary(map.get($quote, font-weight));
+  font-size: map.get($quote, font-size);
+  letter-spacing: map.get($quote, letter-spacing);
+  border-left: map.get($quote, border-width) solid;
+  @include transition.apply(color, border-left-color);
+
+  [data-showdex-scheme='light'] & {
+    color: map.get($quote, color, light);
+    border-left-color: map.get($quote, border-color, light);
+  }
+
+  [data-showdex-scheme='dark'] & {
+    color: map.get($quote, color, dark);
+    border-left-color: map.get($quote, border-color, dark);
+  }
+}
+
+.codeBlock {
+  @include position.rel;
+  display: block;
+  @include spacing.m($x: map.get($code-block, margin-x), $y: map.get($code-block, margin-y));
+  @include spacing.p(
+    $y: map.get($code-block, padding-y),
+    $r: map.get($code-block, padding-x),
+    $l: map.get($code-block, padding-left),
+  );
+  @include font.mono;
+  font-size: map.get($code-block, font-size);
+  tab-size: map.get($code-block, tab-size);
+  border-radius: map.get($code-block, border-radius);
+  @include transition.apply(background-color, box-shadow);
+  overflow-x: auto;
+
+  [data-showdex-scheme='light'] & {
+    background-color: map.get($code-block, background-color, light);
+    box-shadow: map.get($code-block, box-shadow, light);
+  }
+
+  [data-showdex-scheme='dark'] & {
+    background-color: map.get($code-block, background-color, dark);
+    box-shadow: map.get($code-block, box-shadow, dark);
+  }
+
+  // line number gutter
+  &::before {
+    content: attr(data-gutter);
+    @include position.abs($y: 0, $l: 0);
+    min-width: map.get($code-block, gutter, min-width);
+    @include spacing.p($x: map.get($code-block, gutter, padding-x), $y: map.get($code-block, gutter, padding-y));
+    @include font.mono;
+    text-align: right;
+    white-space: pre-wrap;
+    border-right: map.get($code-block, gutter, border-width) solid;
+    @include transition.apply(color, border-right-color);
+    user-select: none;
+    pointer-events: none;
+    touch-action: none;
+
+    [data-showdex-scheme='light'] & {
+      color: map.get($code-block, gutter, color, light);
+      border-right-color: map.get($code-block, gutter, border-color, light);
+    }
+
+    [data-showdex-scheme='dark'] & {
+      color: map.get($code-block, gutter, color, dark);
+      border-right-color: map.get($code-block, gutter, border-color, dark);
+    }
+  }
+
+  // language (e.g., TSX)
+  &::after {
+    content: attr(data-highlight-language);
+    @include position.abs($y: 0, $r: 0);
+    @include spacing.p($x: map.get($code-block, language, padding-x), $y: map.get($code-block, language, padding-y));
+    @include font.primary(map.get($code-block, language, font-weight));
+    font-size: map.get($code-block, language, font-size);
+    letter-spacing: map.get($code-block, language, letter-spacing);
+    @include transition.apply(color);
+    user-select: none;
+    pointer-events: none;
+    touch-action: none;
+
+    [data-showdex-scheme='light'] & {
+      color: map.get($code-block, language, color, light);
+    }
+
+    [data-showdex-scheme='dark'] & {
+      color: map.get($code-block, language, color, dark);
+    }
+  }
+}
+
+@each $token, $color in map.get($code-block, token-colors) {
+  // e.g., $token = 'function' -> .codeTokenFunction
+  .codeToken#{string.capitalize($token)} {
+    [data-showdex-scheme='light'] & {
+      color: map.get($color, light);
+    }
+
+    [data-showdex-scheme='dark'] & {
+      color: map.get($color, dark);
+    }
+  }
+}

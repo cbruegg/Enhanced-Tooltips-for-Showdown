@@ -1,11 +1,9 @@
 /**
- * @file `battle-formats.d.ts`
- *
- * Adapted from reading the `BattleFormats` global from `pokemon-showdown-client`, captured on 2023/12/14.
- *
+ * @file `battle-formats.d.ts` - Adapted from reading the `BattleFormats` global from `pokemon-showdown-client`, captured on 2023/12/14.
  * @author Keith Choison <keith@tize.io>
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
+ * @since 1.2.0
  */
 
 declare namespace Showdown {

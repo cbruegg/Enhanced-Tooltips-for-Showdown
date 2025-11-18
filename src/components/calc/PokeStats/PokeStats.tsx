@@ -1,3 +1,9 @@
+/**
+ * @file `PokeStats.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.2
+ */
+
 import * as React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import cx from 'classnames';

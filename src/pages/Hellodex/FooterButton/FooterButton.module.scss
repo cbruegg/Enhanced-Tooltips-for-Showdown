@@ -1,3 +1,10 @@
+///
+/// @group FooterButton
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.0.1
+///
+
 @use 'config/colors';
 @use 'config/fonts';
 @use 'mixins/font';
@@ -13,7 +20,7 @@
   @include transition.apply(color, opacity);
   user-select: none;
 
-  &:not(.disabled):hover {
+  &:hover {
     color: colors.$blue;
     opacity: 1;
   }
@@ -21,6 +28,7 @@
   &.disabled {
     opacity: 0.32;
     pointer-events: none;
+    touch-action: none;
   }
 }
 

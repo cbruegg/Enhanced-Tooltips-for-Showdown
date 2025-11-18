@@ -1,3 +1,9 @@
+/**
+ * @file `detectToggledAbility.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.2
+ */
+
 import {
   type AbilityName,
   type GameType,
@@ -14,6 +20,7 @@ import {
 import { type CalcdexPokemon } from '@showdex/interfaces/calc';
 import { calcPokemonHpPercentage } from '@showdex/utils/calc';
 import { formatId } from '@showdex/utils/core';
+import { detectGenFromFormat } from '@showdex/utils/dex';
 
 /**
  * Determines whether the Pokemon's toggleable ability is active (if applicable).
@@ -60,6 +67,7 @@ import { formatId } from '@showdex/utils/core';
 export const detectToggledAbility = (
   pokemon: Partial<CalcdexPokemon>,
   config?: {
+    format?: string;
     gameType?: GameType,
     pokemonIndex?: number;
     opponentPokemon?: Partial<CalcdexPokemon>;
@@ -70,6 +78,7 @@ export const detectToggledAbility = (
   },
 ): boolean => {
   const {
+    format, // genful format (e.g., 'gen9ou')
     gameType = 'Singles',
     pokemonIndex = pokemon?.slot ?? -1,
     opponentPokemon,
@@ -79,6 +88,7 @@ export const detectToggledAbility = (
     terrain,
   } = config || {};
 
+  const gen = detectGenFromFormat(format);
   const ability = pokemon.dirtyAbility || pokemon.ability;
 
   // by this point, the Pokemon's HP is 0% or 100% so Multiscale should be "on"
@@ -95,7 +105,7 @@ export const detectToggledAbility = (
 
   // handle Slow Start
   if (ability === 'Slow Start' as AbilityName) {
-    return volatiles.includes('slowstart');
+    return volatiles.includes('slowstart') || !pokemon.active;
   }
 
   // handle Unburden
@@ -119,7 +129,8 @@ export const detectToggledAbility = (
     // where the changed type is passed to @smogon/calc, only damaging moves of the changed type
     // will have STAB; additionally, when the user modifies the Pokemon's types via dirtyTypes[],
     // this should be toggled off as well, regardless of the 'typechange' volatile
-    return !volatiles.includes('typechange') && !pokemon.dirtyTypes?.length;
+    // update (2025/08/26): forgot this these abilities are always on in prev-gen 9 lol
+    return (gen < 9 || !volatiles.includes('typechange')) && !pokemon.dirtyTypes?.length;
   }
 
   // handle Ruin abilities

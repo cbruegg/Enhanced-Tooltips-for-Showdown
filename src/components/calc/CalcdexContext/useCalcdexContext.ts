@@ -1,3 +1,9 @@
+/**
+ * @file `useCalcdexContext.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.1.7
+ */
+
 import * as React from 'react';
 import { NIL as NIL_UUID } from 'uuid';
 import { type AbilityName, type ItemName } from '@smogon/calc';
@@ -151,16 +157,19 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
   const { state, saving, presets: battlePresets } = ctx;
   const saveRequestTimeout = React.useRef<NodeJS.Timeout>(null);
 
-  const saveHonk = () => void (async () => {
-    await dispatch(saveHonkdex({
-      battleId: state.battleId,
-    }));
+  const saveHonk = React.useCallback(() => void (async () => {
+    saving[1](true);
+    await dispatch(saveHonkdex({ battleId: state.battleId }));
 
     saving[1](false);
     saveRequestTimeout.current = null;
-  })();
+  })(), [
+    dispatch,
+    saving,
+    state.battleId,
+  ]);
 
-  const queueHonkSave = () => {
+  const queueHonkSave = React.useCallback(() => {
     // this seemingly redundant check is for calls outside of this hook, such as in BattleInfo
     if (state.operatingMode !== 'standalone') {
       return;
@@ -170,12 +179,16 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
       clearTimeout(saveRequestTimeout.current);
     }
 
-    if (!saving[0]) {
+    /* if (!saving[0]) {
       saving[1](true);
-    }
+    } */
 
-    saveRequestTimeout.current = setTimeout(saveHonk, 3000);
-  };
+    saveRequestTimeout.current = setTimeout(saveHonk, 1000);
+  }, [
+    saveHonk,
+    // saving,
+    state?.operatingMode,
+  ]);
 
   const applyAutoBoostEffects = (
     playersPayload: Partial<Record<CalcdexPlayerKey, Partial<CalcdexPlayer>>>,
@@ -477,6 +490,18 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
       }
     }
 
+    // update (2025/09/19): mainly to fix switching Terapagos's formes
+    if (
+      mutating('speciesForme')
+        && prev.speciesForme !== mutated.speciesForme
+        && !mutating('terastallized')
+        && determineSpeciesForme(mutated, true) !== determineSpeciesForme({
+          ...mutated, terastallized: !mutated.terastallized,
+        }, true)
+    ) {
+      mutated.terastallized = !mutated.terastallized;
+    }
+
     mutated.speciesForme = determineSpeciesForme(mutated, true);
 
     if (mutated.transformedForme) {
@@ -533,7 +558,7 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
       if (nonEmptyObject(baseStats)) {
         mutated.baseStats = { ...baseStats };
 
-        if (Object.values(mutated.dirtyBaseStats || {}).some((v) => (v || 0) > 0)) {
+        if (Object.values(mutated.dirtyBaseStats || {}).some((v) => v > 0)) {
           mutated.dirtyBaseStats = {};
         }
       }
@@ -552,7 +577,7 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
             && !prev.speciesForme.includes(baseForme)
         ) || (
           (!mutated.presetSource || !['server', 'sheet'].includes(mutated.presetSource))
-            && prev.speciesForme.replace('-Tera', '') !== mutated.speciesForme.replace('-Tera', '')
+            && prev.speciesForme.replace(/-Tera$/, '') !== mutated.speciesForme.replace(/-Tera$/, '')
             && !PokemonPresetFuckedBaseFormes.includes(baseForme)
             && !PokemonPresetFuckedBattleFormes.includes(mutated.speciesForme)
             && (baseChanged || (!hasMegaForme(prev.speciesForme) && !hasMegaForme(mutations.speciesForme)))
@@ -750,6 +775,7 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
 
       // note: these are now independent of each other & will probably rename abilityToggled to abilityActive soon
       mutated.abilityToggled = detectToggledAbility(mutated, {
+        format: state.format,
         gameType: state.gameType,
         selectionIndex: state[playerKey].selectionIndex,
         weather,
@@ -904,6 +930,7 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
       const terrain = (currentField.dirtyTerrain ?? (currentField.autoTerrain || currentField.terrain)) || null;
 
       newPokemon.abilityToggled = detectToggledAbility(newPokemon, {
+        format: state.format,
         gameType: state.gameType,
         weather,
         terrain,
@@ -1000,7 +1027,7 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
       return 0;
     }
 
-    const roleGuesser = new BattleStatGuesser(state.format);
+    const roleGuesser = new window.BattleStatGuesser(state.format);
     const validPresets = presets.map((preset) => {
       if (!preset?.calcdexId || !preset.speciesForme) {
         return null;
@@ -1596,6 +1623,7 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
           const retoggle = pokemon[retoggleIndex];
 
           retoggle.abilityToggled = detectToggledAbility(retoggle, {
+            format: state.format,
             gameType: state.gameType,
             pokemonIndex: retoggleIndex,
             selectionIndex: playerState.selectionIndex,
@@ -1841,6 +1869,7 @@ export const useCalcdexContext = (): CalcdexContextConsumables => {
         }
 
         const toggled = detectToggledAbility(pokemon, {
+          format: state.format,
           gameType: state.gameType,
           opponentPokemon,
           selectionIndex: pkey === playerKey ? playerPayload.selectionIndex : opponent?.selectionIndex,

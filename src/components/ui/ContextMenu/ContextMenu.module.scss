@@ -1,3 +1,10 @@
+///
+/// @group ContextMenu
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.2.3
+///
+
 @use 'sass:list';
 @use 'sass:map';
 @use 'config/colors';
@@ -510,7 +517,7 @@ $themes: (
 
   &:global(.contexify_willEnter-scale) {
     transform-origin: top left;
-    animation: scale-in 256ms ease;
+    animation: scale-in 128ms ease;
   }
 
   @keyframes scale-out {

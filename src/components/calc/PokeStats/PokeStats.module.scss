@@ -1,5 +1,11 @@
+///
+/// @group PokeStats
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 0.1.2
+///
+
 @use 'config/colors';
-@use 'config/fonts';
 @use 'functions/color';
 @use 'mixins/flex';
 @use 'mixins/font';
@@ -8,36 +14,18 @@
 @use 'mixins/transition';
 
 .container {
-  // grid-template-columns: minmax(36px, 1fr) repeat(6, minmax(48px, 1.25fr));
-  // grid-template-columns: minmax(36px, min-content) repeat(6, minmax(50px, min-content));
   grid-template-columns: 36px repeat(6, 44px);
   column-gap: 8px;
-  // row-gap: 3px;
-  @include spacing.margin-xy($x: auto);
-
-  // &.verySmol {
-  //   grid-template-columns: repeat(7, minmax(32px, 1fr));
-  // }
+  @include spacing.mx-auto;
 
   &.skinnyBoi {
     grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 
-  // &.veryThicc {
-  //   max-width: 450px;
-  // }
-
   // in gen 1, there's one less column since SPD isn't a thing (and SPA is called SPC).
   // gen 2 has SPD, so this should only be applied for gen 1.
   &.legacySpc {
-    // grid-template-columns: minmax(36px, 1fr) repeat(5, minmax(48px, 1.25fr));
-    // grid-template-columns: minmax(36px, min-content) repeat(5, minmax(50px, min-content));
     grid-template-columns: 36px repeat(5, 44px);
-
-    // &.verySmol {
-    //   // grid-template-columns: minmax(0, 1fr) repeat(5, minmax(0, 1.25fr));
-    //   grid-template-columns: repeat(6, minmax(36px, min-content));
-    // }
 
     &.skinnyBoi {
       grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -50,14 +38,14 @@
 }
 
 .tooltipContent {
-  position: relative;
+  @include position.rel;
   text-align: center;
   white-space: normal;
   user-select: none;
 }
 
 .header {
-  @include font.apply(fonts.$primary, ( font-weight: 500 ));
+  @include font.primary(500);
   @include transition.apply(color);
 
   &.warning {
@@ -69,11 +57,23 @@
   @include transition.apply(color);
 
   &.up {
-    color: color.alpha(colors.$red, 0.8);
+    [data-showdex-scheme='light'] & {
+      color: color.alpha(colors.$red, 0.8);
+    }
+
+    [data-showdex-scheme='dark'] & {
+      color: color.alpha(color.tint(colors.$red, 16%), 0.8);
+    }
   }
 
   &.down {
-    color: color.alpha(colors.$blue, 0.8);
+    [data-showdex-scheme='light'] & {
+      color: color.alpha(colors.$blue, 0.8);
+    }
+
+    [data-showdex-scheme='dark'] & {
+      color: color.alpha(color.tint(colors.$blue, 16%), 0.8);
+    }
   }
 }
 
@@ -97,7 +97,7 @@
   // by defaults, applies -$padding-x and -$padding-y in ValueField's styles,
   // so we reset the absolute positions to 0 with position.absolute-fill()
   &::before {
-    @include position.absolute-fill;
+    @include position.abs-fill;
   }
 }
 
@@ -206,7 +206,7 @@
 }
 
 .boostBaseStatButton {
-  @include spacing.margin-none;
+  @include spacing.m-0;
   font-family: inherit;
   font-weight: inherit;
   font-size: inherit;

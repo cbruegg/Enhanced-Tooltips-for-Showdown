@@ -1,3 +1,10 @@
+///
+/// @group GradientButton
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.1.5
+///
+
 @use 'config/colors';
 @use 'config/fonts';
 @use 'functions/color';
@@ -43,7 +50,7 @@
   }
 
   &.mina {
-    background: linear-gradient(65deg, #E94489 2%, #F8C8C5 98%) 0 0 / 100% 100%;
+    background: linear-gradient(65deg, #E94489 2%, #F8C8C5 98%) 0 0 / 200% 100%;
     background-clip: text;
   }
 
@@ -58,7 +65,7 @@
   }
 
   &.mina::before {
-    background: linear-gradient(65deg, #E94489 2%, #F8C8C5 98%) 0 0 / 100% 100%;
+    background: linear-gradient(65deg, #E94489 2%, #F8C8C5 98%) 0 0 / 200% 100%;
   }
 
   @include aria.outline($radius: 100px);

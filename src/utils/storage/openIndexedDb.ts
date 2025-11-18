@@ -1,8 +1,15 @@
+/**
+ * @file `openIndexedDb.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
 import { env } from '@showdex/utils/core';
 import { logger } from '@showdex/utils/debug';
 import { createBundlesDb } from './createBundlesDb';
 import { createHonksDb } from './createHonksDb';
 import { createMetaDb } from './createMetaDb';
+import { createNotesDb } from './createNotesDb';
 import { createPresetsDb } from './createPresetsDb';
 import { createSettingsDb } from './createSettingsDb';
 import { migrateSettingsDb } from './migrateSettingsDb';
@@ -34,7 +41,7 @@ const l = logger('@showdex/utils/storage/openIndexedDb()');
 /**
  * Opens a connection to Showdex's IndexedDB database hosted on the client's origin (e.g., `play.pokemonshowdown.com`).
  *
- * * In addition to being returned, the opened `IDBDatabase` object will be stored in `indexedDb`.
+ * * In addition to being returned, the opened `IDBDatabase` object will be stored in `showdexedDb`.
  * * This should be run during Showdex's initialization, such as in the `main.ts` script.
  *
  * @todo Note to self: These need a big ass refactor; all these db's are becoming a copy & paste bonanza LOL
@@ -91,6 +98,7 @@ export const openIndexedDb = (): Promise<IDBDatabase> => new Promise((
     createSettingsDb(db);
     createPresetsDb(db);
     createHonksDb(db);
+    createNotesDb(db);
 
     l.verbose(
       'req.onupgradeneeded()', 'Upgrade complete.',

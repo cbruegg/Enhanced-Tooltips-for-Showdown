@@ -1,7 +1,14 @@
+/**
+ * @file `PokePresetOptionTooltip.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.4
+ */
+
 import * as React from 'react';
 import cx from 'classnames';
 import { type CalcdexPokemonPreset } from '@showdex/interfaces/calc';
 import { type SelectOptionTooltipProps } from '@showdex/components/form';
+import { useCalcdexSettings } from '@showdex/redux/store';
 import { exportPokePaste, flattenAlt } from '@showdex/utils/presets';
 import styles from './PokePresetOptionTooltip.module.scss';
 
@@ -20,6 +27,14 @@ export const PokePresetOptionTooltip = ({
   value,
   hidden,
 }: PokePresetOptionTooltipProps): JSX.Element => {
+  const settings = useCalcdexSettings();
+  const syntax = React.useMemo(() => (
+    (settings?.presetDisplaySyntax !== 'auto' && settings?.presetDisplaySyntax)
+      || (window.__SHOWDEX_HOST || 'classic')
+  ), [
+    settings?.presetDisplaySyntax,
+  ]);
+
   const preset = React.useMemo(
     () => (presets || []).find((p) => p?.calcdexId === value),
     [presets, value],
@@ -29,9 +44,13 @@ export const PokePresetOptionTooltip = ({
     ...preset,
     name: preset?.nickname,
     teraType: flattenAlt(preset?.teraTypes?.[0]),
-  }, format), [
+  }, {
+    format,
+    syntax,
+  }), [
     format,
     preset,
+    syntax,
   ]);
 
   if (!pokePaste || hidden) {

@@ -1,0 +1,83 @@
+///
+/// @group Notedex
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.3.0
+///
+
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/font';
+@use 'mixins/flex';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+.content {
+  @include flex.col-stretch;
+  row-gap: 12px;
+}
+
+.buildInfo {
+  z-index: 6;
+}
+
+.toolbar {
+  @include position.sticky($x: 0, $t: 16px);
+  @include flex.col-stretch;
+  row-gap: 6px;
+  @include spacing.mx(12px);
+  @include spacing.p($x: 16px, $y: 12px);
+  z-index: 5;
+}
+
+.noteName {
+  @include font.primary(500);
+  font-size: 14px;
+  letter-spacing: 0.1px;
+  line-height: 15px;
+
+  &::before {
+    @include position.inset-x(-8px);
+  }
+
+  &::after {
+    @include position.inset-x(-12px);
+  }
+}
+
+.noteActions {
+  @include flex.row-start;
+  column-gap: 12px;
+}
+
+button.actionButton {
+  font-size: 8px;
+
+  &.saved {
+    [data-showdex-scheme='light'] & {
+      color: color.shade(colors.$green, 16%);
+    }
+
+    [data-showdex-scheme='dark'] & {
+      color: colors.$green;
+    }
+  }
+
+  i {
+    line-height: 11px;
+  }
+}
+
+.editor {
+  @include spacing.mt(12px);
+}
+
+.tooltipContent {
+  max-width: 248px;
+  font-size: 10px;
+  text-align: center;
+  line-height: 12px;
+  white-space: normal;
+  user-select: none;
+}

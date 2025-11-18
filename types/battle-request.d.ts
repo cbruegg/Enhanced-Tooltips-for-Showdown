@@ -1,11 +1,9 @@
 /**
- * battle-request.d.ts
- *
- * Adapted from `pokemon-showdown-client/src/battle-choices.ts`.
- *
+ * @file `battle-request.d.ts` - dapted from `pokemon-showdown-client/play.pokemonshowdown.com/src/battle-choices.ts`.
  * @author Keith Choison <keith@tize.io>
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
+ * @since 0.1.0
  */
 
 declare namespace Showdown {
@@ -51,6 +49,8 @@ declare namespace Showdown {
     canTerastallize?: TypeName;
     trapped?: boolean;
     maybeTrapped?: boolean;
+    maybeDisabled?: boolean;
+    maybeLocked?: boolean;
   }
 
   interface BattleBaseRequest {
@@ -62,7 +62,8 @@ declare namespace Showdown {
 
   interface BattleMoveRequest extends BattleBaseRequest {
     requestType: 'move';
-    active: BattleRequestActivePokemon[];
+    active: (BattleRequestActivePokemon | null)[];
+    targetable?: boolean;
   }
 
   interface BattleSwitchRequest extends BattleBaseRequest {
@@ -73,6 +74,8 @@ declare namespace Showdown {
   interface BattleTeamRequest extends BattleBaseRequest {
     requestType: 'team';
     maxTeamSize?: number;
+    maxChosenTeamSize?: number;
+    chosenTeamSize?: number;
   }
 
   interface BattleWaitRequest extends BattleBaseRequest {

@@ -1,5 +1,11 @@
+/**
+ * @file `CalcdexPokeProvider.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.1.1
+ */
+
 import * as React from 'react';
-import { type CalcdexPlayerKey, CalcdexPlayerKeys as AllPlayerKeys } from '@showdex/interfaces/calc';
+import { type CalcdexPlayerKey } from '@showdex/interfaces/calc';
 import { useSmogonMatchup } from '@showdex/utils/calc';
 import { upsizeArray } from '@showdex/utils/core';
 // import { logger } from '@showdex/utils/debug';
@@ -22,7 +28,10 @@ export interface CalcdexPokeProviderProps {
   /**
    * Player that the Context will be attached to.
    *
-   * @example 'p1'
+   * @example
+   * ```ts
+   * 'p1'
+   * ```
    * @since 1.1.1
    */
   playerKey: CalcdexPlayerKey;
@@ -56,15 +65,14 @@ export const CalcdexPokeProvider = ({
     state,
     settings,
     presets: battlePresets,
-  } = ctx;
+  } = ctx || {};
 
   const {
     format,
     playerKey: topKey,
     opponentKey: bottomKey,
-    field,
     sheets,
-  } = state;
+  } = state || {};
 
   // update (2023/07/28): oopsies ... forgot to update this for FFA :o
   const opponentKey = React.useMemo(
@@ -85,8 +93,8 @@ export const CalcdexPokeProvider = ({
     selectionIndex: opponentIndex,
   } = opponent;
 
-  const playerPokemon = playerParty?.[playerIndex];
-  const opponentPokemon = opponentParty?.[opponentIndex];
+  const playerPokemon = React.useMemo(() => playerParty?.[playerIndex] || {}, [playerIndex, playerParty]);
+  const opponentPokemon = React.useMemo(() => opponentParty?.[opponentIndex] || {}, [opponentIndex, opponentParty]);
 
   const {
     loading: presetsLoading,
@@ -96,9 +104,9 @@ export const CalcdexPokeProvider = ({
     formeUsages,
     formeUsageFinder,
     formeUsageSorter,
-  } = battlePresets;
+  } = battlePresets || {};
 
-  const pokemonSheets = React.useMemo(() => (playerPokemon?.speciesForme ? selectPokemonPresets(
+  const pokemonSheets = React.useMemo(() => (playerPokemon.speciesForme ? selectPokemonPresets(
     sheets,
     playerPokemon,
     {
@@ -112,7 +120,7 @@ export const CalcdexPokeProvider = ({
     sheets,
   ]);
 
-  const usages = React.useMemo(() => (playerPokemon?.speciesForme ? selectPokemonPresets(
+  const usages = React.useMemo(() => (playerPokemon.speciesForme ? selectPokemonPresets(
     allUsages,
     playerPokemon,
     {
@@ -127,7 +135,7 @@ export const CalcdexPokeProvider = ({
   ]);
 
   // note: in Randoms, teambuilder presets won't exist in allPresets[]
-  const teamPresets = React.useMemo(() => (playerPokemon?.speciesForme ? selectPokemonPresets(
+  const teamPresets = React.useMemo(() => (playerPokemon.speciesForme ? selectPokemonPresets(
     allPresets,
     playerPokemon,
     {
@@ -141,7 +149,7 @@ export const CalcdexPokeProvider = ({
     playerPokemon,
   ]);
 
-  const boxPresets = React.useMemo(() => (playerPokemon?.speciesForme ? selectPokemonPresets(
+  const boxPresets = React.useMemo(() => (playerPokemon.speciesForme ? selectPokemonPresets(
     allPresets,
     playerPokemon,
     {
@@ -155,7 +163,7 @@ export const CalcdexPokeProvider = ({
     playerPokemon,
   ]);
 
-  const bundledPresets = React.useMemo(() => (playerPokemon?.speciesForme ? selectPokemonPresets(
+  const bundledPresets = React.useMemo(() => (playerPokemon.speciesForme ? selectPokemonPresets(
     allPresets,
     playerPokemon,
     {
@@ -169,7 +177,7 @@ export const CalcdexPokeProvider = ({
     playerPokemon,
   ]);
 
-  const pokemonPresets = React.useMemo(() => (playerPokemon?.speciesForme ? selectPokemonPresets(
+  const pokemonPresets = React.useMemo(() => (playerPokemon.speciesForme ? selectPokemonPresets(
     allPresets,
     playerPokemon,
     {
@@ -189,11 +197,11 @@ export const CalcdexPokeProvider = ({
   );
 
   const presets = React.useMemo(() => {
-    if (!playerPokemon?.speciesForme) {
+    if (!playerPokemon.speciesForme) {
       return [];
     }
 
-    const output = [...(playerPokemon?.presets || []), ...pokemonSheets];
+    const output = [...(playerPokemon.presets || []), ...pokemonSheets];
     const smogonPresets = [...bundledPresets, ...pokemonPresets];
 
     if (format?.includes('random')) {
@@ -241,8 +249,8 @@ export const CalcdexPokeProvider = ({
     boxPresets,
     bundledPresets,
     format,
-    playerPokemon?.presets,
-    playerPokemon?.speciesForme,
+    playerPokemon.presets,
+    playerPokemon.speciesForme,
     pokemonPresets,
     pokemonSheets,
     presetSorter,
@@ -260,24 +268,17 @@ export const CalcdexPokeProvider = ({
   const moveUsageSorter = React.useMemo(() => usageAltPercentSorter(moveUsageFinder), [moveUsageFinder]);
 
   // calculate the current matchup
-  const calculateMatchup = useSmogonMatchup(
-    format,
-    state?.gameType,
-    playerPokemon,
-    opponentPokemon,
-    player,
-    opponent,
-    AllPlayerKeys.filter((k) => state[k]?.active).map((k) => state[k]),
-    field,
-    settings,
-  );
+  const calculateMatchup = useSmogonMatchup(state, {
+    playerKey,
+    opponentKey,
+  });
 
   const matchups = React.useMemo(() => upsizeArray(
-    playerPokemon?.moves || [],
+    playerPokemon.moves || [],
     movesCount,
     null,
     true,
-  ).map((moveName) => calculateMatchup?.(moveName) || null), [
+  ).map((moveName) => calculateMatchup(moveName) || null), [
     calculateMatchup,
     movesCount,
     playerPokemon,

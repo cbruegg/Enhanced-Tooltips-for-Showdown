@@ -1,3 +1,9 @@
+/**
+ * @file `findPlayerTitle.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.1.1
+ */
+
 import { type ShowdexPlayerTitle, type ShowdexSupporterTier } from '@showdex/interfaces/app';
 import { formatId } from '@showdex/utils/core';
 
@@ -23,8 +29,8 @@ export const findPlayerTitle = (
     tiers: ShowdexSupporterTier[];
   },
 ): ShowdexPlayerTitle => {
-  const { showdownUser, titles, tiers } = { ...config };
-  const userId = showdownUser ? formatId(name) : name;
+  const { showdownUser, titles, tiers } = config || {};
+  const userId = (showdownUser && formatId(name)) || name;
 
   if (!userId) {
     return null;
@@ -34,8 +40,8 @@ export const findPlayerTitle = (
     showdownUser
       ? t.userIds.map((id) => (Array.isArray(id) ? id[0] : id))
       : t.supporterId
-        ? (tiers || [])
-          .find((s) => !!s?.id && s.id === t.supporterId)
+        ? tiers
+          ?.findLast((s) => !!s?.id && s.id === t.supporterId)
           ?.members
           ?.filter((m) => !!m?.name && !m.showdownUser)
           .map((m) => m.name)

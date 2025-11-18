@@ -1,4 +1,10 @@
 /**
+ * @file `wtf.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.5
+ */
+
+/**
  * ***w**hat* *in the actual fuck is the* actual ***t**ype* *o**f*** *this here* `thing` *???*
  *
  * @example
@@ -8,7 +14,7 @@
  * wtf(420.69) // -> 'number'
  * wtf(NaN) // -> 'NaN'
  * wtf(true) // -> 'boolean'
- * wtf(['is', 'going', 'on']) // -> 'array'
+ * wtf(['is', 'going', 'on']) // -> 'Array'
  * wtf({ foo: 'bar' }) // -> 'object'
  * wtf(undefined) // -> 'undefined'
  * wtf(null) // -> 'null'
@@ -28,7 +34,11 @@ export const wtf = (
 ): string => (
   (thing === null && 'null')
     || (Number.isNaN(thing) && 'NaN')
-    || (Array.isArray(thing) && 'array')
-    || (typeof thing === 'object' && thing?.constructor?.name)
+    || (Array.isArray(thing) && 'Array')
+    || (['object', 'function'].includes(typeof thing) && (
+      ((thing as Record<'name', string>)?.name)
+        || ((thing as Record<'displayName', string>)?.displayName) // often React components
+        || thing?.constructor?.name
+    ))
     || typeof thing
 );

@@ -1,5 +1,11 @@
+///
+/// @group Calcdex
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 0.1.0
+///
+
 @use 'config/colors';
-@use 'config/fonts';
 @use 'functions/color';
 @use 'mixins/aria';
 @use 'mixins/device';
@@ -13,7 +19,7 @@
   // positioning based off of those of .battle-log
   // (except for bottom: 40px cause it'll overlay on top of the .battle-log-add)
   // (also + 1px for the border-width)
-  @include position.absolute($top: 0, $right: 0, $bottom: 0, $left: 640px + 1px);
+  @include position.abs($y: 0, $r: 0, $l: 640px + 1px);
   z-index: 15;
 
   @include device.for-mobile {
@@ -23,97 +29,54 @@
 }
 
 .container {
-  @include position.absolute-fill;
-  overflow: hidden;
-  z-index: 15; // z-index of the close buttons in the tabs is 11 lol
-
-  // &, *, *::before, *::after {
-  //   box-sizing: border-box;
-  // }
-
   // initially added this as a potential fix for the closing dropdown bug on mouse-up,
   // but turns out it was an issue with the .singleValue, which I just added pointer-events: none;,
   // which seemed to do the trick lol. leaving this here, but it does nothing I don't think.
   &.overlay {
-    position: relative;
+    @include position.rel;
     @include position.unset-all;
     width: 100%;
     height: 100%;
     z-index: unset;
   }
 
-  &.light {
-    color: colors.$black;
-  }
-
-  &.dark {
-    color: colors.$white;
-  }
-
-  &::before {
-    content: '';
-    @include position.absolute-fill;
-    pointer-events: none;
-  }
-
-  &.light {
-    &::before {
-      background-color: color.alpha(colors.$showdown-background-light, 0.88);
-    }
-
-    &.mina::before {
-      background-color: color.alpha(#F5DAE3, 0.72);
-    }
-
+  &[data-showdex-scheme='light'] {
     &.overlay::before {
       background-color: colors.$showdown-background-light;
     }
 
-    &.overlay.mina::before {
+    &[data-showdex-theme='mina'].overlay::before {
       background-color: #FFF7FA;
     }
   }
 
-  &.dark {
-    &::before {
-      background-color: color.alpha(colors.$gray-darkest, 0.88);
-    }
-
-    &.mina::before {
-      background-color: color.alpha(#3A242E, 0.94);
-    }
-
+  &[data-showdex-scheme='dark'] {
     &.overlay::before {
       background-color: colors.$gray-darkest;
     }
 
-    &.overlay.mina::before {
-      // background-color: #100206;
+    &[data-showdex-theme='mina'].overlay::before {
       background-color: #2D0D1C;
     }
   }
 
-  &.glassy {
-    &::before {
-      backdrop-filter: blur(4px);
-    }
-
-    &.light {
-      &::before, &.overlay::before {
+  &[data-showdex-terrain='glassy'] {
+    &[data-showdex-scheme='light'] {
+      &.overlay::before {
         background-color: color.alpha(colors.$showdown-background-light, 0.56);
       }
 
-      &.mina::before, &.overlay.mina::before {
+      &[data-showdex-theme='mina'].overlay::before {
         background-color: color.alpha(#F5DAE3, 0.64);
       }
     }
 
-    &.dark {
-      &::before, &.overlay::before {
+    &[data-showdex-scheme='dark'] {
+      &.overlay::before {
         background-color: color.alpha(colors.$gray-darkest, 0.8);
       }
 
-      &.mina::before, &.overlay.mina::before {
+      &[data-showdex-theme='mina'].overlay::before {
         background-color: color.alpha(#2D0D1C, 0.8);
       }
     }
@@ -121,44 +84,35 @@
 }
 
 .content {
-  @include position.absolute-fill;
-  @include spacing.padding($x: 16px, $top: 12px, $bottom: 16px);
-  @include font.apply(fonts.$mono);
-  font-size: 10px;
-  overflow-x: hidden;
+  @include spacing.p($a: 16px, $t: 12px);
 
   .overlay:not(.verySmol) & {
-    @include spacing.padding($top: 32px);
+    @include spacing.pt(32px);
   }
 }
 
 .playerCalc {
   .overlay:not(.mobile) & {
-    @include spacing.margin($top: 16px);
+    @include spacing.mt(16px);
   }
 }
 
 .fieldCalc {
   max-width: 448px;
-  @include spacing.margin($x: auto, $top: 16px);
-
-  /*
-  &.expanded {
-    max-width: 680px;
-  }
-  */
+  @include spacing.mx-auto;
+  @include spacing.mt(16px);
 
   .container:not(.skinnyBoi) & {
-    @include spacing.padding($x: 24px);
+    @include spacing.px(24px);
   }
 }
 
 .opponentCalc {
-  @include spacing.margin($top: 12px);
+  @include spacing.mt(12px);
 }
 
 .overlayCloseButton {
-  @include position.absolute($top: 8px, $right: 8px);
+  @include position.abs($t: 8px, $r: 8px);
   @include flex.row-center;
   width: 24px;
   height: 24px;
@@ -170,11 +124,11 @@
     line-height: 12px;
   }
 
-  .light & {
+  [data-showdex-scheme='light'] & {
     color: color.alpha(colors.$gray-darkest, 0.72);
   }
 
-  .dark & {
+  [data-showdex-scheme='dark'] & {
     color: color.alpha(colors.$white, 0.72);
   }
 
@@ -184,7 +138,7 @@
   );
 
   &:hover {
-    .light & {
+    [data-showdex-scheme='light'] & {
       color: colors.$gray-darkest;
       background-color: color.alpha(colors.$black, 0.08);
 
@@ -193,7 +147,7 @@
       }
     }
 
-    .dark & {
+    [data-showdex-scheme='dark'] & {
       color: colors.$white;
       background-color: color.alpha(colors.$white, 0.08);
 
@@ -211,11 +165,11 @@
 div.mobileCloseButton {
   &.top {
     justify-content: flex-start;
-    @include spacing.margin($top: 2px, $bottom: 6px);
+    @include spacing.m($t: 2px, $b: 6px);
   }
 
   &.bottom {
-    @include spacing.margin($top: 16px, $bottom: 8px);
+    @include spacing.m($t: 16px, $b: 8px);
   }
 }
 
@@ -225,7 +179,7 @@ div.mobileCloseButton {
   @include flex.row($align: center);
 
   .label {
-    @include font.apply(fonts.$primary, ( font-weight: 500 ));
+    @include font.primary(500);
   }
 
   .icon {
@@ -233,7 +187,7 @@ div.mobileCloseButton {
     min-width: 12px;
     height: 12px;
     min-height: 12px;
-    @include spacing.margin($left: 1px);
+    @include spacing.ml(1px);
     color: inherit;
   }
 }

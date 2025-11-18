@@ -67,6 +67,7 @@ export const WeatherMap: Record<string, Weather> = {
   ...LegacyWeatherMap,
   hail: 'Hail',
   snow: 'Snow',
+  snowscape: 'Snow', // update (2025/08/06): apparently they renamed Snow to this in the Showdown client lmaooooo omg
   deltastream: 'Strong Winds',
   desolateland: 'Harsh Sunshine',
   primordialsea: 'Heavy Rain',

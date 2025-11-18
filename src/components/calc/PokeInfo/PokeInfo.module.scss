@@ -1,3 +1,10 @@
+///
+/// @group PokeInfo
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 0.1.2
+///
+
 @use 'sass:math';
 @use 'config/colors';
 @use 'config/fonts';
@@ -230,11 +237,6 @@ button.nameButton {
   @include flex.row($align: center);
   @include spacing.margin-xy($x: 4px);
 
-  // .status:not(:last-child) {
-  //   display: inline-block;
-  //   @include spacing.margin($right: 4px);
-  // }
-
   .status {
     @include transition.apply(opacity);
 
@@ -254,6 +256,7 @@ button.nameButton {
     @include transition.apply(background-color, box-shadow);
     user-select: none;
     pointer-events: none;
+    touch-action: none;
   }
 
   .light &:hover::before {
@@ -314,6 +317,7 @@ button.toggleButton.exportMultiButton {
 .importBadge {
   @include position.absolute($top: -22px, $left: 50%);
   white-space: nowrap;
+  z-index: 8; // to go over any <Card> headers (e.g., in the Notedex)
 }
 
 .pokePasteTooltip {

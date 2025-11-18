@@ -56,21 +56,22 @@
           ]
         },
         {
+          "name": "Roy",
+          "showdownUser": true,
+          "periods": [
+            [
+              "2024-09-27T02:15:58Z",
+              "2024-10-27T02:15:58Z"
+            ]
+          ]
+        },
+        {
           "name": "Picachuleboss",
           "showdownUser": true,
           "periods": [
             [
               "2024-07-05T21:56:50Z",
               "2024-08-05T21:56:50Z"
-            ]
-          ]
-        },
-        {
-          "name": "Roy",
-          "showdownUser": true,
-          "periods": [
-            [
-              "2024-09-27T02:15:58Z"
             ]
           ]
         },
@@ -96,7 +97,25 @@
           "showdownUser": true,
           "periods": [
             [
-              "2023-03-31T06:12:04Z"
+              "2023-03-31T06:12:04Z",
+              "2025-07-01T06:12:04Z"
+            ]
+          ]
+        },
+        {
+          "name": "James G",
+          "periods": [
+            [
+              "2025-02-17T07:09:52Z"
+            ]
+          ]
+        },
+        {
+          "name": "iPodCase4Sale",
+          "showdownUser": true,
+          "periods": [
+            [
+              "2025-05-01T02:12:50Z"
             ]
           ]
         }
@@ -112,16 +131,8 @@
           "showdownUser": true,
           "periods": [
             [
-              "2023-08-11T10:33:15Z"
-            ]
-          ]
-        },
-        {
-          "name": "BruhMomentMaker",
-          "showdownUser": true,
-          "periods": [
-            [
-              "2023-04-10T13:35:32Z"
+              "2023-08-11T10:33:15Z",
+              "2025-04-11T10:33:15Z"
             ]
           ]
         },
@@ -131,6 +142,42 @@
           "periods": [
             [
               "2023-08-04T03:41:08Z"
+            ]
+          ]
+        },
+        {
+          "name": "BruhMomentMaker",
+          "showdownUser": true,
+          "periods": [
+            [
+              "2023-04-10T13:35:32Z",
+              "2025-05-10T13:35:32Z"
+            ]
+          ]
+        },
+        {
+          "name": "Wan L",
+          "periods": [
+            [
+              "2024-01-07T14:17:20Z",
+              "2025-08-07T14:17:20Z"
+            ]
+          ]
+        },
+        {
+          "name": "RadiantShackles",
+          "showdownUser": true,
+          "periods": [
+            [
+              "2024-03-04T00:44:33Z"
+            ]
+          ]
+        },
+        {
+          "name": "Trent L",
+          "periods": [
+            [
+              "2024-04-02T05:23:10Z"
             ]
           ]
         },
@@ -164,31 +211,6 @@
           ]
         },
         {
-          "name": "Wan L",
-          "periods": [
-            [
-              "2024-01-07T14:17:20Z"
-            ]
-          ]
-        },
-        {
-          "name": "RadiantShackles",
-          "showdownUser": true,
-          "periods": [
-            [
-              "2024-03-04T00:44:33Z"
-            ]
-          ]
-        },
-        {
-          "name": "Trent L",
-          "periods": [
-            [
-              "2024-04-02T05:23:10Z"
-            ]
-          ]
-        },
-        {
           "name": "Christopher Y",
           "periods": [
             [
@@ -218,6 +240,15 @@
             [
               "2024-06-26T09:50:40Z",
               "2024-08-26T09:50:40Z"
+            ]
+          ]
+        },
+        {
+          "name": "Benjamin K",
+          "periods": [
+            [
+              "2025-01-08T02:46:33Z",
+              "2025-03-08T02:46:33Z"
             ]
           ]
         },

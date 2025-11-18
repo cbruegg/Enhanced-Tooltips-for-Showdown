@@ -1,3 +1,9 @@
+/**
+ * @file `HonkdexSettingsPane.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
 import * as React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Field } from 'react-final-form';
@@ -84,6 +90,42 @@ export const HonkdexSettingsPane = ({
             <Trans
               t={t}
               i18nKey="honkdex.alwaysShowGenetics.tooltip"
+              parent="div"
+              className={styles.tooltipContent}
+              shouldUnescape
+            />
+          )}
+        />
+
+        <div className={styles.settingsGroupTitle}>
+          {t('pane.sections.secondary.experimental', 'Experimental')}
+        </div>
+
+        <Field<ShowdexHonkdexSettings['includeHazardsDamage']>
+          name="honkdex.includeHazardsDamage"
+          component={Switch}
+          className={cx(styles.field, styles.switchField)}
+          label={t('honkdex.includeHazardsDamage.label') as React.ReactNode}
+          tooltip={(
+            <Trans
+              t={t}
+              i18nKey="honkdex.includeHazardsDamage.tooltip"
+              parent="div"
+              className={styles.tooltipContent}
+              shouldUnescape
+            />
+          )}
+        />
+
+        <Field<ShowdexHonkdexSettings['includeEotDamage']>
+          name="honkdex.includeEotDamage"
+          component={Switch}
+          className={cx(styles.field, styles.switchField)}
+          label={t('honkdex.includeEotDamage.label') as React.ReactNode}
+          tooltip={(
+            <Trans
+              t={t}
+              i18nKey="honkdex.includeEotDamage.tooltip"
               parent="div"
               className={styles.tooltipContent}
               shouldUnescape

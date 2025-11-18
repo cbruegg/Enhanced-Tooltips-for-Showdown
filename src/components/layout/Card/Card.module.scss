@@ -1,0 +1,134 @@
+///
+/// @group Card
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.3.0
+///
+
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/flex';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+.container {
+  @include position.rel;
+  @include spacing.p(8px);
+  border-radius: 12px;
+  @include transition.apply(background-color, box-shadow);
+
+  &::before {
+    content: '';
+    @include position.abs-fill;
+    border-radius: 12px;
+    @include transition.apply(background-color);
+    pointer-events: none;
+    touch-action: none;
+    z-index: -1;
+
+    [data-showdex-terrain='glassy'] & {
+      backdrop-filter: blur(4px);
+    }
+  }
+
+  [data-showdex-scheme='light'] & {
+    &.withBackground::before {
+      background-color: color.alpha(colors.$white, 0.64);
+    }
+
+    &.withBackground:hover::before {
+      background-color: color.alpha(colors.$white, 0.94);
+    }
+
+    box-shadow: (
+      0 0 1px color.alpha(colors.$black, 0.16),
+      0 0 6px color.alpha(colors.$gray-dark, 0.16),
+    );
+  }
+
+  [data-showdex-terrain='glassy'][data-showdex-scheme='light'] & {
+    &.withBackground::before {
+      background-color: color.alpha(colors.$white, 0.48);
+    }
+
+    &.withBackground:hover::before {
+      background-color: color.alpha(colors.$white, 0.72);
+    }
+  }
+
+  [data-showdex-theme='mina'][data-showdex-scheme='light'] & {
+    &.withBackground::before {
+      background-color: color.alpha(#FFF7FA, 0.64);
+    }
+
+    &.withBackground:hover::before {
+      background-color: color.alpha(#FFF7FA, 0.94);
+    }
+
+    box-shadow: (
+      0 0 1px color.alpha(#770629, 0.32),
+      0 0 16px color.alpha(#9F1641, 0.16),
+    );
+  }
+
+  [data-showdex-terrain='glassy'][data-showdex-theme='mina'][data-showdex-scheme='light'] & {
+    &.withBackground::before {
+      background-color: color.alpha(#FFF7FA, 0.48);
+    }
+
+    &.withBackground:hover::before {
+      background-color: color.alpha(#FFF7FA, 0.72);
+    }
+  }
+
+  [data-showdex-scheme='dark'] & {
+    &.withBackground::before {
+      background-color: color.alpha(colors.$gray-darkest, 0.64);
+    }
+
+    &.withBackground:hover::before {
+      background-color: color.alpha(colors.$gray-darkest, 0.94);
+    }
+
+    box-shadow: (
+      0 0 1px color.alpha(colors.$white, 0.32),
+      0 0 6px color.alpha(colors.$black, 0.4),
+    );
+  }
+
+  [data-showdex-terrain='glassy'][data-showdex-scheme='dark'] & {
+    &.withBackground::before {
+      background-color: color.alpha(colors.$gray-darkest, 0.48);
+    }
+
+    &.withBackground:hover::before {
+      background-color: color.alpha(colors.$gray-darkest, 0.72);
+    }
+  }
+
+  [data-showdex-theme='mina'][data-showdex-scheme='dark'] & {
+    &.withBackground::before {
+      background-color: color.alpha(#100206, 0.64);
+    }
+
+    &.withBackground:hover::before {
+      background-color: color.alpha(#100206, 0.94);
+    }
+
+    box-shadow: (
+      0 0 1px color.alpha(#FBAFC7, 0.4),
+      0 0 16px color.alpha(#100206, 0.24),
+    );
+  }
+
+  [data-showdex-terrain='glassy'][data-showdex-theme='mina'][data-showdex-scheme='dark'] & {
+    &.withBackground::before {
+      background-color: color.alpha(#100206, 0.48);
+    }
+
+    &.withBackground:hover::before {
+      background-color: color.alpha(#100206, 0.72);
+    }
+  }
+}

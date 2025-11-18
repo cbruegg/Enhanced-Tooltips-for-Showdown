@@ -1,3 +1,9 @@
+/**
+ * @file `useHellodexSize.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
 import * as React from 'react';
 import { hellodexSlice, useDispatch, useHellodexState } from '@showdex/redux/store';
 import { useElementSize } from '@showdex/utils/hooks';

@@ -1,3 +1,9 @@
+/**
+ * @file `PlayerInfo.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
 import * as React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import cx from 'classnames';
@@ -6,11 +12,10 @@ import { type DropdownOption, Dropdown } from '@showdex/components/form';
 import { Button, ToggleButton, Tooltip } from '@showdex/components/ui';
 import { type CalcdexPlayerKey } from '@showdex/interfaces/calc';
 import { useUserLadderQuery } from '@showdex/redux/services';
-import { useColorScheme, useShowdexBundles } from '@showdex/redux/store';
-import { findPlayerTitle } from '@showdex/utils/app';
+import { useColorScheme } from '@showdex/redux/store';
+import { usePlayerTitle } from '@showdex/utils/app';
 import { formatId } from '@showdex/utils/core';
 import { logger } from '@showdex/utils/debug';
-import { openUserPopup } from '@showdex/utils/host';
 import { capitalize } from '@showdex/utils/humanize';
 import { useCalcdexContext } from '../CalcdexContext';
 import styles from './PlayerInfo.module.scss';
@@ -23,6 +28,7 @@ export interface PlayerInfoProps {
   defaultName?: string;
   playerOptions?: DropdownOption<CalcdexPlayerKey>[];
   mobile?: boolean;
+  onUserPopup?: (username?: string) => void;
 }
 
 const l = logger('@showdex/components/calc/PlayerInfo');
@@ -35,10 +41,10 @@ export const PlayerInfo = ({
   defaultName = '--',
   playerOptions,
   mobile,
+  onUserPopup,
 }: PlayerInfoProps): JSX.Element => {
   const { t } = useTranslation('calcdex');
   const colorScheme = useColorScheme();
-  const bundles = useShowdexBundles();
 
   const {
     state,
@@ -63,10 +69,7 @@ export const PlayerInfo = ({
   } = state[playerKey] || {};
 
   const playerId = React.useMemo(() => formatId(name), [name]);
-  const playerTitle = React.useMemo(
-    () => findPlayerTitle(playerId, { showdownUser: true, titles: bundles.titles, tiers: bundles.tiers }),
-    [bundles.titles, bundles.tiers, playerId],
-  );
+  const playerTitle = usePlayerTitle(playerId, { showdownUser: true });
 
   const playerLabelColor = playerTitle?.color?.[colorScheme];
   // const playerIconColor = playerTitle?.iconColor?.[colorScheme];
@@ -202,8 +205,8 @@ export const PlayerInfo = ({
           tooltipDisabled={!playerTitle && !settings?.showUiTooltips}
           hoverScale={1}
           absoluteHover
-          disabled={!name}
-          onPress={() => openUserPopup(name)}
+          disabled={!name || typeof onUserPopup !== 'function'}
+          onPress={() => void onUserPopup?.(name)}
         >
           {
             !!playerTitle?.icon &&
@@ -303,7 +306,7 @@ export const PlayerInfo = ({
                     &bull;
                   </span> */}
 
-                  &nbsp;{rating}{containerWidth > 320 && ' ELO'}
+                  &nbsp;{rating}{containerWidth > 360 && ' ELO'}
                 </>
               }
             </div>

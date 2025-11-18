@@ -1,3 +1,9 @@
+/**
+ * @file `getEnv.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.3
+ */
+
 import { createEnvParser } from './createEnvParser';
 
 /**
@@ -50,6 +56,7 @@ export const env = createEnvParser({
   INDEXED_DB_HONKS_STORE_NAME: process.env.INDEXED_DB_HONKS_STORE_NAME,
   INDEXED_DB_META_STORE_NAME: process.env.INDEXED_DB_META_STORE_NAME,
   INDEXED_DB_NAME: process.env.INDEXED_DB_NAME,
+  INDEXED_DB_NOTES_STORE_NAME: process.env.INDEXED_DB_NOTES_STORE_NAME,
   INDEXED_DB_PRESETS_STORE_NAME: process.env.INDEXED_DB_PRESETS_STORE_NAME,
   INDEXED_DB_SETTINGS_STORE_NAME: process.env.INDEXED_DB_SETTINGS_STORE_NAME,
   INDEXED_DB_VERSION: process.env.INDEXED_DB_VERSION,
@@ -59,6 +66,8 @@ export const env = createEnvParser({
   LOCAL_STORAGE_SHOWDOWN_TEAMS_KEY: process.env.LOCAL_STORAGE_SHOWDOWN_TEAMS_KEY,
 
   NODE_ENV: process.env.NODE_ENV,
+
+  NOTEDEX_ENABLED: process.env.NOTEDEX_ENABLED,
 
   PACKAGE_AUTHOR_EMAIL: process.env.PACKAGE_AUTHOR_EMAIL,
   PACKAGE_AUTHOR_NAME: process.env.PACKAGE_AUTHOR_NAME,

@@ -1,14 +1,12 @@
 /**
- * `client-battle-room.d.ts`
- *
- * Provides global `BattleRoom` typings for the live PS client running on Backbone.js.
- * Adapted from `pokemon-showdown-client/js/client-battle.js`.
- *
+ * @file `client-battle-room.d.ts` - Provides global `BattleRoom` typings for the live PS client running on Backbone.js.
+ *   Adapted from `pokemon-showdown-client/play.pokemonshowdown.com/js/client-battle.js`.
  * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
  */
 
 declare namespace Showdown {
-  class BattleRoom extends ClientRoom {
+  class ClientBattleRoom extends ClientRoom {
     public id: string;
     public cid: string;
     public type: ClientRoomType = 'battle';

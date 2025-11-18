@@ -1,3 +1,9 @@
+/**
+ * @file `SettingsPane.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.0.3
+ */
+
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import Svg from 'react-inlinesvg';
@@ -24,7 +30,7 @@ import {
   useShowdexSettings,
   useUpdateSettings,
 } from '@showdex/redux/store';
-import { findPlayerTitle } from '@showdex/utils/app';
+import { usePlayerTitle } from '@showdex/utils/app';
 import {
   env,
   getResourceUrl,
@@ -73,10 +79,7 @@ export const SettingsPane = ({
   const inBattle = ['xs', 'sm'].includes(state.containerSize);
 
   const authUsername = useAuthUsername();
-  const authTitle = React.useMemo(
-    () => findPlayerTitle(authUsername, { showdownUser: true, titles: bundles.titles, tiers: bundles.tiers }),
-    [authUsername, bundles.tiers, bundles.titles],
-  );
+  const authTitle = usePlayerTitle(authUsername, { showdownUser: true });
 
   const bundledPresets = React.useMemo(() => Object.values({ ...bundles?.buns?.presets }), [bundles?.buns?.presets]);
   const settings = useShowdexSettings();

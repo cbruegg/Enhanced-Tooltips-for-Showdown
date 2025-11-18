@@ -1,9 +1,15 @@
+/**
+ * @file `MemberIcon.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.3
+ */
+
 import * as React from 'react';
 import Svg from 'react-inlinesvg';
 import cx from 'classnames';
 import { type ShowdexSupporterTierMember } from '@showdex/interfaces/app';
-import { useColorScheme, useShowdexBundles } from '@showdex/redux/store';
-import { findPlayerTitle } from '@showdex/utils/app';
+import { useColorScheme } from '@showdex/redux/store';
+import { usePlayerTitle } from '@showdex/utils/app';
 import { getResourceUrl } from '@showdex/utils/core';
 import { determineColorScheme } from '@showdex/utils/ui';
 import styles from './MemberIcon.module.scss';
@@ -30,12 +36,8 @@ export const MemberIcon = ({
   const currentColorScheme = useColorScheme();
   const colorScheme = determineColorScheme(currentColorScheme, reverseColorScheme);
 
-  const { name, showdownUser } = { ...member };
-  const bundles = useShowdexBundles();
-  const memberTitle = React.useMemo(
-    () => findPlayerTitle(name, { showdownUser, titles: bundles.titles, tiers: bundles.tiers }),
-    [bundles.titles, bundles.tiers, name, showdownUser],
-  );
+  const { name, showdownUser } = member || {};
+  const memberTitle = usePlayerTitle(name, { showdownUser });
 
   if (!memberTitle?.icon) {
     return defaultSrc ? (

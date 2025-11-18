@@ -1,8 +1,5 @@
 /**
- * pokemon.d.ts
- *
- * Adapted from `pokemon-showdown-client/src/battle.ts`.
- *
+ * @file `pokemon.d.ts` - Adapted from `pokemon-showdown-client/play.pokemonshowdown.com/src/battle.ts`.
  * @author Keith Choison <keith@tize.io>
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT

@@ -1,3 +1,9 @@
+/**
+ * @file `createStore.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.3
+ */
+
 import {
   type Action,
   type AnyAction,
@@ -9,6 +15,7 @@ import { logger } from '@showdex/utils/debug';
 import { pkmnApi, showdownApi } from '@showdex/redux/services';
 import { type CalcdexSliceState, calcdexSlice } from './calcdexSlice';
 import { type HellodexSliceState, hellodexSlice } from './hellodexSlice';
+import { type NotedexSliceState, notedexSlice } from './notedexSlice';
 import { type ShowdexSliceState, showdexSlice } from './showdexSlice';
 import { type TeamdexSliceState, teamdexSlice } from './teamdexSlice';
 
@@ -16,10 +23,11 @@ export type RootStore = ReturnType<typeof createStore>;
 export type RootDispatch = RootStore['dispatch'];
 
 export interface RootState extends ReturnType<RootStore['getState']> {
-  showdex: ShowdexSliceState;
-  hellodex: HellodexSliceState;
-  calcdex: CalcdexSliceState;
-  teamdex: TeamdexSliceState;
+  [showdexSlice.name]: ShowdexSliceState;
+  [hellodexSlice.name]: HellodexSliceState;
+  [notedexSlice.name]: NotedexSliceState;
+  [calcdexSlice.name]: CalcdexSliceState;
+  [teamdexSlice.name]: TeamdexSliceState;
 }
 
 /**
@@ -63,6 +71,7 @@ export const createStore = (
       [showdownApi.reducerPath]: showdownApi.reducer,
       [showdexSlice.name]: showdexSlice.reducer,
       [hellodexSlice.name]: hellodexSlice.reducer,
+      [notedexSlice.name]: notedexSlice.reducer,
       [calcdexSlice.name]: calcdexSlice.reducer,
       [teamdexSlice.name]: teamdexSlice.reducer,
     },

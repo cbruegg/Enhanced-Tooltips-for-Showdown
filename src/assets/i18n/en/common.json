@@ -1,12 +1,12 @@
 {
   "--meta": {
     "name": "common",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "locale": "en",
     "language": "English",
     "authors": ["Keith Choison <keith@tize.io>"],
     "created": "2024-01-05T12:18:35.813Z",
-    "updated": "2024-01-26T18:57:41.117Z",
+    "updated": "2025-09-23T08:27:15.593Z",
     "built": "<-- auto-filled; do not edit -->"
   },
 
@@ -23,6 +23,10 @@
     "honk_other": "honks",
     "honkdex_one": "Honkdex",
     "honkdex_other": "Honkdexes",
+    "note_one": "note",
+    "note_other": "notes",
+    "notedex_one": "Notedex",
+    "notedex_other": "Notedexes",
     "teamdex_one": "Teamdex",
     "teamdex_other": "Teamdexes"
   },

@@ -1,3 +1,9 @@
+/**
+ * @file `FooterButton.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.0.1
+ */
+
 import * as React from 'react';
 import Svg from 'react-inlinesvg';
 import cx from 'classnames';
@@ -12,6 +18,7 @@ import styles from './FooterButton.module.scss';
 
 export interface FooterButtonProps extends Omit<BaseButtonProps, 'display'> {
   iconClassName?: string;
+  iconStyle?: React.CSSProperties;
   labelClassName?: string;
   iconAsset?: string;
   iconDescription?: string;
@@ -22,6 +29,7 @@ export interface FooterButtonProps extends Omit<BaseButtonProps, 'display'> {
 export const FooterButton = React.forwardRef<ButtonElement, FooterButtonProps>(({
   className,
   iconClassName,
+  iconStyle,
   labelClassName,
   iconAsset,
   iconDescription,
@@ -54,14 +62,19 @@ export const FooterButton = React.forwardRef<ButtonElement, FooterButtonProps>((
         hoverScale={hoverScale}
         disabled={disabled}
       >
-        {
-          !!iconAsset &&
+        {iconAsset?.startsWith('fa-') ? (
+          <i
+            className={cx('fa', iconAsset, iconClassName)}
+            style={iconStyle}
+          />
+        ) : iconAsset ? (
           <Svg
             className={cx(styles.icon, iconClassName)}
+            style={iconStyle}
             description={iconDescription}
             src={getResourceUrl(iconAsset)}
           />
-        }
+        ) : null}
 
         <label className={cx(styles.label, labelClassName)}>
           {label}

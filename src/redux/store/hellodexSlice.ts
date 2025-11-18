@@ -1,3 +1,9 @@
+/**
+ * @file `hellodexSlice.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.0.6
+ */
+
 import {
   type Draft,
   type PayloadAction,
@@ -11,30 +17,37 @@ import { type ElementSizeLabel } from '@showdex/utils/hooks';
 import { useDispatch, useSelector } from './hooks';
 
 /**
- * Win/loss record state.
+ * Battle win / loss record state.
  *
  * * Currently does not persist between sessions.
- *   - Will be reset back to 0 wins and 0 losses when Showdown is refreshed.
+ *   - Will be reset back to 0 wins & 0 losses when Showdown is refreshed.
  * * Should only record battles that the logged-in user is a player in (i.e., not spectating).
+ * * As of v1.3.0, battle IDs are recorded instead of incrementing a stored number to avoid duplicate records.
  *
  * @since 1.0.6
  */
 export interface HellodexBattleRecord {
   /**
-   * Number of wins in the current session.
+   * IDs of won battles in the current session.
    *
-   * @default 0
+   * @default
+   * ```ts
+   * []
+   * ```
    * @since 1.0.6
    */
-  wins: number;
+  wins: string[];
 
   /**
-   * Number of losses in the current session.
+   * IDs of lost battles in the current session.
    *
-   * @default 0
+   * @default
+   * ```ts
+   * []
+   * ```
    * @since 1.0.6
    */
-  losses: number;
+  losses: string[];
 }
 
 /**
@@ -46,7 +59,10 @@ export interface HellodexSliceState {
   /**
    * Last recorded container size label.
    *
-   * @default 'xs'
+   * @default
+   * ```ts
+   * 'xs' as ElementSizeLabel
+   * ```
    * @since 1.2.0
    */
   containerSize: ElementSizeLabel;
@@ -76,31 +92,36 @@ export interface HellodexSliceReducers extends SliceCaseReducers<HellodexSliceSt
   ) => void;
 
   /**
-   * Increases the win count by the specified amount in `action.payload` (`1` by default).
+   * Records the specified battle ID (under the `action.payload`) as a win.
    *
-   * * Amount in `action.payload` must be positive, otherwise, will default to `0`.
+   * * No-op's if the battle ID already exists in the `battleRecord.wins[]` state.
+   * * As of v1.3.0, the `HellodexBattleRecord` now records battle IDs instead of `number`'s.
    *
    * @since 1.0.6
    */
   recordWin: (
     state: Draft<HellodexSliceState>,
-    action: PayloadAction<number>,
+    action: PayloadAction<string>,
   ) => void;
 
   /**
-   * Increases the loss count by the specified amount in `action.payload` (`1` by default).
+   * Records the specified battle ID (under the `action.payload`) as a loss.
    *
-   * * Amount in `action.payload` must be positive, otherwise, will default to `0`.
+   * * No-op's if the battle ID already exists in the `battleRecord.losses[]` state.
+   * * As of v1.3.0, the `HellodexBattleRecord` now records battle IDs instead of `number`'s.
    *
    * @since 1.0.6
    */
   recordLoss: (
     state: Draft<HellodexSliceState>,
-    action: PayloadAction<number>,
+    action: PayloadAction<string>,
   ) => void;
 
   /**
-   * Resets the record to `0` wins & `0` losses.
+   * Resets the record to 0 wins & 0 losses.
+   *
+   * * Internally, this empties both the `battleRecord.wins[]` & `battleRecord.losses[]` states.
+   * * As of v1.3.0, the `HellodexBattleRecord` now records battle IDs instead of `number`'s.
    *
    * @since 1.0.6
    */
@@ -112,14 +133,14 @@ export interface HellodexSliceReducers extends SliceCaseReducers<HellodexSliceSt
 
 const l = logger('@showdex/redux/store/hellodexSlice');
 
-export const hellodexSlice = createSlice<HellodexSliceState, HellodexSliceReducers, string>({
+export const hellodexSlice = createSlice<HellodexSliceState, HellodexSliceReducers, 'hellodex'>({
   name: 'hellodex',
 
   initialState: {
     containerSize: 'xs',
     battleRecord: {
-      wins: 0,
-      losses: 0,
+      wins: [],
+      losses: [],
     },
   },
 
@@ -150,16 +171,20 @@ export const hellodexSlice = createSlice<HellodexSliceState, HellodexSliceReduce
     },
 
     recordWin: (state, action) => {
-      // l.debug(
-      //   'RECV', action.type,
-      //   '\n', 'action.payload', action.payload,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type,
+        '\n', 'action.payload', action.payload,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
-      const { wins: currentWins = 0 } = state.battleRecord || {};
-      const deltaWins = Math.max(action.payload || 1, 0);
+      if (!action.payload || state.battleRecord.wins.includes(action.payload)) {
+        return;
+      }
 
-      state.battleRecord.wins = Math.max(currentWins + deltaWins, 0);
+      state.battleRecord.wins = [
+        ...(state.battleRecord.wins || []),
+        action.payload,
+      ];
 
       l.debug(
         'DONE', action.type,
@@ -169,16 +194,20 @@ export const hellodexSlice = createSlice<HellodexSliceState, HellodexSliceReduce
     },
 
     recordLoss: (state, action) => {
-      // l.debug(
-      //   'RECV', action.type,
-      //   '\n', 'action.payload', action.payload,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type,
+        '\n', 'action.payload', action.payload,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
-      const { losses: currentLosses = 0 } = state.battleRecord || {};
-      const deltaLosses = Math.max(action.payload || 1, 0);
+      if (!action.payload || state.battleRecord.losses.includes(action.payload)) {
+        return;
+      }
 
-      state.battleRecord.losses = Math.max(currentLosses + deltaLosses, 0);
+      state.battleRecord.losses = [
+        ...(state.battleRecord.losses || []),
+        action.payload,
+      ];
 
       l.debug(
         'DONE', action.type,
@@ -188,13 +217,13 @@ export const hellodexSlice = createSlice<HellodexSliceState, HellodexSliceReduce
     },
 
     resetRecord: (state, action) => {
-      // l.debug(
-      //   'RECV', action.type,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
-      state.battleRecord.wins = 0;
-      state.battleRecord.losses = 0;
+      state.battleRecord.wins = [];
+      state.battleRecord.losses = [];
 
       l.debug(
         'DONE', action.type,
@@ -225,30 +254,30 @@ export const useBattleRecord = () => useSelector(
 /**
  * Convenient hook to increase the win count in the `HellodexBattleRecord`.
  *
- * * `amount` must be positive, otherwise, will default to `0`.
+ * * As of v1.3.0, the `HellodexBattleRecord` now records battle IDs instead of `number`'s.
  *
  * @since 1.0.6
  */
 export const useBattleRecordWin = () => {
   const dispatch = useDispatch();
 
-  return (amount = 1) => dispatch(
-    hellodexSlice.actions.recordWin(amount),
+  return (battleId: string): void => void dispatch(
+    hellodexSlice.actions.recordWin(battleId),
   );
 };
 
 /**
  * Convenient hook to increase the loss count in the `HellodexBattleRecord`.
  *
- * * `amount` must be positive, otherwise, will default to `0`.
+ * * As of v1.3.0, the `HellodexBattleRecord` now records battle IDs instead of `number`'s.
  *
  * @since 1.0.6
  */
 export const useBattleRecordLoss = () => {
   const dispatch = useDispatch();
 
-  return (amount = 1) => dispatch(
-    hellodexSlice.actions.recordLoss(amount),
+  return (battleId: string): void => void dispatch(
+    hellodexSlice.actions.recordLoss(battleId),
   );
 };
 
@@ -260,7 +289,7 @@ export const useBattleRecordLoss = () => {
 export const useBattleRecordReset = () => {
   const dispatch = useDispatch();
 
-  return () => dispatch(
+  return (): void => void dispatch(
     hellodexSlice.actions.resetRecord(),
   );
 };

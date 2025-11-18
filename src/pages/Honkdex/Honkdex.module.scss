@@ -1,91 +1,39 @@
-@use 'config/colors';
-@use 'config/fonts';
-@use 'functions/color';
-@use 'mixins/font';
+///
+/// @group Honkdex
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.2.0
+///
+
+@use 'mixins/flex';
 @use 'mixins/position';
 @use 'mixins/spacing';
-@use 'mixins/transition';
-
-.container {
-  @include position.absolute-fill;
-  overflow: hidden;
-  z-index: 15;
-
-  &::before {
-    content: '';
-    @include position.absolute-fill;
-    pointer-events: none;
-    @include transition.apply(background-color);
-  }
-
-  &.light {
-    color: colors.$black;
-
-    &::before {
-      background-color: color.alpha(colors.$showdown-background-light, 0.8);
-    }
-
-    &.mina::before {
-      background-color: color.alpha(#F5DAE3, 0.72);
-    }
-  }
-
-  &.dark {
-    color: colors.$white;
-
-    &::before {
-      background-color: color.alpha(colors.$gray-darkest, 0.88);
-    }
-
-    &.mina::before {
-      background-color: color.alpha(#3A242E, 0.94);
-    }
-  }
-
-  &.glassy {
-    &::before {
-      backdrop-filter: blur(4px);
-    }
-
-    &.light::before {
-      background-color: color.alpha(colors.$showdown-background-light, 0.56);
-    }
-
-    &.light.mina::before {
-      background-color: color.alpha(#F5DAE3, 0.64);
-    }
-
-    &.dark::before {
-      background-color: color.alpha(colors.$gray-darkest, 0.8);
-    }
-
-    &.dark.mina::before {
-      background-color: color.alpha(#2D0D1C, 0.8);
-    }
-  }
-}
 
 .content {
-  @include position.absolute-fill;
-  @include spacing.padding($all: 16px);
-  @include font.apply(fonts.$mono);
-  font-size: 10px;
-  overflow-x: hidden;
+  @include flex.col-stretch;
+  row-gap: 12px;
+}
+
+.buildInfo {
+  z-index: 6;
 }
 
 .battleInfo {
-  @include spacing.margin($x: 12px);
+  @include position.sticky($x: 12px, $t: 16px);
+  @include spacing.mx(12px);
+  z-index: 5;
 }
 
-.playerCalc {
-  @include spacing.margin($top: 12px);
-}
+// .playerCalc {
+//   @include spacing.mt(12px);
+// }
 
 .fieldCalc {
   max-width: 400px;
-  @include spacing.margin($x: auto, $top: 16px);
+  @include spacing.mx-auto;
+  @include spacing.my(4px);
 }
 
-.opponentCalc {
-  @include spacing.margin($top: 16px);
-}
+// .opponentCalc {
+//   @include spacing.mt(16px);
+// }

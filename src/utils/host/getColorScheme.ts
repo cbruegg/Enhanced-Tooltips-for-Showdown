@@ -34,7 +34,7 @@ export const getSystemColorScheme = (): Showdown.ColorScheme => {
  * @since 0.1.2
  */
 export const getColorScheme = (): Showdown.ColorScheme => {
-  const schemeFromPrefs = Dex?.prefs?.('theme');
+  const schemeFromPrefs = window.Dex?.prefs?.('theme');
 
   switch (schemeFromPrefs) {
     case 'light':

@@ -1,29 +1,30 @@
 /**
- * ps-router.d.ts
- *
- * Adapted from `pokemon-showdown-client/src/panels.tsx`.
- *
+ * @file `ps-router.d.ts` - Adapted from `pokemon-showdown-client/play.pokemonshowdown.com/src/panels.tsx`.
  * @author Keith Choison <keith@tize.io>
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
+ * @since 1.3.0
  */
 
 declare namespace Showdown {
-  interface PSRouter {
+  class PSRouter {
+    public roomid = '' as RoomID;
+    public panelState = '';
+
+    public extractRoomID(url?: string): RoomID;
     /**
-     * @default ''
+     * For the `changed` prop in the returned value:
+     *
+     * * `true` = `roomid` changed,
+     * * `false` = `panelState` changed, or
+     * * `null` = neither changed.
      */
-    roomid: string;
-
-    /**
-     * @default ''
-     */
-    panelState: string;
-
-    (): this;
-
-    extractRoomID(url: string): string;
-    subscribeHash(): void;
-    subscribeHistory(): void;
+    public updatePanelState(): {
+      roomid: RoomID;
+      changed?: boolean;
+      newTitle: string;
+    };
+    public subscribeHash(): void;
+    public subscribeHistory(): void;
   }
 }

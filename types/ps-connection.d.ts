@@ -1,57 +1,34 @@
 /**
- * ps-connection.d.ts
- *
- * Adapted from `pokemon-showdown-client/src/client-connection.ts`.
- *
+ * @file `ps-connection.d.ts` - Adapted from `pokemon-showdown-client/play.pokemonshowdown.com/src/client-connection.ts`.
  * @author Keith Choison <keith@tize.io>
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
+ * @since 0.1.0
  */
 
 declare namespace Showdown {
-  interface PSConnection {
-    /**
-     * SockJS.
-     *
-     * @todo Add SockJS typing?
-     */
-    socket: unknown;
+  const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string;
 
-    /**
-     * @default false
-     */
-    connected: boolean;
+  class PSConnection {
+    public socket?: WebSocket = null;
+    public connected = false;
+    public queue: string[] = [];
+    public reconnectDelay = 1000;
+    private reconnectCap = 15000;
+    private shouldReconnect = true;
+    public reconnectTimer?: NodeJS.Timeout = null;
+    private worker?: Worker = null;
 
-    /**
-     * @default []
-     */
-    queue: string[];
+    public static connect(): void;
 
-    connection?: PSConnection;
-
-    (): this;
-
-    connect(): void;
-    disconnect(): void;
-    send(msg: string): void;
-  }
-
-  interface PostData {
-    [key: string]: string | number;
-  }
-
-  interface NetRequestOptions {
-    method?: 'GET' | 'POST';
-    body?: string | PostData;
-    query?: PostData;
-  }
-
-  interface NetRequest {
-    uri: string;
-
-    (): this;
-
-    get(opts?: NetRequestOptions): Promise<string>;
-    post(opts?: NetRequestOptions, body?: PostData | string): Promise<string>;
+    public initConnection(): void;
+    public canReconnect(): boolean;
+    public tryConnectInWorker(): boolean;
+    public directConnect(): void;
+    private handleDisconnect(): void;
+    private retryConnection(): void;
+    public disconnect(): void;
+    public reconnect(): void;
+    public send(message: string): void;
   }
 }

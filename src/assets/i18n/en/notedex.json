@@ -1,0 +1,62 @@
+{
+  "--meta": {
+    "name": "notedex",
+    "version": "1.0.0",
+    "locale": "en",
+    "created": "2025-09-23T08:50:02.228Z",
+    "updated": "2025-09-27T14:11:14.678Z"
+  },
+
+  "contextMenu": {
+    "save": "$t(common:labels.save)",
+    "saving": "$t(common:labels.saving)...",
+    "saved": "$t(common:labels.saved)",
+    "newNotedex": "$t(common:labels.new) Note",
+    "dupeNotedex": "$t(common:labels.duplicate) Note",
+    "openHellodex": "$t(common:products.hellodex_one)",
+    "close": "$t(common:labels.close)"
+  },
+
+  "toolbar": {
+    "name": {
+      "hint": "name this $t(common:products.note_one) to save this $t(common:products.note_one)",
+      "dupe": "Copy of {{name}}"
+    },
+    "save": {
+      "unsaved": "$t(common:labels.save)",
+      "saving": "$t(common:labels.saving)...",
+      "savedRecently": "Now $t(common:labels.saved)",
+      "savedAgo": "$t(common:labels.saved) {{ago}} ago",
+      "tooltip": "Save Note to Local Browser Storage"
+    },
+    "dupe": {
+      "label": "$t(common:labels.duplicate)",
+      "tooltip": "$t(contextMenu.dupeNotedex)"
+    },
+    "import": {
+      "label": "$t(common:labels.import)",
+      "importedBadge": "$t(common:labels.imported)",
+      "failedBadge": "$t(common:labels.failed)",
+      "tooltip": "Import Note from Clipboard"
+    },
+    "export": {
+      "label": "$t(common:labels.export)",
+      "exportedBadge": "$t(common:labels.copied)!",
+      "failedBadge": "$t(common:labels.failed)",
+      "tooltip": "Export Note to Clipboard"
+    },
+    "help": {
+      "label": "$t(common:labels.help)",
+      "insertedBadge": "Inserted",
+      "tooltip": "Insert Help Information"
+    },
+    "close": {
+      "label": "$t(common:labels.close)",
+      "tooltip": "Instantly Close $t(common:products.notedex_one)<br />(without saving!)"
+    }
+  },
+
+  "editor": {
+    "hint": "Type something..."
+  }
+}

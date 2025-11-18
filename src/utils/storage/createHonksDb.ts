@@ -1,3 +1,9 @@
+/**
+ * @file `createHonksDb.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
 import { env } from '@showdex/utils/core';
 import { logger } from '@showdex/utils/debug';
 
@@ -8,7 +14,7 @@ const l = logger('@showdex/utils/storage/createHonksDb()');
  * Creates the honks object store in the provided IndexedDB `db`.
  *
  * * This particular object store has the `'battleId'` as the `keyPath` (i.e., in-line keys) & disabled `autoIncrement`.
- * * These contained saved honks (each of type `CalcdexBattleState`), which are created by Honkdexes.
+ * * These contain saved honks (each of type `CalcdexBattleState`), which are created by Honkdexes.
  * * For use within the `onupgradeneeded()` callback.
  *
  * @since 1.2.0

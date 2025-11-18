@@ -1,13 +1,18 @@
+/**
+ * @file `calcSmogonMatchup.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.2
+ */
+
 import {
-  type GameType,
   type Move as SmogonMove,
   type MoveName,
   type Pokemon as SmogonPokemon,
   type ShowdexCalcMods,
   calculate,
 } from '@smogon/calc';
-import { type ShowdexCalcdexSettings } from '@showdex/interfaces/app';
-import { type CalcdexBattleField, type CalcdexPlayer, type CalcdexPokemon } from '@showdex/interfaces/calc';
+import { type ShowdexSettings } from '@showdex/interfaces/app';
+import { type CalcdexBattleState, type CalcdexPlayerKey, CalcdexPlayerKeys as AllPlayerKeys } from '@showdex/interfaces/calc';
 import { logger } from '@showdex/utils/debug';
 import { getGenDexForFormat } from '@showdex/utils/dex';
 import { createSmogonField } from './createSmogonField';
@@ -96,21 +101,55 @@ const l = logger('@showdex/utils/calc/calcSmogonMatchup()');
  * Verifies that the arguments look *decently* good, then yeets them to `calculate()` from `@smogon/calc`.
  *
  * * If using this within a React component, opt to use the `useSmogonMatchup()` hook instead.
+ * * As of v1.3.0, many of the arguments have been consolidated into a single `state` argument of type `CalcdexBattleState`.
+ *   - Overrides are possible through the added `config` arg, which if unspecified, will derive them from the `state` instead.
  *
  * @since 0.1.2
  */
 export const calcSmogonMatchup = (
-  format: string,
-  gameType: GameType,
-  playerPokemon: CalcdexPokemon,
-  opponentPokemon: CalcdexPokemon,
+  state: CalcdexBattleState,
   playerMove: MoveName,
-  player?: CalcdexPlayer,
-  opponent?: CalcdexPlayer,
-  allPlayers?: CalcdexPlayer[],
-  field?: CalcdexBattleField,
-  settings?: ShowdexCalcdexSettings,
+  config?: {
+    playerKey?: CalcdexPlayerKey;
+    playerSelectionIndex?: number;
+    opponentKey?: CalcdexPlayerKey;
+    opponentSelectionIndex?: number;
+    allPlayerKeys?: CalcdexPlayerKey[]; // other active players used for Beat Up
+    settings?: ShowdexSettings;
+  },
 ): CalcdexMatchupResult => {
+  const {
+    playerKey: playerKeyFromConfig,
+    playerSelectionIndex,
+    opponentKey: opponentKeyFromConfig,
+    opponentSelectionIndex,
+    allPlayerKeys: allPlayerKeysFromConfig,
+    settings,
+  } = config || {};
+
+  const {
+    operatingMode,
+    format,
+    gameType,
+    playerKey: topPlayerKey,
+    opponentKey: bottomPlayerKey,
+    field,
+  } = state || {};
+
+  const playerKey = playerKeyFromConfig || topPlayerKey;
+  const player = state?.[playerKey];
+  const playerPokemonIndex = playerSelectionIndex ?? player?.selectionIndex;
+  const playerPokemon = player?.pokemon?.[playerPokemonIndex];
+
+  const opponentKey = opponentKeyFromConfig || (playerKey === topPlayerKey ? bottomPlayerKey : topPlayerKey);
+  const opponent = state?.[opponentKey];
+  const opponentPokemonIndex = opponentSelectionIndex ?? opponent?.selectionIndex;
+  const opponentPokemon = opponent?.pokemon?.[opponentPokemonIndex];
+
+  const allPlayers = ((Array.isArray(allPlayerKeysFromConfig) && allPlayerKeysFromConfig) || AllPlayerKeys)
+    .filter((k) => state?.[k]?.active)
+    .map((k) => state[k]);
+
   // this is the object that will be returned
   const matchup: CalcdexMatchupResult = {
     move: null,
@@ -123,8 +162,7 @@ export const calcSmogonMatchup = (
   const dex = getGenDexForFormat(format);
 
   if (!dex || !format || !gameType || !playerPokemon?.speciesForme || !opponentPokemon?.speciesForme || !playerMove) {
-    /*
-    if (__DEV__ && playerMove) {
+    /* if (__DEV__ && playerMove) {
       l.debug(
         'Calculation ignored due to invalid arguments.',
         '\n', 'format', format, 'gameType', gameType, 'gen', dex?.num,
@@ -135,18 +173,26 @@ export const calcSmogonMatchup = (
         '\n', 'opponent', opponent,
         '\n', 'field', field,
       );
-    }
-    */
+    } */
 
     return matchup;
   }
 
-  const showdexMods: ShowdexCalcMods = {};
+  const showdexMods: ShowdexCalcMods = {
+    excludeHazardsDamage: (operatingMode === 'battle' && !settings?.calcdex?.includeHazardsDamage)
+      || (operatingMode === 'standalone' && !settings?.honkdex?.includeHazardsDamage),
+    excludeEotDamage: (operatingMode === 'battle' && !settings?.calcdex?.includeEotDamage)
+      || (operatingMode === 'standalone' && !settings?.honkdex?.includeEotDamage),
+  };
+
   const smogonField = createSmogonField(format, gameType, field, player, opponent, allPlayers);
 
   matchup.attacker = createSmogonPokemon(format, gameType, playerPokemon, playerMove, opponentPokemon);
-  [matchup.move, { hitBasePowers: showdexMods.hitBasePowers }] = createSmogonMove(format, playerPokemon, playerMove, opponentPokemon, field);
   matchup.defender = createSmogonPokemon(format, gameType, opponentPokemon, null, playerPokemon);
+
+  [matchup.move, {
+    hitBasePowers: showdexMods.hitBasePowers,
+  }] = createSmogonMove(format, playerPokemon, playerMove, opponentPokemon, field);
 
   // pretty much only used for Beat Up lmao
   showdexMods.strikes = determineMoveStrikes(
@@ -172,11 +218,10 @@ export const calcSmogonMatchup = (
 
     matchup.description = parseMatchupDescription(result);
     matchup.damageRange = getMatchupRange(result);
-    matchup.koChance = formatMatchupNhko(result, settings?.nhkoLabels);
-    matchup.koColor = getMatchupNhkoColor(result, settings?.nhkoColors);
+    matchup.koChance = formatMatchupNhko(result, settings?.calcdex?.nhkoLabels);
+    matchup.koColor = getMatchupNhkoColor(result, settings?.calcdex?.nhkoColors);
 
-    /*
-    l.debug(
+    /* l.debug(
       'Calculated damage for', playerMove, 'from', playerPokemon.speciesForme, 'against', opponentPokemon.speciesForme,
       '\n', 'gameType', gameType, 'gen', dex.num,
       '\n', 'playerPokemon', playerPokemon.speciesForme || '???', playerPokemon,
@@ -185,8 +230,7 @@ export const calcSmogonMatchup = (
       '\n', 'matchup', matchup,
       '\n', 'result', result,
       '\n', 'showdexMods', showdexMods,
-    );
-    */
+    ); */
   } catch (error) {
     // ignore 'damage[damage.length - 1] === 0' (i.e., no damage) errors,
     // which is separate from 'N/A' damage (e.g., status moves).
@@ -194,7 +238,8 @@ export const calcSmogonMatchup = (
     // like using Earthquake against a Lando-T, which is immune due to its Flying type.
     if (__DEV__ && !(error as Error)?.message?.includes('=== 0')) {
       l.error(
-        'Exception while calculating the damage for', playerMove, 'from', playerPokemon.speciesForme, 'against', opponentPokemon.speciesForme,
+        'Exception while calculating the damage for', playerMove,
+        'from', playerPokemon.speciesForme, 'against', opponentPokemon.speciesForme,
         '\n', 'gameType', gameType, 'gen', dex.num,
         '\n', 'playerPokemon', playerPokemon.speciesForme || '???', playerPokemon,
         '\n', 'opponentPokemon', opponentPokemon.speciesForme || '???', opponentPokemon,
@@ -203,7 +248,7 @@ export const calcSmogonMatchup = (
         '\n', 'opponent', opponent,
         '\n', 'field', field,
         '\n', 'settings', settings,
-        '\n', '(You will only see this error on development.)',
+        '\n', '(you\'ll only see this error in __DEV__)',
         '\n', error,
       );
     }

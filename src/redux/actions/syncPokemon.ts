@@ -1,3 +1,9 @@
+/**
+ * @file `syncPokemon.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.3
+ */
+
 import {
   type AbilityName,
   type GenerationNum,
@@ -50,7 +56,7 @@ export const syncPokemon = (
     clientPokemon,
     serverPokemon,
     autoMoves,
-  } = { ...config };
+  } = config || {};
 
   const dex = getDexForFormat(format);
   const legacy = detectLegacyGen(format);

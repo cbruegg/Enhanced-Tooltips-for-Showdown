@@ -1,3 +1,9 @@
+/**
+ * @file `CalcdexPokemon.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
+ */
+
 import { type AbilityName, type ItemName, type MoveName } from '@smogon/calc';
 import { type CalcdexAutoBoostMap } from './CalcdexAutoBoostMap';
 import { type CalcdexLeanPokemon } from './CalcdexLeanPokemon';
@@ -56,7 +62,7 @@ export interface CalcdexPokemon extends CalcdexLeanPokemon {
    * Whether the Pokemon is actively out on the field.
    *
    * * Populated by `syncBattle()`.
-   * * Particularly required for auto-toggling *Stakeout*.
+   * * Particularly required for auto-toggling *Stakeout* & *Slow Start*.
    *
    * @default false
    * @since 1.1.7

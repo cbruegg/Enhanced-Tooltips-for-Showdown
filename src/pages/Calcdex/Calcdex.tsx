@@ -1,3 +1,9 @@
+/**
+ * @file `Calcdex.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
+ */
+
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import cx from 'classnames';
@@ -12,37 +18,35 @@ import {
 } from '@showdex/components/calc';
 import { BuildInfo } from '@showdex/components/debug';
 import { type DropdownOption } from '@showdex/components/form';
-import { PiconRackProvider, PiconRackSortableContext } from '@showdex/components/layout';
-import {
-  ContextMenu,
-  BaseButton,
-  Scrollable,
-  useContextMenu,
-} from '@showdex/components/ui';
+import { PageContainer, PiconRackProvider, PiconRackSortableContext } from '@showdex/components/layout';
+import { BaseButton, ContextMenu, useContextMenu } from '@showdex/components/ui';
 import { type CalcdexPlayerKey, CalcdexPlayerKeys as AllPlayerKeys } from '@showdex/interfaces/calc';
 import {
   useCalcdexDuplicator,
   useColorScheme,
-  useColorTheme,
-  useGlassyTerrain,
   useHonkdexSettings,
   useShowdexBundles,
 } from '@showdex/redux/store';
-import { findPlayerTitle, getCalcdexRoomId } from '@showdex/utils/app';
+import { findPlayerTitle } from '@showdex/utils/app';
 import { useMobileViewport, useRandomUuid } from '@showdex/utils/hooks';
-import { getBattleRoom } from '@showdex/utils/host';
 import styles from './Calcdex.module.scss';
 
 export interface CalcdexProps {
+  onUserPopup?: (username?: string) => void;
   onRequestHellodex?: () => void;
   onRequestHonkdex?: (instanceId?: string) => void;
+  onSwitchViewpoint?: () => void;
   onCloseOverlay?: () => void;
+  onLeaveRoom?: () => void;
 }
 
 export const Calcdex = ({
+  onUserPopup,
   onRequestHellodex,
   onRequestHonkdex,
+  onSwitchViewpoint,
   onCloseOverlay,
+  onLeaveRoom,
 }: CalcdexProps): JSX.Element => {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -50,8 +54,6 @@ export const Calcdex = ({
 
   const { t } = useTranslation('calcdex');
   const colorScheme = useColorScheme();
-  const colorTheme = useColorTheme();
-  const glassyTerrain = useGlassyTerrain();
   const bundles = useShowdexBundles();
   const mobile = useMobileViewport();
 
@@ -71,7 +73,6 @@ export const Calcdex = ({
     switchPlayers,
   } = state;
 
-  const room = React.useMemo(() => getBattleRoom(battleId), [battleId]);
   const dupeCalcdex = useCalcdexDuplicator();
 
   const playerOptions = React.useMemo<DropdownOption<CalcdexPlayerKey>[]>(() => (
@@ -122,20 +123,32 @@ export const Calcdex = ({
     t,
   ]);
 
-  const renderAsOverlay = renderMode === 'overlay';
+  const renderAsOverlay = React.useMemo(() => renderMode === 'overlay', [renderMode]);
 
-  const topKey = (
+  const topKey = React.useMemo(() => (
     !!authPlayerKey
       && playerKey === authPlayerKey
       && (
         (settings?.authPosition === 'bottom' && opponentKey)
           || (settings?.authPosition === 'auto' && ((playerKey === 'p1' && playerKey) || opponentKey))
       )
-  ) || (!authPlayerKey && switchPlayers ? opponentKey : playerKey);
+  ) || (!authPlayerKey && switchPlayers ? opponentKey : playerKey), [
+    authPlayerKey,
+    opponentKey,
+    playerKey,
+    settings?.authPosition,
+    switchPlayers,
+  ]);
 
-  const bottomKey = topKey === playerKey
-    ? opponentKey
-    : playerKey;
+  const bottomKey = React.useMemo(() => (
+    topKey === playerKey
+      ? opponentKey
+      : playerKey
+  ), [
+    opponentKey,
+    playerKey,
+    topKey,
+  ]);
 
   const contextMenuId = useRandomUuid();
 
@@ -146,89 +159,85 @@ export const Calcdex = ({
 
   return (
     <PiconRackProvider dndMuxId={battleId}>
-      <div
+      <PageContainer
         ref={containerRef}
+        name="calcdex"
         className={cx(
-          'showdex-module',
           styles.container,
-          !!colorScheme && styles[colorScheme],
-          !!colorTheme && styles[colorTheme],
-          glassyTerrain && styles.glassy,
+          renderAsOverlay && styles.overlay,
           mobile && styles.mobile,
           containerSize === 'xs' && styles.verySmol,
           containerWidth < 380 && styles.skinnyBoi,
-          renderAsOverlay && styles.overlay,
         )}
-        onContextMenu={(e) => showContextMenu({
+        contentClassName={styles.content}
+        prefix={<BuildInfo position="top-right" />}
+        contentScrollable
+        onContextMenu={(e) => void showContextMenu({
           event: e,
           id: contextMenuId,
         })}
       >
-        <Scrollable className={styles.content}>
-          <BuildInfo
-            position="top-right"
+        {
+          (renderAsOverlay && !mobile) &&
+          <BaseButton
+            className={styles.overlayCloseButton}
+            display="block"
+            aria-label="Close Calcdex"
+            onPress={onCloseOverlay}
+          >
+            <i className="fa fa-close" />
+          </BaseButton>
+        }
+
+        {
+          (renderAsOverlay && mobile) &&
+          <CloseButton
+            className={cx(styles.mobileCloseButton, styles.top)}
+            onPress={onCloseOverlay}
           />
+        }
 
-          {
-            (renderAsOverlay && !mobile) &&
-            <BaseButton
-              className={styles.overlayCloseButton}
-              display="block"
-              aria-label="Close Calcdex"
-              onPress={onCloseOverlay}
-            >
-              <i className="fa fa-close" />
-            </BaseButton>
-          }
-
-          {
-            (renderAsOverlay && mobile) &&
-            <CloseButton
-              className={cx(styles.mobileCloseButton, styles.top)}
-              onPress={onCloseOverlay}
-            />
-          }
-
-          <PiconRackSortableContext playerKey={topKey}>
-            <PlayerCalc
-              className={styles.playerCalc}
-              position="top"
-              playerKey={topKey}
-              defaultName={t('player.user.defaultName', { index: 1 })}
-              playerOptions={playerOptions}
-              mobile={mobile}
-            />
-          </PiconRackSortableContext>
-
-          <FieldCalc
-            className={cx(
-              styles.fieldCalc,
-              (settings?.expandFieldControls || state?.gameType === 'Doubles') && styles.expanded,
-            )}
+        <PiconRackSortableContext playerKey={topKey}>
+          <PlayerCalc
+            className={styles.playerCalc}
+            position="top"
             playerKey={topKey}
-            opponentKey={bottomKey}
+            defaultName={t('player.user.defaultName', { index: 1 })}
+            playerOptions={playerOptions}
+            mobile={mobile}
+            onUserPopup={onUserPopup}
           />
+        </PiconRackSortableContext>
 
-          <PiconRackSortableContext playerKey={bottomKey}>
-            <PlayerCalc
-              className={styles.opponentCalc}
-              position="bottom"
-              playerKey={bottomKey}
-              defaultName={t('player.user.defaultName', { index: 2 })}
-              playerOptions={playerOptions}
-              mobile={mobile}
-            />
-          </PiconRackSortableContext>
+        <FieldCalc
+          className={cx(
+            styles.fieldCalc,
+            (settings?.expandFieldControls || state?.gameType === 'Doubles') && styles.expanded,
+          )}
+          playerKey={topKey}
+          opponentKey={bottomKey}
+        />
 
-          {
-            (renderAsOverlay && mobile) &&
-            <CloseButton
-              className={cx(styles.mobileCloseButton, styles.bottom)}
-              onPress={onCloseOverlay}
-            />
-          }
-        </Scrollable>
-      </div>
+        <PiconRackSortableContext playerKey={bottomKey}>
+          <PlayerCalc
+            className={styles.opponentCalc}
+            position="bottom"
+            playerKey={bottomKey}
+            defaultName={t('player.user.defaultName', { index: 2 })}
+            playerOptions={playerOptions}
+            mobile={mobile}
+            onUserPopup={onUserPopup}
+          />
+        </PiconRackSortableContext>
+
+        {
+          (renderAsOverlay && mobile) &&
+          <CloseButton
+            className={cx(styles.mobileCloseButton, styles.bottom)}
+            onPress={onCloseOverlay}
+          />
+        }
+      </PageContainer>
 
       <ContextMenu
         id={contextMenuId}
@@ -240,9 +249,9 @@ export const Calcdex = ({
             props: {
               label: t('contextMenu.switchSides', 'Switch Players'),
               icon: 'fa-random',
-              disabled: typeof room?.switchViewpoint !== 'function'
+              disabled: typeof onSwitchViewpoint !== 'function'
                 || (!!authPlayerKey && battleActive), // no effect in this case
-              onPress: hideAfter(() => room.switchViewpoint()),
+              onPress: hideAfter(onSwitchViewpoint),
             },
           },
           {
@@ -284,16 +293,10 @@ export const Calcdex = ({
               label: t(`contextMenu.close${renderAsOverlay ? 'Overlay' : 'Tab'}`, 'Close'),
               icon: 'close-circle',
               disabled: !battleId
-                || (renderAsOverlay && typeof onCloseOverlay !== 'function'),
-              //  || (!renderAsOverlay && typeof app?.leaveRoom !== 'function'),
+                || (renderAsOverlay && typeof onCloseOverlay !== 'function')
+                || (!renderAsOverlay && typeof onLeaveRoom !== 'function'),
               hidden: !renderAsOverlay,
-              onPress: hideAfter(() => {
-                if (renderAsOverlay) {
-                  return void onCloseOverlay();
-                }
-
-                app.leaveRoom(getCalcdexRoomId(battleId));
-              }),
+              onPress: hideAfter(() => void (renderAsOverlay ? onCloseOverlay : onLeaveRoom)()),
             },
           },
         ]}

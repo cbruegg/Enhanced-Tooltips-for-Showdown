@@ -1,54 +1,37 @@
 /**
- * ps-config.d.ts
- *
- * Adapted from `pokemon-showdown-client/config/config.js`.
- *
+ * @file `ps-config.d.ts` - Adapted from `pokemon-showdown-client/play.pokemonshowdown.com/src/client-main.ts`.
  * @author Keith Choison <keith@tize.io>
+ * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license AGPLv3
+ * @since 0.1.0
  */
 
 declare namespace Showdown {
+  interface ServerInfo {
+    id: ID;
+    protocol: string;
+    host: string;
+    port: number;
+    httpport?: number;
+    altport?: number;
+    prefix: string;
+    afd?: boolean;
+    registered?: boolean;
+  }
+
   interface PSConfig {
-    /**
-     * @example '0.11.2 (d4e9642b)'
-     * @since 1.0.2
-     */
-    version: string;
-
-    /**
-     * @example
-     * ```ts
-     * ['example.com', /\.example\.com/]
-     * ```
-     * @since 1.0.2
-     */
-    bannedHosts: (string | RegExp)[];
-
-    /**
-     * @example
-     * ```ts
-     * ['pokemonshowdown.com', 'psim.us', 'smogon.com']
-     * ```
-     * @since 1.0.2
-     */
-    whitelist: string[];
-
-    /**
-     * @example '/showdown'
-     * @since 1.0.2
-     */
-    sockjsprefix: string;
-
-    /**
-     * @example '/'
-     * @since 1.0.2
-     */
-    root: string;
-
-    routes: Record<string, string>;
+    server: ServerInfo;
+    defaultserver: ServerInfo;
+    routes: {
+      root: string;
+      client: string;
+      dex: string;
+      replays: string;
+      users: string;
+      teams: string;
+    };
     customcolors: Record<string, string>;
-    server: PSServer;
-    defaultserver: PSServer;
-    groups: Record<string, PSGroup>;
-    roomsFirstOpenScript(mainMenuOnly?: boolean): void;
+    whitelist?: string[];
+    testclient?: boolean;
   }
 }

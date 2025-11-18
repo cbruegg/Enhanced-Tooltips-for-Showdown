@@ -1,11 +1,19 @@
 /**
+ * @file `utils.d.ts` - Useful TypeScript utility types.
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
+ */
+
+/**
  * Construct a type with the properties of `T` replaced with those of `R`.
  *
  * @example
  * ```ts
  * type ItemId = { id: string; getId: () => string; hasId: () => boolean; };
+ *
  * type ItemNumId = Modify<ItemId, { id: number; getId: () => number; }>;
  * // -> { id: number; getId: () => number; hasId: () => boolean; }
+ *
  * type ItemTId<T> = Modify<ItemId, { id: T; getId: () => T; }>;
  * ```
  * @since 0.1.0
@@ -24,8 +32,10 @@ declare type Modify<T, R> = Omit<T, keyof R> & R;
  *   };
  *   gain: number;
  * };
+ *
  * type SosigPartial = Partial<Sosig>;
  * // -> { saturation?: { fatness: number; color: number; }; gain?: number; }
+ *
  * type SosigDeepPartial = DeepPartial<Sosig>;
  * // -> { saturation?: { fatness?: number; color?: number; }; gain?: number; }
  * ```
@@ -45,12 +55,13 @@ declare type DeepPartial<T> = T extends object ? {
  *   color: number;
  *   gain?: number;
  * };
+ *
  * type AddMoreSosig = PickRequired<Sosig, 'fatness'>;
- * // -> { fatness: number; color: number; gain?: number; }
+ * // -> { fatness: number; color?: number; gain?: number; }
  * ```
  * @since 1.0.2
  */
-declare type PickRequired<T, K extends keyof T> = Modify<T, Required<Pick<T, K>>>;
+declare type PickRequired<T, K extends keyof T> = Modify<Partial<T>, Required<Pick<T, K>>>;
 
 /**
  * Construct a type from `T` whose properties in `K` are optional.
@@ -70,6 +81,24 @@ declare type PickRequired<T, K extends keyof T> = Modify<T, Required<Pick<T, K>>
 declare type PickOptional<T, K extends keyof T> = Modify<T, Partial<Pick<T, K>>>;
 
 /**
+ * Construct a type from `T` whose properties in `K` are optional.
+ *
+ * @example
+ * ```ts
+ * type Sosig = {
+ *   fatness: number;
+ *   color: number;
+ *   gain: number;
+ * };
+ *
+ * type LeanSosig = PickPartial<Sosig, 'fatness'>;
+ * // -> { fatness?: number; color: number; gain: number; }
+ * ```
+ * @since 1.3.0
+ */
+declare type PickPartial<T, K extends keyof T> = Modify<T, Partial<Pick<T, K>>>;
+
+/**
  * Construct a literal type with the keys of the indexable type `T` whose types extend the literal type `K`.
  *
  * @example
@@ -80,6 +109,7 @@ declare type PickOptional<T, K extends keyof T> = Modify<T, Partial<Pick<T, K>>>
  *   gain: number;
  *   reset: () => void;
  * };
+ *
  * type SosigParams = ExtractKeys<Sosig, number>;
  * // -> 'fatness' | 'color' | 'gain'
  * ```
@@ -100,6 +130,7 @@ declare type ExtractKeys<T, K> = { [I in keyof T]: T[I] extends K ? I : never; }
  *   gain: 6,
  *   reset: () => {},
  * };
+ *
  * type SosigEntries = Extract<typeof sosig>;
  * // -> (['fatness', number] | ['color', number] | ['gain', number], ['reset', () => void])[]
  * ```
@@ -157,3 +188,53 @@ declare type Writable<T> = { -readonly [P in keyof T]: T[P]; };
  * @since 1.0.2
  */
 declare type DeepWritable<T> = { -readonly [P in keyof T]: DeepWritable<T[P]>; };
+
+/**
+ * Construct a union type with each type as arrays of themselves.
+ *
+ * @example
+ * ```ts
+ * type SosigParams = 'fatness' | 'color' | 'gain';
+ *
+ * type SosigArrayParams = UnionArrays<SosigParams>;
+ * // -> 'fatness'[] | 'color'[] | 'gain'[]
+ * ```
+ * @since 1.3.0
+ */
+declare type UnionArrays<T> = T extends unknown ? T[] : never;
+
+/**
+ * Construct an array type for non-array `T` types, or itself if already an array.
+ *
+ * @example
+ * ```
+ * type FirstArray = WrapArray<string>;
+ * // -> string[]
+ *
+ * type SecondArray = WrapArray<string[]>;
+ * // -> string[]
+ * ```
+ * @since 1.3.0
+ */
+declare type WrapArray<T> = T extends unknown[] ? T : T[];
+
+/**
+ * Construct a non-array type from array type `T`, or itself if not an array.
+ *
+ * @example
+ * ```ts
+ * type FirstArray = UnwrapArray<string>;
+ * // -> string
+ *
+ * type SecondArray = UnwrapArray<string[]>;
+ * // -> string
+ * ```
+ * @since 1.3.0
+ */
+declare type UnwrapArray<T> = T extends unknown[] ? T[number] : T;
+
+/**
+ * @alias `UnwrapArray<T>`
+ * @since 1.3.0
+ */
+declare type Flatten<T> = UnwrapArray<T>;

@@ -1,4 +1,4 @@
-export const PokemonNatureBoosts: Record<Showdown.PokemonNature, [up?: Showdown.StatName, down?: Showdown.StatName]> = {
+export const PokemonNatureBoosts: Record<Showdown.PokemonNature, [up?: Showdown.StatNameNoHp, down?: Showdown.StatNameNoHp]> = {
   Adamant: ['atk', 'spa'],
   Bashful: [],
   Bold: ['def', 'atk'],

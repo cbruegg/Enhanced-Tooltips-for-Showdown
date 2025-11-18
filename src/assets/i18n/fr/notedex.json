@@ -1,0 +1,62 @@
+{
+  "--meta": {
+    "name": "notedex",
+    "version": "1.0.0",
+    "locale": "fr",
+    "created": "2025-09-23T08:50:13.203Z",
+    "updated": "2025-09-27T14:10:47.270Z"
+  },
+
+  "contextMenu": {
+    "save": "$t(common:labels.save)",
+    "saving": "$t(common:labels.saving)...",
+    "saved": "$t(common:labels.saved)",
+    "newNotedex": "Nouvelle $t(common:products.note)",
+    "dupeNotedex": "Dupliquer $t(common:products.note_one)",
+    "openHellodex": "$t(common:products.hellodex_one)",
+    "close": "$t(common:labels.close)"
+  },
+
+  "toolbar": {
+    "name": {
+      "hint": "Nommez cette $t(common:products.note_one) pour enregistrer cette $t(common:products.note_one)",
+      "dupe": "Copie de {{name}}"
+    },
+    "save": {
+      "unsaved": "$t(common:labels.save)",
+      "saving": "$t(common:labels.saving)...",
+      "savedRecently": "Maintenant $t(common:labels.saved)",
+      "savedAgo": "$t(common:labels.saved) il y a {{ago}}",
+      "tooltip": "Enregistrer la note dans<br />le stockage local du navigateur"
+    },
+    "dupe": {
+      "label": "$t(common:labels.duplicate)",
+      "tooltip": "$t(contextMenu.dupeNotedex)"
+    },
+    "import": {
+      "label": "$t(common:labels.import)",
+      "importedBadge": "$t(common:labels.imported)",
+      "failedBadge": "$t(common:labels.failed)",
+      "tooltip": "Importer une note depuis le presse-papiers"
+    },
+    "export": {
+      "label": "$t(common:labels.export)",
+      "exportedBadge": "$t(common:labels.copied)!",
+      "failedBadge": "$t(common:labels.failed)",
+      "tooltip": "Exporter la note vers le presse-papiers"
+    },
+    "help": {
+      "label": "$t(common:labels.help)",
+      "insertedBadge": "Inséré",
+      "tooltip": "Insérer des informations d'aide"
+    },
+    "close": {
+      "label": "$t(common:labels.close)",
+      "tooltip": "Fermer instantanément $t(common:products.notedex_one)<br />(sans enregistrer !)"
+    }
+  },
+
+  "editor": {
+    "hint": "Tapez quelque chose..."
+  }
+}

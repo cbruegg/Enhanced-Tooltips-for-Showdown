@@ -1,3 +1,9 @@
+/**
+ * @file `BattleRecord.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.0.6
+ */
+
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import cx from 'classnames';
@@ -26,10 +32,9 @@ export const BattleRecord = ({
   const glassyTerrain = useGlassyTerrain();
   const battleRecord = useBattleRecord();
 
-  const {
-    wins: currentWins = 0,
-    losses: currentLosses = 0,
-  } = battleRecord || {};
+  const { wins, losses } = battleRecord || {};
+  const currentWins = wins?.length || 0;
+  const currentLosses = losses?.length || 0;
 
   return (
     <div
@@ -47,7 +52,7 @@ export const BattleRecord = ({
         <div
           className={cx(
             styles.recordValue,
-            currentWins === 0 && styles.zero,
+            !currentWins && styles.zero,
           )}
         >
           {currentWins}
@@ -64,7 +69,7 @@ export const BattleRecord = ({
         <div
           className={cx(
             styles.recordValue,
-            currentLosses === 0 && styles.zero,
+            !currentLosses && styles.zero,
           )}
         >
           {currentLosses}

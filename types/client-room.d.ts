@@ -1,9 +1,7 @@
 /**
- * client-room.d.ts
- *
- * Provides generic Room typings for the live PS client running on Backbone.js.
- *
+ * @file `client-room.d.ts` - Provides generic Room typings for the live PS client running on Backbone.js.
  * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
  */
 
 declare namespace Showdown {
@@ -19,82 +17,49 @@ declare namespace Showdown {
     | 'chat'
     | 'rooms';
 
-  interface ClientRoom {
-    id: string;
-    cid: string;
-    type: ClientRoomType;
-    title?: string;
+  class ClientRoom {
+    public id: string;
+    public cid: string;
+    public type: ClientRoomType;
+    public title?: string;
+    public className = 'ps-room';
+    public el: HTMLElement;
+    public $el: JQuery<HTMLElement>;
+    public events: Record<string, string> = {};
+    public minWidth?: number;
+    public minMainWidth?: number;
+    public maxWidth?: number;
+    public leftWidth?: number;
+    public bestWidth = 659;
+    public isSideRoom = false;
+    public notificationClass = '';
+    public notifications: Record<string, Notification> = {};
+    public subtleNotification = false;
+    /** Timestamp (in ms) of the last update since the Unix epoch. */
+    public lastUpdate?: number;
 
-    /**
-     * @default 'ps-room'
-     */
-    className: string;
-
-    el: HTMLElement;
-    $el: JQuery<HTMLElement>;
-
-    /**
-     * @default {}
-     */
-    events: Record<string, string>;
-
-    minWidth?: number;
-    minMainWidth?: number;
-    maxWidth?: number;
-    leftWidth?: number;
-
-    /**
-     * @default 659
-     */
-    bestWidth: number;
-
-    /**
-     * @default false
-     */
-    isSideRoom: boolean;
-
-    /**
-     * @default ''
-     */
-    notificationClass: string;
-
-    /**
-     * @default {}
-     */
-    notifications: Record<string, Notification>;
-
-    /**
-     * @default false
-     */
-    subtleNotification: boolean;
-
-    /**
-     * Timestamp (in ms) of the last update since the Unix epoch.
-     */
-    lastUpdate?: number;
-
-    dispatchClickButton(e: Event): void;
-    dispatchClickBackground(e: Event): void;
-    send(data: string): void;
-    receive(data: string): void;
-    show(position: ClientRoomPosition, leftWidth: number): void;
-    hide(): void;
-    focus(): void;
-    blur(): void;
-    join(): void;
-    leave(): void;
-    requestLeave(e?: Event): boolean;
-    requestNotifications(): void;
-    notify(title: string, body: string, tag?: string, once?: boolean): void;
-    subtleNotifyOnce(): void;
-    notifyOnce(title: string, body: string, tag?: string): void;
-    closeNotification(tag?: string, alreadyClosed?: boolean): void;
-    closeAllNotifications(skipUpdate?: boolean): void;
-    dismissNotification(tag?: string): void;
-    dismissAllNotifcations(skipUpdate?: boolean): void;
-    clickNotification(tag?: string): void;
-    updateLayout(): void;
-    close(): void;
-    destroy(alreadyLeft?: boolean): void;
+    public dispatchClickButton(event: Event): void;
+    public dispatchClickBackground(event: Event): void;
+    public send(data: string): void;
+    public receive(data: string): void;
+    public show(position: ClientRoomPosition, leftWidth: number): void;
+    public hide(): void;
+    public focus(): void;
+    public blur(): void;
+    public join(): void;
+    public leave(): void;
+    public requestLeave(e?: Event): boolean;
+    public requestNotifications(): void;
+    public notify(title: string, body: string, tag?: string, once?: boolean): void;
+    public subtleNotifyOnce(): void;
+    public notifyOnce(title: string, body: string, tag?: string): void;
+    public closeNotification(tag?: string, alreadyClosed?: boolean): void;
+    public closeAllNotifications(skipUpdate?: boolean): void;
+    public dismissNotification(tag?: string): void;
+    public dismissAllNotifcations(skipUpdate?: boolean): void;
+    public clickNotification(tag?: string): void;
+    public updateLayout(): void;
+    public close(): void;
+    public destroy(alreadyLeft?: boolean): void;
   }
 }

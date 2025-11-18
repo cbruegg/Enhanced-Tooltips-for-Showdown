@@ -24,12 +24,14 @@ export type CalcdexRenderMode =
   | 'panel'
   | 'overlay';
 
+export type CalcdexPlayerStates = Partial<Record<CalcdexPlayerKey, CalcdexPlayer>>;
+
 /**
  * Primary state for a given single instance of the Calcdex.
  *
  * @since 0.1.0
  */
-export interface CalcdexBattleState extends Partial<Record<CalcdexPlayerKey, CalcdexPlayer>> {
+export interface CalcdexBattleState extends CalcdexPlayerStates {
   /**
    * Operating mode.
    *
@@ -333,6 +335,22 @@ export interface CalcdexBattleState extends Partial<Record<CalcdexPlayerKey, Cal
    * @since 1.1.3
    */
   sheets: CalcdexPokemonPreset[];
+
+  /**
+   * Stringified Lexical editor states.
+   *
+   * * Only used when the `operatingMode` is `'standalone'`.
+   * * Primarily used to show the `'pre'` & `'post'` "mini-Notedexes" in a Honkdex.
+   *   - Depending on their `visible` states, `'pre'` is shown before the typical Calcdex UI &
+   *     `'post'` is shown after.
+   *
+   * @default null
+   * @since 1.3.0
+   */
+  notes?: Partial<Record<'pre' | 'post', {
+    visible: boolean;
+    editorState: string;
+  }>>;
 
   /**
    * Unix epoch timestamp of when the state was cached, in milliseconds.

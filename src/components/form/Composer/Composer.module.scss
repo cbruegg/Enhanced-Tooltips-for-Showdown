@@ -1,0 +1,89 @@
+///
+/// @group Composer
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.3.0
+///
+
+@use 'sass:map';
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/font';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+$input: (
+  padding-x: 10px,
+  padding-y: 4px,
+  default-font-weight: 400,
+  default-font-size: 12px,
+  tab-size: 2,
+  border-radius: 16px,
+);
+
+.container {
+  @include position.rel;
+  @include font.primary(map.get($input, default-font-weight));
+  text-align: left;
+  @include transition.apply(color, filter, opacity);
+
+  [data-showdex-scheme='light'] & {
+    color: colors.$black;
+  }
+
+  [data-showdex-scheme='dark'] & {
+    color: colors.$white;
+  }
+
+  &[data-showdex-disabled='true'] {
+    filter: grayscale(1);
+    opacity: 0.32;
+    user-select: none;
+    pointer-events: none;
+    touch-action: none;
+  }
+
+  // overriding Showdown's default <code> styles
+  code {
+    background-color: colors.$transparent;
+    border: none;
+  }
+}
+
+.input {
+  @include position.rel;
+  @include spacing.p($x: map.get($input, padding-x), $y: map.get($input, padding-y));
+  font-size: map.get($input, default-font-size);
+  tab-size: map.get($input, tab-size);
+  border-radius: map.get($input, border-radius);
+  @include transition.apply(background-color);
+  outline: none;
+  resize: none;
+
+  & > *:first-child {
+    @include spacing.mt-0;
+  }
+
+  & > *:last-child {
+    @include spacing.mb-0;
+  }
+}
+
+.hint {
+  @include position.abs($t: map.get($input, padding-y), $l: map.get($input, padding-x));
+  display: inline-block;
+  font-size: map.get($input, default-font-size);
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+  touch-action: none;
+
+  [data-showdex-scheme='light'] & {
+    color: color.alpha(colors.$black, 0.4);
+  }
+
+  [data-showdex-scheme='dark'] & {
+    color: color.alpha(colors.$white, 0.4);
+  }
+}

@@ -1,8 +1,15 @@
+/**
+ * @file `Honkdex.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import cx from 'classnames';
+import { useDebouncyFn } from 'use-debouncy';
 import { v4 as uuidv4 } from 'uuid';
 import {
+  type BattleInfoProps,
   BattleInfo,
   FieldCalc,
   PlayerCalc,
@@ -10,37 +17,39 @@ import {
   useCalcdexSize,
 } from '@showdex/components/calc';
 import { BuildInfo } from '@showdex/components/debug';
-import { PiconRackProvider, PiconRackSortableContext } from '@showdex/components/layout';
-import { ContextMenu, Scrollable, useContextMenu } from '@showdex/components/ui';
-import { type CalcdexBattleState } from '@showdex/interfaces/calc';
-import {
-  useCalcdexDuplicator,
-  useColorScheme,
-  useColorTheme,
-  useGlassyTerrain,
-} from '@showdex/redux/store';
-import { getHonkdexRoomId } from '@showdex/utils/app';
+import { Composer } from '@showdex/components/form';
+import { PageContainer, PiconRackProvider, PiconRackSortableContext } from '@showdex/components/layout';
+import { ContextMenu, useContextMenu } from '@showdex/components/ui';
+import { useCalcdexDuplicator } from '@showdex/redux/store';
+import { logger } from '@showdex/utils/debug';
 import { useRandomUuid } from '@showdex/utils/hooks';
 import styles from './Honkdex.module.scss';
 
 export interface HonkdexProps {
   onRequestHellodex?: () => void;
-  onRequestHonkdex?: (instanceId?: string, initState?: Partial<CalcdexBattleState>) => void;
+  onRequestHonkdex?: BattleInfoProps['onRequestHonkdex'];
+  onLeaveRoom?: () => void;
 }
+
+const l = logger('@showdex/pages/Honkdex');
 
 export const Honkdex = ({
   onRequestHellodex,
   onRequestHonkdex,
+  onLeaveRoom,
 }: HonkdexProps): JSX.Element => {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   useCalcdexSize(containerRef);
 
   const { t } = useTranslation('honkdex');
-  const colorScheme = useColorScheme();
-  const colorTheme = useColorTheme();
-  const glassyTerrain = useGlassyTerrain();
-  const { state, saving, saveHonk } = useCalcdexContext();
+  const {
+    state,
+    saving,
+    updateBattle,
+    saveHonk,
+  } = useCalcdexContext();
+  const debouncyUpdateBattle = useDebouncyFn(updateBattle, 1000);
   const dupeCalcdex = useCalcdexDuplicator();
 
   const {
@@ -49,8 +58,9 @@ export const Honkdex = ({
     playerKey,
     opponentKey,
     switchPlayers,
+    notes,
     cached,
-  } = state;
+  } = state || {};
 
   const topKey = switchPlayers ? opponentKey : playerKey;
   const bottomKey = topKey === playerKey ? opponentKey : playerKey;
@@ -64,55 +74,77 @@ export const Honkdex = ({
 
   return (
     <PiconRackProvider dndMuxId={state?.battleId}>
-      <div
+      <PageContainer
         ref={containerRef}
-        className={cx(
-          'showdex-module',
-          styles.container,
-          !!colorScheme && styles[colorScheme],
-          !!colorTheme && styles[colorTheme],
-          glassyTerrain && styles.glassy,
-        )}
-        onContextMenu={(e) => showContextMenu({
+        name="honkdex"
+        scrollableContentClassName={styles.content}
+        prefix={<BuildInfo className={styles.buildInfo} position="top-right" />}
+        contentScrollable
+        onContextMenu={(e) => void showContextMenu({
           event: e,
           id: contextMenuId,
         })}
       >
-        <Scrollable className={styles.content}>
-          <BuildInfo
-            position="top-right"
+        <BattleInfo
+          className={styles.battleInfo}
+          onRequestHonkdex={onRequestHonkdex}
+          onLeaveRoom={onLeaveRoom}
+        />
+
+        {
+          notes?.pre?.visible &&
+          <Composer
+            hint={t('notedex:editor.hint', 'Type something...')}
+            initialEditorState={notes?.pre?.editorState}
+            input={{
+              name: `${l.scope}:${battleId}:Notes:Pre:EditorState`,
+              value: notes?.pre?.editorState,
+              onChange: (value: string) => void debouncyUpdateBattle({
+                notes: { pre: { editorState: value } },
+              }, `${l.scope}:${battleId}:Notes:Pre:EditorState~Composer:input.onChange()`),
+            }}
           />
+        }
 
-          <BattleInfo
-            className={styles.battleInfo}
-            onRequestHonkdex={onRequestHonkdex}
-          />
-
-          <PiconRackSortableContext playerKey={topKey}>
-            <PlayerCalc
-              className={styles.playerCalc}
-              position="top"
-              playerKey={topKey}
-              defaultName="Side A"
-            />
-          </PiconRackSortableContext>
-
-          <FieldCalc
-            className={styles.fieldCalc}
+        <PiconRackSortableContext playerKey={topKey}>
+          <PlayerCalc
+            className={styles.playerCalc}
+            position="top"
             playerKey={topKey}
-            opponentKey={bottomKey}
+            defaultName="Side A"
           />
+        </PiconRackSortableContext>
 
-          <PiconRackSortableContext playerKey={bottomKey}>
-            <PlayerCalc
-              className={styles.opponentCalc}
-              position="bottom"
-              playerKey={bottomKey}
-              defaultName="Side B"
-            />
-          </PiconRackSortableContext>
-        </Scrollable>
-      </div>
+        <FieldCalc
+          className={styles.fieldCalc}
+          playerKey={topKey}
+          opponentKey={bottomKey}
+        />
+
+        <PiconRackSortableContext playerKey={bottomKey}>
+          <PlayerCalc
+            className={styles.opponentCalc}
+            position="bottom"
+            playerKey={bottomKey}
+            defaultName="Side B"
+          />
+        </PiconRackSortableContext>
+
+        {
+          notes?.post?.visible &&
+          <Composer
+            hint={t('notedex:editor.hint', 'Type something...')}
+            initialEditorState={notes?.post?.editorState}
+            input={{
+              name: `${l.scope}:${battleId}:Notes:Post:EditorState`,
+              value: notes?.post?.editorState,
+              onChange: (value: string) => void debouncyUpdateBattle({
+                notes: { post: { editorState: value } },
+              }, `${l.scope}:${battleId}:Notes:Post:EditorState~Composer:input.onChange()`),
+            }}
+          />
+        }
+      </PageContainer>
 
       <ContextMenu
         id={contextMenuId}
@@ -170,8 +202,8 @@ export const Honkdex = ({
               theme: 'info',
               label: t('contextMenu.close', 'Close'),
               icon: 'close-circle',
-              disabled: !battleId || typeof app?.leaveRoom !== 'function',
-              onPress: hideAfter(() => app.leaveRoom(getHonkdexRoomId(battleId))),
+              disabled: !battleId || typeof onLeaveRoom !== 'function',
+              onPress: hideAfter(onLeaveRoom),
             },
           },
         ]}

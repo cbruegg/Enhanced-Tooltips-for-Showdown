@@ -1,3 +1,9 @@
+/**
+ * @file `bakeBakedexBundles.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.4
+ */
+
 import { type Duration, add, compareAsc } from 'date-fns';
 import {
   type BakedexApiBundleResponse,
@@ -24,6 +30,7 @@ import {
   writeMetaDb,
 } from '@showdex/utils/storage';
 
+const enabled = env.bool('bakedex-enabled');
 const baseUrl = joinUris(env('bakedex-base-url'), env('bakedex-api-prefix'));
 const maxAge: Duration = { [env('bakedex-update-interval-unit', 'weeks')]: env.int('bakedex-update-interval', 2) };
 
@@ -46,7 +53,6 @@ export const bakeBakedexBundles = async (
 ): Promise<void> => {
   const { db: database, store } = { ...config };
   const db = database || showdexedDb.value;
-  const enabled = env.bool('bakedex-enabled');
 
   const writePayload: ShowdexBundlesDbResult = {};
   const statePayload: Partial<ShowdexSliceBundles> = {};
@@ -78,6 +84,7 @@ export const bakeBakedexBundles = async (
   }
 
   const staleBunIds: Partial<Record<BakedexApiBunsNamespace, string[]>> = {};
+  const cachedPayloads: Partial<Record<BakedexApiBunsNamespace, Record<string, unknown>>> = {};
 
   for (const [nsp, latestNspBuns] of Object.entries(latestBuns) as Entries<typeof latestBuns>) {
     if (!BakedexApiBunsNamespaces.includes(nsp)) {
@@ -129,12 +136,12 @@ export const bakeBakedexBundles = async (
       }
 
       // load cached bundle into Redux
-      const cached = await readBundlesDb([nsp], { db });
+      cachedPayloads[nsp] = (await readBundlesDb([nsp], { db }))?.[nsp];
 
-      if (!nonEmptyObject(cached[nsp]?.[latestNspBun.id])) {
+      if (!nonEmptyObject(cachedPayloads[nsp]?.[latestNspBun.id])) {
         l.debug(
-          'Actual cached bundle assets don\'t exist apparently; marking', nsp, 'bundle', latestNspBun.id, 'as stale!',
-          '\n', 'cached', cached,
+          'Actual cached bundle payloads don\'t exist apparently; marking', nsp, 'bundle', latestNspBun.id, 'as stale!',
+          '\n', 'cached', cachedPayloads[nsp],
           '\n', 'cachedNspBun', cachedNspBun,
           '\n', 'latestNspBun', latestNspBun,
           '\n', 'buns', '(cached)', buns,
@@ -149,13 +156,19 @@ export const bakeBakedexBundles = async (
       // 'presets' aren't being *directly* loaded into Redux btw (i.e., the ShowdexSliceState)
       // (instead, they're loaded into the RTK Query API endpoint slice via buildBundleQuery() from @showdex/redux/factories)
       if (latestNspBun.ntt !== 'presets') {
+        if (!Array.isArray(cachedPayloads[nsp][latestNspBun.id])) {
+          staleBunIds[nsp].push(latestNspBun.id);
+
+          continue;
+        }
+
         (statePayload as Record<typeof latestNspBun.ntt, unknown[]>)[latestNspBun.ntt] = [
           ...(statePayload[latestNspBun.ntt] || []),
-          ...(Array.isArray(cached[nsp][latestNspBun.id]) ? (cached[nsp][latestNspBun.id] as unknown[]).map((item) => ({
+          ...(cachedPayloads[nsp][latestNspBun.id] as unknown[]).map((item) => ({
             ...(item as Record<string, unknown>),
             __bunId: latestNspBun.id,
             __updated: cachedDate,
-          })) : []),
+          })),
         ];
       }
 
@@ -220,7 +233,7 @@ export const bakeBakedexBundles = async (
         }
 
         (writePayload as Record<typeof nsp, unknown>)[nsp] = {
-          ...latestBuns[nsp],
+          ...cachedPayloads[nsp],
           ...writePayload[nsp],
           [id]: bundleData.payload,
         };

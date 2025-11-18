@@ -1,3 +1,9 @@
+/**
+ * @file `ContextMenu.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.3
+ */
+
 import * as React from 'react';
 import { type MenuProps, Menu } from 'react-contexify';
 import cx from 'classnames';
@@ -92,7 +98,7 @@ export const ContextMenu = ({
         className,
       )}
       style={style}
-      animation="scale"
+      animation={{ enter: 'scale', exit: false }}
     >
       {items?.map((item) => {
         if (!item?.key || !item.entity) {

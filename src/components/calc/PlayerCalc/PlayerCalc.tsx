@@ -26,6 +26,7 @@ export interface PlayerCalcProps {
   defaultName?: string;
   playerOptions?: DropdownOption<CalcdexPlayerKey>[];
   mobile?: boolean;
+  onUserPopup?: (username?: string) => void;
 }
 
 const l = logger('@showdex/components/calc/PlayerCalc');
@@ -38,6 +39,7 @@ export const PlayerCalc = ({
   defaultName = '--',
   playerOptions,
   mobile,
+  onUserPopup,
 }: PlayerCalcProps): JSX.Element => {
   const { t } = useTranslation('calcdex');
   const colorScheme = useColorScheme();
@@ -211,6 +213,7 @@ export const PlayerCalc = ({
             defaultName={defaultName}
             playerOptions={playerOptions}
             mobile={mobile}
+            onUserPopup={onUserPopup}
           />
         )}
 

@@ -367,7 +367,7 @@ export const calcPokemonFinalStats = (
 
         // 30% ATK boost if ability is "Orichal Cumpulse" (hehe), sunny/desolate, and Pokemon is NOT holding "Utility Umbrella"
         if (ability === 'orichalcumpulse') { // "...uhm but actually, it's Orichalcum Pulse"
-          record.apply('atk', 1.3, 'abilities', 'Orichalcum Pulse');
+          record.apply('atk', 1.3333, 'abilities', 'Orichalcum Pulse');
         }
 
         /**
@@ -428,7 +428,7 @@ export const calcPokemonFinalStats = (
 
     // 30% SPA boost if ability is "Hadron Engine" w/ electric terrain
     if (ability === 'hadronengine') {
-      record.apply('spa', 1.3, 'abilities', 'Hadron Engine');
+      record.apply('spa', 1.3333, 'abilities', 'Hadron Engine');
     }
   }
 

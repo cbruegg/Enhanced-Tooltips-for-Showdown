@@ -1,4 +1,10 @@
 /**
+ * @file `ShowdexHonkdexSettings.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
+/**
  * Honkdex-specific settings.
  *
  * @since 1.2.0
@@ -46,4 +52,28 @@ export interface ShowdexHonkdexSettings {
    * @since 1.2.0
    */
   alwaysShowGenetics: boolean;
+
+  /**
+   * Whether to include damage from stage hazards (e.g., *Stealth Rock*) in the NHKO chance.
+   *
+   * * Unlike the `ShowdexCalcdexSettings` prop of the same name, this is enabled by default to be more consistent with
+   *   the behavior of the traditional damage calculator.
+   * * Doesn't affect the damage ranges since they're of the attacker's move itself.
+   *
+   * @default true
+   * @since 1.3.0
+   */
+  includeHazardsDamage: boolean;
+
+  /**
+   * Whether to include damage from end-of-turn effects (e.g., *Burned*, *Sandstorm*) in the NHKO chance.
+   *
+   * * Unlike the `ShowdexCalcdexSettings` prop of the same name, this is enabled by default to be more consistent with
+   *   the behavior of the traditional damage calculator.
+   * * Doesn't affect the damage ranges since they're of the attacker's move itself.
+   *
+   * @default true
+   * @since 1.3.0
+   */
+  includeEotDamage: boolean;
 }

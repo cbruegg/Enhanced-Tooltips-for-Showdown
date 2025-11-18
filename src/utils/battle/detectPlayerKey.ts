@@ -2,8 +2,6 @@ import { type CalcdexPokemon, type CalcdexPlayerKey } from '@showdex/interfaces/
 import { getAuthUsername } from '@showdex/utils/host';
 import { detectPokemonIdent } from './detectPokemonIdent';
 
-const PokemonPlayerKeyRegex = /^(p\d)[a-z]?:/;
-
 /* eslint-disable @typescript-eslint/indent */
 
 /**
@@ -26,36 +24,41 @@ export const detectPlayerKeyFromPokemon = <
     return null;
   }
 
-  return PokemonPlayerKeyRegex.exec(ident)?.[1] as CalcdexPlayerKey;
+  return /^(p\d)[a-z]?:/.exec(ident)?.[1] as CalcdexPlayerKey;
 };
 
 /* eslint-enable @typescript-eslint/indent */
 
 /**
- * Attempts to detect the player key of the logged-in user from the passed-in `battle`.
+ * Attempts to detect the player key of the ~~logged-in~~ authenticated user from the passed-in `battle`.
  *
- * * If no user is logged in, `null` will be returned.
- * * If the logged-in user is not a player in the battle, `null` will also be returned.
+ * * As of v1.3.0, this will now **first** check through `battle.myPokemon[]` via `detectPlayerKeyFromPokemon()`
+ *   (since we'd only have that info as the authenticated player [who's not necessarily registered; i.e., a named guest])
+ *   & then do what this used to do pre-v1.3.0, i.e.:
+ *   - If no user is logged in, `null` will be returned.
+ *   - If the logged-in user is not a player in the battle, `null` will also be returned.
  *
  * @since 1.0.2
  */
 export const detectAuthPlayerKeyFromBattle = (
   battle: Partial<Showdown.Battle>,
 ): CalcdexPlayerKey => {
+  const detectedPlayerKey = detectPlayerKeyFromPokemon(battle?.myPokemon?.[0]);
+
+  if (detectedPlayerKey) {
+    return detectedPlayerKey;
+  }
+
   const authName = getAuthUsername();
 
   if (!authName) {
     return null;
   }
 
-  const { sides } = battle || {};
-
-  const authSide = sides?.find?.((s) => 'name' in (s || {}) && [
+  return battle?.sides?.find?.((s) => 'name' in (s || {}) && [
     s.id,
     s.name,
-  ].filter(Boolean).includes(authName));
-
-  return authSide?.sideid || null;
+  ].filter(Boolean).includes(authName))?.sideid || null;
 };
 
 /**

@@ -1,14 +1,11 @@
 /**
- * `client-html-room.d.ts`
- *
- * Provides global `HtmlRoom` typings for the live PS client running on Backbone.js.
- * Adapted from `pokemon-showdown-client/js/client-ladder.js`.
- *
+ * @file `client-html-room.d.ts` - Provides global `HtmlRoom` typings for the live PS client running on Backbone.js.
+ *   Adapted from `pokemon-showdown-client/play.pokemomshowdown.com/js/client-ladder.js`.
  * @author Keith Choison <keith@tize.io>
  */
 
 declare namespace Showdown {
-  class HtmlRoom extends ClientRoom {
+  class ClientHtmlRoom extends ClientRoom {
     public id: string;
     public cid: string;
     public type: ClientRoomType = 'html';

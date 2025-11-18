@@ -1,3 +1,9 @@
+/**
+ * @file `determineSpeciesForme.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.3
+ */
+
 import { type ItemName } from '@smogon/calc';
 import { type CalcdexPokemon } from '@showdex/interfaces/calc';
 
@@ -5,7 +11,7 @@ import { type CalcdexPokemon } from '@showdex/interfaces/calc';
  * Determine what the provided `pokemon`'s species forme should be.
  *
  * * If the `pokemon` is transformed, its `transformedForme` will take precedence, unless `ignoreTransformed` is `true`.
- * * Returns its current transformed/species forme if there's no change in formes.
+ * * Returns its current transformed / species forme if there's no change in formes.
  *
  * @since 1.2.3
  */
@@ -97,7 +103,7 @@ export const determineSpeciesForme = (
     }
 
     case 'Terapagos': {
-      return 'Terapagos-Terastal';
+      return terastallized ? 'Terapagos-Stellar' : 'Terapagos-Terastal';
     }
 
     case 'Terapagos-Stellar': {

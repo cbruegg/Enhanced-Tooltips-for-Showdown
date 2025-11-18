@@ -1,9 +1,27 @@
-import { CalcdexBootstrapper, HellodexBootstrapper, TeamdexBootstrapper } from '@showdex/pages';
-import { calcdexSlice, createStore, showdexSlice } from '@showdex/redux/store';
-import { bakeBakedexBundles, loadI18nextLocales } from '@showdex/utils/app';
-import { env, nonEmptyObject } from '@showdex/utils/core';
-import { logger } from '@showdex/utils/debug';
-import { openIndexedDb, readHonksDb, readSettingsDb } from '@showdex/utils/storage';
+/**
+ * @file `main.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
+ */
+
+import {
+  BootdexClassicAdapter,
+  BootdexManager,
+  BootdexPreactAdapter,
+  CalcdexClassicBootstrapper,
+  CalcdexPreactBootstrapper,
+  HellodexClassicBootstrapper,
+  HellodexPreactBootstrapper,
+  HonkdexClassicBootstrapper,
+  HonkdexPreactBootstrapper,
+  NotedexClassicBootstrapper,
+  NotedexPreactBootstrapper,
+  TeamdexClassicBootstrapper,
+  TeamdexPreactBootstrapper,
+} from '@showdex/pages';
+import { env } from '@showdex/utils/core';
+import { logger, wtf } from '@showdex/utils/debug';
+import { detectClassicHost, detectPreactHost } from '@showdex/utils/host';
 import '@showdex/styles/global.scss';
 
 // Provided by the enhanced-tooltips plugin (https://github.com/rowin1/Pokemon-Showdown-Enhanced-Tooltips)
@@ -19,11 +37,20 @@ const l = logger('@showdex/main');
 
 l.debug('Starting', env('build-name', 'showdex'));
 
-// note: checking `Dex` instead of `window.Dex` to verify `window` is a global (i.e., making sure we're probably in a web env)
-if (typeof window?.app === 'undefined' || typeof Dex === 'undefined') {
+// first gotta make sure we're in Showdown
+if (
+  typeof window?.Dex?.gen !== 'number'
+    || typeof window.Dex.forGen !== 'function'
+    || (
+      typeof window.app?.receive !== 'function'
+        && typeof window.PS?.startTime !== 'number'
+    )
+) {
   l.error(
-    'main may have executed too fast or',
-    'we\'re not in Showdown anymore...',
+    'main may have executed too fast or we\'re not in Showdown anymore...',
+    '\n', 'window.Dex', '(typeof)', wtf(window?.Dex), window?.Dex,
+    '\n', 'window.app', '(typeof)', wtf(window?.app), window?.app,
+    '\n', 'window.PS', '(typeof)', wtf(window?.PS), window?.PS,
   );
 
   throw new Error('Showdex attempted to start in an unsupported website.');
@@ -34,6 +61,7 @@ if (window.__SHOWDEX_INIT) {
   l.error(
     'yo dawg I heard you wanted Showdex with your Showdex',
     '\n', '__SHOWDEX_INIT', window.__SHOWDEX_INIT,
+    '\n', '__SHOWDEX_HOST', window.__SHOWDEX_HOST,
     '\n', 'BUILD_NAME', env('build-name'),
   );
 
@@ -43,147 +71,66 @@ if (window.__SHOWDEX_INIT) {
 // basically using this as a Showdex init mutex lock lol
 window.__SHOWDEX_INIT = env('build-name', 'showdex');
 
-const store = createStore();
-
-// we're off to the *races* with this one huehuehuehue
-const bootdexMutex: {
-  // when false (default), BattleRoom data from app.receive() will be pushed to the battleBuf[];
-  // once pre-init async stuff is done, the battleBuf[] is processed & flushed first, then ok is set to true
-  ok: boolean;
-  battleBuf: [roomId: string, data: string][];
-} = {
-  ok: false,
-  battleBuf: [],
-};
-
-l.debug('Hooking into the client\'s app.receive()...');
-
-// make a binded copy of the original app.recieve()
-const appReceive = app.receive.bind(app) as typeof app.receive;
-
-app.receive = (data: string) => {
-  // call the original function
-  // update (2023/02/04): my dumb ass was calling the bootstrapper() BEFORE this,
-  // so I was wondering why the `battle` object was never populated... hmm... LOL
-  appReceive(data);
-
-  if (typeof data !== 'string' || !data?.length) {
-    return;
-  }
-
-  // update (2024/07/21): prior to v1.2.4, the auth username was intercepted via app.user.finishRename(), but sometimes
-  // the server will emit a guest user first (e.g., '|updateuser| Guest 2545835|0|mira|\n...'), which when the actual
-  // registered user is emitted later (like in the example below), finishRename() doesn't fire again for some reason,
-  // so we'll just intercept it right from the source! c: (idk why I didn't do this before LOL)
-  // e.g., data = '|updateuser| showdex_testee|1|mira|\n{"blockChallenges":false,"blockPMs":false,...'
-  if (data.startsWith('|updateuser|')) {
-    const [
-      , // i.e., ''
-      , // i.e., 'updateuser'
-      username, // e.g., ' showdex_testee'
-      namedCode, // '0' = not registered; '1' = registered
-    ] = data.split('|');
-
-    l.debug(
-      'app.receive()', 'Logged in as', namedCode === '1' ? 'registered' : 'guest',
-      'user', username?.trim() || '???', '(probably)',
-      '\n', data,
-    );
-
-    if (!username || namedCode !== '1') {
-      return;
-    }
-
-    return void store.dispatch(showdexSlice.actions.setAuthUsername(username.trim()));
-  }
-
-  // e.g., data = '>battle-gen9randombattle-1234567890\n|init|battle|\n|title|P1 vs. P2\n|inactive|Battle timer is ON...'
-  if (data.startsWith('>battle-')) {
-    const roomId = data.slice(1, data.indexOf('\n'));
-
-    l.debug(
-      'app.receive()', 'data for BattleRoom', roomId,
-      '\n', data,
-    );
-
-    if (!bootdexMutex.ok) {
-      return void bootdexMutex.battleBuf.push([roomId, data]);
-    }
-
-    // call the Calcdex bootstrapper
-    return void CalcdexBootstrapper(store, data, roomId);
-  }
-};
+// determine if we're in that new new preact mode or nahhhhh
+// ("new" at the time of me writing this on 2025/08/08, anyway)
+window.__SHOWDEX_HOST = (detectPreactHost(window) && 'preact')
+  || (detectClassicHost(window) && 'classic')
+  || null;
 
 // note: don't inline await, otherwise, there'll be a race condition with the login
 // (also makes the Hellodex not appear immediately when Showdown first opens)
 void (async () => {
-  const db = await openIndexedDb();
-  const settings = await readSettingsDb(db);
+  switch (window.__SHOWDEX_HOST) {
+    case 'preact': {
+      l.silly(
+        'welcome to Showdex for pre\'s react edition !!!',
+        '\n', 'PS', '(typeof)', wtf(window.PS), '(start)', window.PS.startTime,
+        '\n', '__SHOWDEX_HOST', window.__SHOWDEX_HOST,
+        '\n', '__SHOWDEX_INIT', window.__SHOWDEX_INIT,
+        '\n', '(note: no relation to @pre ... that was for the punies hehe)', // fun fact: puny + react = preact (punny huh)
+      );
 
-  void bakeBakedexBundles({ db, store });
+      BootdexManager.register('calcdex', CalcdexPreactBootstrapper);
+      BootdexManager.register('hellodex', HellodexPreactBootstrapper);
+      BootdexManager.register('honkdex', HonkdexPreactBootstrapper);
+      BootdexManager.register('notedex', NotedexPreactBootstrapper);
 
-  // note: settings.locale's default value is `null`, which will allow the i18next LanguageDetector plugin to kick in
-  const i18next = await loadI18nextLocales(settings?.locale);
+      await BootdexPreactAdapter.run();
+      new CalcdexPreactBootstrapper().run();
+      new TeamdexPreactBootstrapper().run();
+      new HellodexPreactBootstrapper().run();
+      new HonkdexPreactBootstrapper().run();
+      new NotedexPreactBootstrapper().run();
 
-  if (nonEmptyObject(settings)) {
-    delete settings.colorScheme;
+      break;
+    }
 
-    store.dispatch(showdexSlice.actions.updateSettings({
-      ...settings,
-      locale: settings.locale || i18next?.language || 'en', // fucc it yolo
-    }));
+    case 'classic': {
+      BootdexManager.register('calcdex', CalcdexClassicBootstrapper);
+      BootdexManager.register('hellodex', HellodexClassicBootstrapper);
+      BootdexManager.register('honkdex', HonkdexClassicBootstrapper);
+      BootdexManager.register('notedex', NotedexClassicBootstrapper);
+      BootdexClassicAdapter.receiverFactory = (roomId) => () => void new CalcdexClassicBootstrapper(roomId).run();
+
+      await BootdexClassicAdapter.run();
+      new TeamdexClassicBootstrapper().run();
+      new HellodexClassicBootstrapper().run();
+      new HonkdexClassicBootstrapper().run();
+      new NotedexClassicBootstrapper().run();
+
+      break;
+    }
+
+    default: {
+      l.error(
+        'Couldn\'t determine what __SHOWDEX_HOST we\'re in rn o_O',
+        '\n', '__SHOWDEX_HOST', window.__SHOWDEX_HOST,
+        '\n', '__SHOWDEX_INIT', window.__SHOWDEX_INIT,
+      );
+
+      throw new Error('Showdex attempted to run in an unsupported Showdown host.');
+    }
   }
 
-  const honks = await readHonksDb(db);
-
-  if (nonEmptyObject(honks)) {
-    store.dispatch(calcdexSlice.actions.restore(honks));
-  }
-
-  // open the Hellodex when the Showdown client starts
-  HellodexBootstrapper(store);
-
-  /**
-   * @todo May require some special logic to detect when the Teambuilder room opens.
-   *   For now, since this only hooks into some Teambuilder functions to update its internal `presets`,
-   *   i.e., doesn't render anything, this implementation is fine.
-   */
-  TeamdexBootstrapper(store);
-
-  // process any buffered Calcdex data first before releasing the shitty 'ok' mutex lock
-  bootdexMutex.battleBuf.forEach(([roomId, data]) => void CalcdexBootstrapper(store, data, roomId));
-  bootdexMutex.battleBuf = null; // clear for garbaj collection since the bootdexMutex obj will remain in memory
-  bootdexMutex.ok = true;
+  l.success(window.__SHOWDEX_INIT, 'for', window.__SHOWDEX_HOST, 'initialized!');
 })();
-
-l.debug('Initializing MutationObserver for client colorScheme changes...');
-
-// create a MutationObserver to listen for class changes in the <html> tag
-// (in order to dispatch colorScheme updates to Redux)
-const colorSchemeObserver = new MutationObserver((mutationList) => {
-  const [mutation] = mutationList || [];
-
-  if (mutation?.type !== 'attributes') {
-    return;
-  }
-
-  // determine the color scheme from the presence of a 'dark' class in <html>
-  const { className } = (mutation.target as typeof document.documentElement) || {};
-  const colorScheme: Showdown.ColorScheme = className?.includes('dark') ? 'dark' : 'light';
-
-  store.dispatch(showdexSlice.actions.setColorScheme(colorScheme));
-});
-
-// note: document.documentElement is a ref to the <html> tag
-colorSchemeObserver.observe(document.documentElement, {
-  // observe only 'class' attribute on <html>
-  attributes: true,
-  attributeFilter: ['class'],
-
-  // don't observe the <html>'s children or data
-  childList: false,
-  characterData: false,
-});
-
-l.success(env('build-name', 'showdex'), 'initialized!');

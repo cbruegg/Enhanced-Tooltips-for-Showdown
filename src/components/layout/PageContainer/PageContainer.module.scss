@@ -1,0 +1,84 @@
+///
+/// @group PageContainer
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.3.0
+///
+
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/font';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+.container {
+  @include position.abs-fill;
+  overflow: hidden;
+  z-index: 15;
+
+  &::before {
+    content: '';
+    @include position.abs-fill;
+    @include transition.apply(background-color);
+    pointer-events: none;
+    touch-action: none;
+  }
+
+  &[data-showdex-scheme='light'] {
+    color: colors.$black;
+
+    &::before {
+      background-color: color.alpha(colors.$showdown-background-light, 0.8);
+    }
+
+    &[data-showdex-theme='mina']::before {
+      background-color: color.alpha(#F5DAE3, 0.72);
+    }
+  }
+
+  &[data-showdex-scheme='dark'] {
+    color: colors.$white;
+
+    &::before {
+      background-color: color.alpha(colors.$gray-darkest, 0.88);
+    }
+
+    &[data-showdex-theme='mina']::before {
+      background-color: color.alpha(#3A242E, 0.94);
+    }
+  }
+
+  &[data-showdex-terrain='glassy'] {
+    &::before {
+      backdrop-filter: blur(4px);
+    }
+
+    &[data-showdex-scheme='light'] {
+      &::before {
+        background-color: color.alpha(colors.$showdown-background-light, 0.56);
+      }
+
+      &[data-showdex-theme='mina']::before {
+        background-color: color.alpha(#F5DAE3, 0.64);
+      }
+    }
+
+    &[data-showdex-scheme='dark'] {
+      &::before {
+        background-color: color.alpha(colors.$gray-darkest, 0.64);
+      }
+
+      &[data-showdex-theme='mina']::before {
+        background-color: color.alpha(#2D0D1C, 0.72);
+      }
+    }
+  }
+}
+
+.content {
+  @include position.abs-fill;
+  @include spacing.p(16px);
+  @include font.mono;
+  font-size: 10px;
+}

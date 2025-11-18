@@ -1,11 +1,9 @@
 /**
- * ps-group.d.ts
- *
- * Adapted from `pokemon-showdown-client/src/client-main.ts`.
- *
+ * @file `ps-group.d.ts` - Adapted from `pokemon-showdown-client/play.pokemonshowdown.com/src/client-main.ts`.
  * @author Keith Choison <keith@tize.io>
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
+ * @since 0.1.0
  */
 
 declare namespace Showdown {

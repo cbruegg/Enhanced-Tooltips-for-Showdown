@@ -1,3 +1,9 @@
+/**
+ * @file `ShowdexCalcdexSettings.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.0.3
+ */
+
 import { type CalcdexPlayerKey, type CalcdexRenderMode } from '@showdex/interfaces/calc';
 import { type CalcdexMatchupNhkoColors, type CalcdexMatchupNhkoLabels } from '@showdex/utils/calc';
 
@@ -15,7 +21,10 @@ export interface ShowdexCalcdexSettings {
    * * `'spectating'` will only open the Calcdex if the user is spectating a battle.
    * * `'never'` will completely disable the Calcdex, making this extension kinda useless.
    *
-   * @default 'always'
+   * @default
+   * ```ts
+   * 'always'
+   * ```
    * @since 1.0.3
    */
   openOnStart: 'always' | 'playing' | 'spectating' | 'never';
@@ -32,7 +41,10 @@ export interface ShowdexCalcdexSettings {
    *   - Useful for single-panel mode users or those who are annoyed by the accumulating tabs when set to `'panel'`.
    *   - In this mode, a button will be added next to the battle timer to open the Calcdex.
    *
-   * @default 'showdown'
+   * @default
+   * ```ts
+   * 'showdown'
+   * ```
    * @since 1.0.3
    */
   openAs: 'showdown' | CalcdexRenderMode;
@@ -49,7 +61,10 @@ export interface ShowdexCalcdexSettings {
    * * `'right'` will always open the Calcdex panel tab on the right.
    * * Has no effect if `openAs` is `'overlay'`.
    *
-   * @default 'showdown'
+   * @default
+   * ```ts
+   * 'showdown'
+   * ```
    * @since 1.1.1
    */
   openOnPanel: 'showdown' | 'left' | 'right';
@@ -67,7 +82,10 @@ export interface ShowdexCalcdexSettings {
    *   - Users will still be able to close the tab *manually*!
    * * Has no effect if `openAs` is `'overlay'`.
    *
-   * @default 'battle-tab'
+   * @default
+   * ```ts
+   * 'battle-tab'
+   * ```
    * @since 1.0.4
    */
   closeOn: 'battle-end' | 'battle-tab' | 'never';
@@ -122,7 +140,10 @@ export interface ShowdexCalcdexSettings {
    *   - If the logged-in player is `p2`, they will be on the `'bottom'`.
    * * Has no effect if the logged-in user is spectating a battle, obviously.
    *
-   * @default 'top'
+   * @default
+   * ```ts
+   * 'top'
+   * ```
    * @since 1.0.3
    */
   authPosition: 'top' | 'bottom' | 'auto';
@@ -184,6 +205,29 @@ export interface ShowdexCalcdexSettings {
   showNonDamageRanges: boolean;
 
   /**
+   * Whether to include damage from stage hazards (e.g., *Stealth Rock*) in the NHKO chance.
+   *
+   * * Doesn't affect the damage ranges since they're of the attacker's move itself.
+   *
+   * @default true
+   * @since 1.3.0
+   */
+  includeHazardsDamage: boolean;
+
+  /**
+   * Whether to include damage from end-of-turn effects (e.g., *Burned*, *Sandstorm*) in the NHKO chance.
+   *
+   * * Secondary effects such as *Guts* requiring a nonvolatile status condition will still be considered in calculations
+   *   regardless of this setting.
+   * * Disabled by default due to user experience reports of the KO% being potentially misleading during battles.
+   * * Doesn't affect the damage ranges since they're of the attacker's move itself.
+   *
+   * @default false
+   * @since 1.3.0
+   */
+  includeEotDamage: boolean;
+
+  /**
    * Whether to download Smogon sets.
    *
    * * Does not include Smogon sets for Randoms.
@@ -214,6 +258,22 @@ export interface ShowdexCalcdexSettings {
    * @since 1.0.3
    */
   downloadUsageStats: boolean;
+
+  /**
+   * Which syntax format to display & export PokePastes in.
+   *
+   * * `'classic'` will use the old syntax format used in `'classic'` `__SHOWDEX_HOST`'s & `'preact'` will use the
+   *   new syntax format used in `'preact'` `__SHOWDEX_HOST`'s.
+   *   - `'auto'` (default) will select either `'classic'` or `'preact'` depending on the detected `__SHOWDEX_HOST`.
+   * * Importing PokePastes in the old & new syntaxes will still be possible regardless of this setting.
+   *
+   * @default
+   * ```ts
+   * 'auto'
+   * ```
+   * @since 1.3.0
+   */
+  presetDisplaySyntax: 'classic' | 'preact' | 'auto';
 
   /**
    * Maximum age of cached presets in *days*.
@@ -378,7 +438,10 @@ export interface ShowdexCalcdexSettings {
    * * `'never'` will never allow the types to be edited.
    *   - Types cannot be clicked on when this is selected.
    *
-   * @default 'meta'
+   * @default
+   * ```ts
+   * 'meta'
+   * ```
    * @since 1.0.6
    */
   editPokemonTypes: 'always' | 'meta' | 'never';
@@ -418,7 +481,10 @@ export interface ShowdexCalcdexSettings {
    *   - Essentially, this applies to any format that's not included in `LegalLockedFormats`.
    * * `'never'` will never show the base stats.
    *
-   * @default 'meta'
+   * @default
+   * ```ts
+   * 'meta'
+   * ```
    * @since 1.0.6
    */
   showBaseStats: 'always' | 'meta' | 'never';
@@ -472,6 +538,7 @@ export interface ShowdexCalcdexSettings {
    *   p4: ['iv', 'ev'],
    * }
    * ```
+   * @since 1.0.3
    */
   lockGeneticsVisibility: Record<'auth' | CalcdexPlayerKey, ('base' | 'iv' | 'ev')[]>;
 
@@ -484,7 +551,10 @@ export interface ShowdexCalcdexSettings {
    *   - Essentially, this applies to any format that's not included in `LegalLockedFormats`.
    * * `'never'` will never allow illegal EV/IV values.
    *
-   * @default 'meta'
+   * @default
+   * ```ts
+   * 'meta'
+   * ```
    * @since 1.0.6
    */
   allowIllegalSpreads: 'always' | 'meta' | 'never';
@@ -561,7 +631,10 @@ export interface ShowdexCalcdexSettings {
    * * Has no effect if `showMatchupTooltip` is `false`.
    * * `'nfe'` will only show the possible damage amounts against Pokemon who are NFE (Not Fully Evolved).
    *
-   * @default 'nfe'
+   * @default
+   * ```ts
+   * 'nfe'
+   * ```
    * @since 1.0.3
    */
   showMatchupDamageAmounts: 'always' | 'nfe' | 'never';

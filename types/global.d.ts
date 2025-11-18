@@ -1,7 +1,5 @@
 /**
- * @file `global.d.ts`
- *
- * Primary file that declares globals.
+ * @file `global.d.ts` - Primary file that declares globals.
  *
  * * Note that other files in the `types` directory may also declare globals.
  *   - Though, they should be moved here lol.
@@ -26,60 +24,31 @@ declare const __DEV__: NodeJS.Global['__DEV__'];
 declare const exportFunction: FirefoxBrowser.ExportFunction;
 declare const cloneInto: FirefoxBrowser.CloneInto;
 
-// typings for importing SCSS Module files
-declare module '*.module.scss' {
-  const styles: { [className: string]: string; };
-
-  export default styles;
-}
-
-// Showdown-specific globals (does not declare all of them!)
-declare const app: Showdown.ClientApp;
-declare const Config: Showdown.PSConfig;
-declare const Dex: Showdown.Dex; /** @todo convert to declare class Dex in battle-dex.d.ts */
-declare const BattleAbilities: Showdown.BattleAbilities;
-declare const BattleFormats: Showdown.BattleFormats;
-declare const BattleItems: Showdown.BattleItems;
-declare const BattleMovedex: Showdown.BattleMovedex;
-declare const BattleTeambuilderTable: Showdown.BattleTeambuilderTable;
-declare class BattleStatGuesser extends Showdown.BattleStatGuesser {}
-declare const UserPopup: Showdown.UserPopup;
-
-// only defining these for typing the window.app & window.Dex guards in main.ts (& also for the __SHOWDEX_INIT mutex lock)
-// (also in hindsight, could've just defined it like this since we're using the DOM tsconfig lib but doesn't matter tbh)
-declare interface Window extends Window {
-  app: typeof app;
-  Config: typeof Config;
-  Dex: typeof Dex;
-  BattleAbilities: typeof BattleAbilities;
-  BattleFormats: typeof BattleFormats;
-  BattleItems: typeof BattleItems;
-  BattleMovedex: typeof BattleMovedex;
-  BattleTeambuilderTable: typeof BattleTeambuilderTable;
-  BattleStatGuesser: BattleStatGuesser;
-  UserPopup: typeof UserPopup;
+// DOM `window` globals
+declare interface Window extends Window, Showdown.HostGlobals {
+  /**
+   * Showdex will populate this with its `BUILD_NAME` env once initialization starts to prevent other Showdexes from
+   * potentially loading in.
+   *
+   * @example
+   * ```ts
+   * 'showdex-v1.2.1-b18CF1B54BEF.chrome'
+   * ```
+   * @since 1.2.1
+   */
   __SHOWDEX_INIT?: string;
-}
 
-/**
- * Showdown's custom `Storage` object.
- *
- * * Requires LOTS of type assertions since `Storage` is technically a built-in native Web API,
- *   specifically from the Web Storage API.
- * * Not recommended that you bind any function in here, since the referenced `Storage` is subject
- *   to change at any point during runtime!
- *   - Especially when the `data` object is asynchronously populated.
- *
- * @example
- * ```ts
- * // this will fail since TypeScript will think we're accessing the Web Storage API
- * Storage.prefs('theme');
- * //      ^~~ Property 'prefs' does not exist on type
- * //          `{ new (): Storage; prototype: Storage; }`.
- *
- * // hence the forceful type assertions here
- * (Storage as unknown as Showdown.ClientStorage).prefs('theme');
- * ```
- * @since 1.0.3
- */
-declare const Storage: Showdown.ClientStorage;
+  /**
+   * Showdex will populate this based on the Showdown client's detected MVC (i.e., Model-View-Controller) engine.
+   *
+   * * When in `'preact'` mode, Showdex will utilize the new exposed `PSModel` globals (e.g., `window.BattleRoom`) during
+   *   the bootstrapping process.
+   *   - For backwards compatibilty, Showdex will revert to using its traditional dodgy hooks (assuming the `window.app`
+   *     is present) should this value be falsy (or `'classic'`).
+   * * Preact detection works by looking for the `window.PS` global, regardless of `window.app`'s existence.
+   *   - `'classic'` (Backbone.js-powered) client won't have that aforementioned `window.PS` global.
+   *
+   * @since 1.3.0
+   */
+  __SHOWDEX_HOST?: 'classic' | 'preact';
+}

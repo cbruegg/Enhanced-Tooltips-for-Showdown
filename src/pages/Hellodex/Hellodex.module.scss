@@ -1,6 +1,12 @@
+///
+/// @group Hellodex
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 0.1.3
+///
+
 @use 'sass:math';
 @use 'config/colors';
-@use 'config/fonts';
 @use 'functions/color';
 @use 'mixins/aria';
 @use 'mixins/flex';
@@ -10,71 +16,11 @@
 @use 'mixins/spacing';
 @use 'mixins/transition';
 
-.container {
-  @include position.absolute-fill;
-  @include transition.apply(background-color);
-  overflow: hidden;
-
-  &.light {
-    color: colors.$black;
-    background-color: color.alpha(colors.$showdown-background-light, 0.8);
-
-    &.mina {
-      background-color: color.alpha(#F5DAE3, 0.72);
-    }
-  }
-
-  &.dark {
-    color: colors.$white;
-    background-color: color.alpha(colors.$gray-darkest, 0.8);
-
-    &.mina {
-      // background-color: color.alpha(#2D0D1C, 0.64);
-      background-color: color.alpha(#3A242E, 0.64);
-    }
-  }
-
-  &.glassy {
-    background-color: colors.$transparent;
-
-    &::before {
-      content: '';
-      @include position.absolute-fill;
-      backdrop-filter: blur(4px);
-    }
-
-    &.light::before {
-      background-color: color.alpha(colors.$showdown-background-light, 0.56);
-    }
-
-    &.light.mina {
-      background-color: colors.$transparent;
-
-      &::before {
-        background-color: color.alpha(#F5DAE3, 0.56);
-      }
-    }
-
-    &.dark::before {
-      background-color: color.alpha(colors.$gray-darkest, 0.64);
-    }
-
-    &.dark.mina {
-      background-color: colors.$transparent;
-
-      &::before {
-        background-color: color.alpha(#2D0D1C, 0.72);
-      }
-    }
-  }
-}
-
 .content {
-  @include position.absolute-fill;
-  @include flex.column($justify: space-between);
-  @include font.apply(fonts.$primary);
+  @include flex.col-between;
+  @include spacing.p-0;
+  @include font.primary;
   font-size: 12px;
-  z-index: 1;
 }
 
 .smol .hideWhenSmol {
@@ -82,16 +28,17 @@
 }
 
 .showdexIcon {
-  @include position.absolute-anchor($x: 50%, $y: -60px, $y-prop: bottom);
+  @include position.abs-anchor($x: 50%, $y: -60px, $y-prop: bottom);
   width: 264px;
   @include transition.apply(opacity);
   pointer-events: none;
+  touch-action: none;
 
-  .light & {
+  [data-showdex-scheme='light'] & {
     opacity: 0.76;
   }
 
-  .dark & {
+  [data-showdex-scheme='dark'] & {
     opacity: 0.84;
   }
 }
@@ -107,7 +54,7 @@
 }
 
 .minarexIcon {
-  @include position.absolute($right: -94px, $bottom: -12px, $left: unset);
+  @include position.abs($r: -94px, $b: -12px, $l: unset);
   width: 296px;
   animation: minarex-animation 4s ease-in infinite alternate;
   @include transition.apply(left, right, opacity);
@@ -117,11 +64,11 @@
   }
 
   .smol & {
-    @include position.absolute($right: unset, $left: 74%);
+    @include position.abs($r: unset, $l: 74%);
   }
 
   .verySmol & {
-    @include position.absolute($left: 64%);
+    @include position.abs($l: 64%);
     width: 248px;
   }
 }
@@ -129,15 +76,16 @@
 .topContent {
   flex: 1;
   width: 100%;
-  @include spacing.padding($x: 24px);
+  @include spacing.px(24px);
 }
 
 .banner {
-  position: relative;
-  @include flex.column-center;
-  @include spacing.padding($top: 32px);
+  @include position.rel;
+  @include flex.col-center;
+  @include spacing.pt(32px);
   text-align: center;
   user-select: none;
+  touch-action: none;
 }
 
 .authors {
@@ -145,19 +93,19 @@
   font-weight: 300;
   font-size: 12px;
   text-transform: uppercase;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .ampersand {
-  @include spacing.margin($x: 12px);
+  @include spacing.mx(12px);
 }
 
 .authorButton {
-  @include font.apply(fonts.$primary);
+  @include font.primary;
   color: inherit;
 
   .label {
-    @include spacing.margin($right: -0.2em);
+    @include spacing.mr(-0.2em);
     font-size: 12px;
     color: inherit;
     letter-spacing: 0.2em;
@@ -166,16 +114,16 @@
 }
 
 .presents {
-  @include spacing.margin($right: -0.2em);
+  @include spacing.mr(-0.2em);
   font-weight: 300;
   font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .extensionName {
-  @include spacing.margin($right: -0.2em);
+  @include spacing.mr(-0.2em);
   font-weight: 700;
   font-size: 40px;
   color: colors.$transparent;
@@ -192,29 +140,29 @@
   );
 
   &:hover {
-    @include spacing.margin($right: -0.5em);
+    @include spacing.mr(-0.5em);
     letter-spacing: 0.5em;
     background-position: 50% 0;
     background-size: 200% 100%;
   }
 
-  .mina & {
+  [data-showdex-theme='mina'] & {
     background: linear-gradient(65deg, #E94489 2%, #F8C8C5 98%) 0 0 / 100% 100%;
     background-clip: text;
   }
 
-  .light.mina & {
+  [data-showdex-theme='mina'][data-showdex-scheme='light'] & {
     text-shadow: 0 0 16px color.alpha(#FF3A78, 0.32);
   }
 
-  .dark.mina & {
+  [data-showdex-theme='mina'][data-showdex-scheme='dark'] & {
     text-shadow: 0 0 16px color.alpha(#9F1641, 0.32);
   }
 }
 
 .extensionVersion {
-  @include spacing.margin($right: -0.15em);
-  @include font.apply(fonts.$mono);
+  @include spacing.mr(-0.15em);
+  @include font.mono;
   font-size: 10px;
   letter-spacing: 0.15em;
   // text-indent: 0.15em;
@@ -226,15 +174,15 @@
 }
 
 .instancesContainer {
-  position: relative;
+  @include position.rel;
 }
 
 .instancesContent {
-  position: relative;
+  @include position.rel;
   width: 100%;
   min-height: 324px;
   height: 32vh;
-  @include spacing.margin($y: 24px);
+  @include spacing.my(24px);
   border-radius: 16px;
   overflow: hidden;
   @include transition.apply(height, background-color, box-shadow);
@@ -263,7 +211,7 @@
     }
   }
 
-  .light & {
+  [data-showdex-scheme='light'] & {
     background-color: color.alpha(colors.$white, 0.64);
     box-shadow: (
       0 0 1px color.alpha(colors.$black, 0.16),
@@ -271,7 +219,7 @@
     );
   }
 
-  .light.mina & {
+  [data-showdex-theme='mina'][data-showdex-scheme='light'] & {
     background-color: color.alpha(#FFEDF3, 0.64);
     box-shadow: (
       0 0 1px color.alpha(#770629, 0.32),
@@ -279,51 +227,51 @@
     );
   }
 
-  .dark & {
+  [data-showdex-scheme='dark'] & {
     background-color: color.alpha(colors.$black, 0.48);
     box-shadow: (
       0 0 1px color.alpha(colors.$white, 0.32),
-      0 0 16px color.alpha(colors.$black, 0.48),
+      0 0 16px color.alpha(colors.$black, 0.16),
     );
   }
 
-  .dark.mina & {
+  [data-showdex-theme='mina'][data-showdex-scheme='dark'] & {
     // background-color: color.alpha(#2A151F, 0.64);
     background-color: color.alpha(#734158, 0.48);
   }
 
-  .glassy & {
+  [data-showdex-terrain='glassy'] & {
     backdrop-filter: blur(2px);
   }
 
-  .glassy.light & {
+  [data-showdex-terrain='glassy'][data-showdex-scheme='light'] & {
     background-color: color.alpha(colors.$white, 0.24);
   }
 
-  .glassy.light.mina & {
+  [data-showdex-terrain='glassy'][data-showdex-theme='mina'][data-showdex-scheme='light'] & {
     background-color: color.alpha(#FFEDF3, 0.24);
   }
 
-  .glassy.dark & {
+  [data-showdex-terrain='glassy'][data-showdex-scheme='dark'] & {
     background-color: color.alpha(colors.$black, 0.16);
   }
 
-  .glassy.dark.mina & {
+  [data-showdex-terrain='glassy'][data-showdex-theme='mina'][data-showdex-scheme='dark'] & {
     background-color: color.alpha(#734158, 0.16);
   }
 }
 
 .battleRecord {
-  @include position.absolute-anchor($x: 50%, $y: -18px, $y-prop: bottom);
+  @include position.abs-anchor($x: 50%, $y: -18px, $y-prop: bottom);
 }
 
 .scrollableInstances {
   height: 100%;
-  @include spacing.padding-all(10px);
+  @include spacing.p(10px);
 }
 
 .instances {
-  position: relative;
+  @include position.rel;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-auto-rows: 53px;
@@ -333,20 +281,31 @@
   height: 100%;
 
   .smol & {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .instanceButton {
   grid-area: span 1 / span 1;
-}
-
-div.newHonkButton {
+  @include flex.row-center;
+  column-gap: 8px;
   border-radius: 12px;
   @include aria.outline($radius: 12px);
 
   &::before {
     border-radius: 12px;
+  }
+
+  &.newInstanceButton {
+    @include position.sticky($b: 10px);
+  }
+
+  .smol & {
+    grid-column: span 2;
+
+    &.smolSplit {
+      grid-column: span 1;
+    }
   }
 }
 
@@ -360,14 +319,14 @@ div.newHonkButton {
 }
 
 .empty {
-  @include position.absolute-fill;
-  @include flex.column-center;
+  @include position.abs-fill;
+  @include flex.col-center;
   user-select: none;
 
   .emptyIcon {
     width: 30px;
     min-width: 30px;
-    @include spacing.margin($bottom: 10px);
+    @include spacing.mb(10px);
     opacity: 0.32;
   }
 
@@ -386,7 +345,7 @@ div.newHonkButton {
 
   .divider {
     @include flex.row-center;
-    @include spacing.margin($y: 16px);
+    @include spacing.my(16px);
 
     .dividerLine {
       width: 56px;
@@ -394,17 +353,17 @@ div.newHonkButton {
       opacity: 0.08;
       @include transition.apply(background-color);
 
-      .light & {
+      [data-showdex-scheme='light'] & {
         background-color: colors.$black;
       }
 
-      .dark & {
+      [data-showdex-scheme='dark'] & {
         background-color: colors.$white;
       }
     }
 
     .dividerLabel {
-      @include spacing.padding($x: 12px);
+      @include spacing.px(12px);
       // font-style: italic;
       letter-spacing: 0.1px;
       opacity: 0.32;
@@ -413,11 +372,12 @@ div.newHonkButton {
 }
 
 .honkButton {
-  @include spacing.margin($top: 4px, $x: auto);
+  @include spacing.mx-auto;
+  @include spacing.mt(4px);
 }
 
 button.spectateButton {
-  @include font.apply(fonts.$primary, ( font-weight: 600 )); // same font-weight as .emptyLabel strong
+  @include font.primary(600); // same font-weight as .emptyLabel strong
   font-size: 12px;
   color: inherit;
 
@@ -432,25 +392,26 @@ button.spectateButton {
 }
 
 .donations {
-  @include spacing.margin($x: auto);
+  @include spacing.mx-auto;
   font-size: 10px;
   text-align: center;
   line-height: 14px;
   user-select: none;
 
   &.withBattleRecord {
-    @include spacing.margin($top: 40px);
+    @include spacing.mt(40px);
   }
 }
 
 .donateButton {
-  @include spacing.margin($right: auto, $left: auto);
+  @include spacing.mx-auto;
 }
 
 .donateFootnote {
   max-width: 250px + 10px;
-  @include spacing.padding($all: 6px);
-  @include spacing.margin($top: 16px, $x: auto);
+  @include spacing.mx-auto;
+  @include spacing.mt(16px);
+  @include spacing.p(6px);
   letter-spacing: 0.05px;
   backdrop-filter: blur(3px);
   border-radius: 6px;
@@ -461,18 +422,19 @@ button.spectateButton {
     opacity: 0.4;
   }
 
-  .glassy & {
+  [data-showdex-terrain='glassy'] & {
     backdrop-filter: none;
   }
 }
 
 .footer {
-  position: relative;
+  @include position.rel;
   @include flex.row-between;
   flex: 0 0 73px;
   width: 100%;
   height: 73px;
-  @include spacing.padding($x: 24px, $bottom: 2px);
+  @include spacing.px(24px);
+  @include spacing.pb(2px);
   backdrop-filter: blur(3px);
   border-top: 2px solid;
   @include transition.apply(background-color, border-top-color);
@@ -482,84 +444,69 @@ button.spectateButton {
     justify-content: center;
   }
 
-  .light & {
+  [data-showdex-scheme='light'] & {
     background-color: color.alpha(colors.$white, 0.76);
     border-top-color: color.alpha(colors.$white, 0.16);
   }
 
-  .light.mina & {
+  [data-showdex-theme='mina'][data-showdex-scheme='light'] & {
     background-color: color.alpha(#FDF2F6, 0.76);
   }
 
-  .dark & {
+  [data-showdex-scheme='dark'] & {
     background-color: color.alpha(colors.$black, 0.72);
     border-top-color: color.alpha(colors.$gray-darkest, 0.16);
   }
 
-  .dark.mina & {
+  [data-showdex-theme='mina'][data-showdex-scheme='dark'] & {
     background-color: color.alpha(#7E405D, 0.32);
   }
 
-  .glassy {
+  [data-showdex-terrain='glassy'] & {
     backdrop-filter: blur(6px);
   }
 
-  .glassy.light & {
+  [data-showdex-terrain='glassy'][data-showdex-scheme='light'] & {
     background-color: color.alpha(colors.$white, 0.48);
   }
 
-  .glassy.light.mina & {
+  [data-showdex-terrain='glassy'][data-showdex-theme='mina'][data-showdex-scheme='light'] & {
     background-color: color.alpha(#FDF2F6, 0.48);
   }
 
-  .glassy.dark & {
+  [data-showdex-terrain='glassy'][data-showdex-scheme='dark'] & {
     background-color: color.alpha(colors.$black, 0.48);
   }
 
-  .glassy.dark.mina & {
+  [data-showdex-terrain='glassy'][data-showdex-theme='mina'][data-showdex-scheme='dark'] & {
     background-color: color.alpha(#7E405D, 0.24);
   }
 }
 
 .links {
   @include flex.row($align: center);
+  column-gap: 8px;
 
-  .light & {
+  [data-showdex-scheme='light'] & {
     color: colors.$gray-dark;
-  }
-}
-
-.linkItem {
-  &:not(:first-child):not(:last-child) {
-    @include spacing.margin($right: 24px);
-
-    .smol & {
-      @include spacing.margin($right: 16px);
-    }
   }
 }
 
 .settingsButton {
   min-width: 68px;
   height: 44px;
-  @include spacing.margin($right: 32px);
-
-  .smol & {
-    @include spacing.margin($right: 24px);
-  }
 
   // bad idea, looks weird on non-Retina displays while changing color
-  // .settingsIcon {
-  //   @include transition.apply((transform, 10s));
-  // }
+  /* .settingsIcon {
+    @include transition.apply((transform, 10s));
+  }
 
-  // &:hover .settingsIcon {
-  //   transform: rotateZ(360deg);
-  // }
+  &:hover .settingsIcon {
+    transform: rotateZ(360deg);
+  } */
 }
 
-/*
-.linkSeparator {
+/* .linkSeparator {
   width: 1px;
   height: 28px;
   @include transition.apply(background-color);
@@ -571,51 +518,80 @@ button.spectateButton {
   .dark & {
     background-color: color.alpha(colors.$white, 0.16);
   }
-}
-*/
+} */
 
 .linkButton {
-  width: 44px;
+  width: 56px;
   height: 44px;
 
-  .light & {
+  [data-showdex-scheme='light'] & {
     color: color.alpha(colors.$black, 0.76);
   }
 
-  .dark & {
+  [data-showdex-scheme='dark'] & {
     color: color.alpha(colors.$white, 0.76);
   }
 
   .settingsVisible & {
-    .light & {
+    [data-showdex-scheme='light'] & {
       opacity: 0.48;
     }
 
-    .dark & {
+    [data-showdex-scheme='dark'] & {
       opacity: 0.48;
     }
+  }
+
+  i {
+    @include spacing.m($t: 4px, $b: 8px);
+    font-size: 18px;
   }
 
   .signpostIcon {
     transform: scale(0.9);
   }
 
-  // .sparkleIcon {
-  //   transform: scale(0.9);
-  // }
+  /* .sparkleIcon {
+    transform: scale(0.9);
+  }
 
-  // .bugIcon {
-  //   transform: rotateZ(90deg);
-  // }
+  .bugIcon {
+    transform: rotateZ(90deg);
+  }
 
-  // .clipboardIcon {
-  //   transform: scale(0.85);
-  // }
+  .clipboardIcon {
+    transform: scale(0.85);
+  } */
+
+  &.newInstanceButton {
+    color: colors.$transparent;
+    background-image: linear-gradient(65deg, colors.$black, #4A9AC7 48%, #B72D99 94%);
+    background-position: 0 0;
+    background-size: 200% 100%;
+    background-clip: text;
+    @include transition.apply(background-position, box-shadow);
+
+    &:hover {
+      background-position: 100% 0;
+    }
+
+    [data-showdex-scheme='dark'] & {
+      background-image: linear-gradient(65deg, #7ABCE2, #F148CC 94%);
+    }
+
+    [data-showdex-theme='mina'][data-showdex-scheme='light'] & {
+      background-image: linear-gradient(65deg, #770629 40%, #E94489 80%);
+    }
+
+    [data-showdex-theme='mina'][data-showdex-scheme='dark'] & {
+      background-image: linear-gradient(65deg, #F8C8C5 40%, #E94489 80%);
+    }
+  }
 }
 
 .linkButtonLabel {
-  @include spacing.margin($right: -0.01px);
-  letter-spacing: 0.01px;
+  // @include spacing.mr(-0.01px);
+  letter-spacing: 0.25px;
 }
 
 .credits {
@@ -629,12 +605,12 @@ button.spectateButton {
 // note: don't use position.absolute-anchor() here cause the BaseButton's
 // react-spring will add an inline transform property
 .tizeButton {
-  @include position.absolute($top: -33%, $right: 24px);
+  @include position.abs($t: -33%, $r: 24px);
   color: inherit;
   opacity: 0.56;
   @include transition.apply(color, opacity);
 
-  .light & {
+  [data-showdex-scheme='light'] & {
     color: colors.$gray-dark;
     opacity: 1;
   }

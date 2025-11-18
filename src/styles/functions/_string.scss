@@ -1,0 +1,62 @@
+///
+/// @group string
+/// @access public
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.3.0
+///
+
+@use 'sass:string';
+@use 'list';
+
+///
+/// Capitalizes a string.
+///
+/// @access public
+/// @param {string} $string
+/// @return {string}
+/// @author Pascal Duez <@pascalduez>
+///
+@function to-capital-case($string) {
+  @return string.to-upper-case(string.slice($string, 1, 1)) + string.slice($string, 2);
+}
+
+///
+/// @alias to-capital-case()
+///
+@function capitalize($s) {
+  @return to-capital-case($s);
+}
+
+///
+/// Camel-cases a string.
+///
+/// @access public
+/// @param {string} $string
+/// @return {string}
+/// @author Pascal Duez <@pascalduez>
+///
+@function to-camel-case($string) {
+  $progress: $string;
+  $result: '';
+  $exclude: (' ', '-', '–', '—', '_', ',', ';', ':', '.');
+
+  @while string.length($progress) > 0 {
+    $char: string.slice($progress, 1, 1);
+
+    @if list.includes($exclude, $char) {
+      $progress: to-capital-case(string.slice($progress, 2, 2)) + string.slice($progress, 3);
+    } @else {
+      $result: $result + $char;
+      $progress: string.slice($progress, 2);
+    }
+  }
+
+  @return $result;
+}
+
+///
+/// @alias to-camel-case()
+///
+@function camelize($s) {
+  @return to-camel-case($s);
+}

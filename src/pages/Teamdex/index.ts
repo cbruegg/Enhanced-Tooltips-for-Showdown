@@ -1,1 +1,3 @@
-export * from './Teamdex.bootstrap';
+export * from './TeamdexBootstrappable';
+export * from './TeamdexClassicBootstrapper';
+export * from './TeamdexPreactBootstrapper';

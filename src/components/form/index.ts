@@ -1,3 +1,4 @@
+export * from './Composer';
 export * from './Dropdown';
 export * from './GenField';
 export * from './InlineField';

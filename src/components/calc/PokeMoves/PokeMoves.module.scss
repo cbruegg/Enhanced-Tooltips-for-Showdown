@@ -15,8 +15,16 @@
   border-radius: 12px;
   @include transition.apply(background-color, box-shadow);
 
+  &.editor {
+    grid-template-columns: minmax(150px, 1.5fr) minmax(0, 2.5fr);
+  }
+
   &.verySmol {
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.15fr) minmax(0, 1fr);
+
+    &.editor {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 2fr);
+    }
   }
 
   &.light {

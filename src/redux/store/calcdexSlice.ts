@@ -1,3 +1,10 @@
+/**
+ * @file `calcdexSlice.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.3
+ */
+
+import * as React from 'react';
 import {
   type Draft,
   type PayloadAction,
@@ -144,12 +151,16 @@ export interface CalcdexSliceReducers extends SliceCaseReducers<CalcdexSliceStat
   /**
    * Duplicates the corresponding `battleId` in the provided partial `CalcdexBattleState`.
    *
+   * * `returnRef`, if provided, will be directly mutated to contain the final unique `battleId`.
+   *
    * @since 1.2.3
    */
   dupe: (
     state: Draft<CalcdexSliceState>,
     action: PayloadAction<PickRequired<Partial<CalcdexBattleState>, 'battleId'> & {
+      scope?: string;
       newId?: string;
+      returnRef?: { battleId?: string; };
     }>,
   ) => void;
 
@@ -167,7 +178,7 @@ export interface CalcdexSliceReducers extends SliceCaseReducers<CalcdexSliceStat
 const defaultMaxPokemon = env.int('calcdex-player-max-pokemon');
 const l = logger('@showdex/redux/store/calcdexSlice');
 
-export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers, string>({
+export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers, 'calcdex'>({
   name: 'calcdex',
 
   initialState: {},
@@ -176,12 +187,12 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
     init: (state, action) => {
       const endTimer = runtimer(`calcdexSlice.init() via ${action.payload?.scope || '(anon)'}`, l);
 
-      // l.debug(
-      //   'RECV', action.type, 'from', action.payload?.scope || '(anon)',
-      //   '\n', 'battleId', action.payload?.battleId || '???',
-      //   '\n', 'payload', action.payload,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type, 'from', action.payload?.scope || '(anon)',
+        '\n', 'battleId', action.payload?.battleId || '???',
+        '\n', 'payload', action.payload,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
       const {
         scope, // used for debugging; not used here, but destructuring it from `...payload`
@@ -221,7 +232,7 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
           l.warn(
             'CalcdexBattleState for battleId', battleId, 'already exists.',
             'This dispatch will be ignored (no-op).',
-            '\n', '(You will only see this warning on development.)',
+            '\n', '(you\'ll only see this warning in __DEV__)',
           );
         }
 
@@ -309,6 +320,13 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         sheetsNonce: null,
         sheets: [],
 
+        notes: {
+          ...(operatingMode === 'standalone' && {
+            pre: { visible: false, editorState: null },
+            post: { visible: true, editorState: null },
+          }),
+        },
+
         cached,
       };
 
@@ -318,10 +336,10 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
 
       state[battleId].playerCount = countActivePlayers(state[battleId]);
 
-      endTimer('(done)');
+      endTimer('(done)', battleId);
 
       l.debug(
-        'DONE', action.type, 'from', action.payload?.scope || '(anon)',
+        'DONE', action.type, 'from', scope || '(anon)',
         '\n', 'battleId', battleId || '???',
         '\n', 'payload', action.payload,
         '\n', 'battleState', __DEV__ && current(state)[battleId],
@@ -331,14 +349,15 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
     update: (state, action) => {
       const endTimer = runtimer(`calcdexSlice.update() via ${action.payload?.scope || '(anon)'}`, l);
 
-      // l.debug(
-      //   'RECV', action.type, 'from', action.payload?.scope || '(anon)',
-      //   '\n', 'battleId', action.payload?.battleId || '???',
-      //   '\n', 'payload', action.payload,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type, 'from', action.payload?.scope || '(anon)',
+        '\n', 'battleId', action.payload?.battleId || '???',
+        '\n', 'payload', action.payload,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
       const {
+        scope,
         battleId,
         battleNonce,
         name,
@@ -354,8 +373,9 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         playerKey,
         opponentKey,
         field,
+        notes,
         cached,
-      } = action.payload;
+      } = action.payload || {};
 
       if (!battleId) {
         l.debug(
@@ -364,21 +384,21 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
           '\n', 'action.payload', action.payload,
         );
 
-        return void endTimer('(no battleId)');
+        return void endTimer('(no battleId)', battleId);
       }
 
-      if (!(battleId in state)) {
+      // note: this is a pointer/reference to the object in `state`
+      const currentState = state[battleId];
+
+      if (!currentState?.battleId) {
         l.error(
           'Could not find a CalcdexBattleState with battleId', battleId,
           '\n', 'action.type', action.type,
           '\n', 'action.payload', action.payload,
         );
 
-        return void endTimer('(bad battleId)');
+        return void endTimer('(bad battleId)', battleId, currentState);
       }
-
-      // note: this is a pointer/reference to the object in `state`
-      const currentState = state[battleId];
 
       const updatedGen = typeof gen === 'number' && gen > 0 ? gen : currentState.gen;
       const legacy = detectLegacyGen(updatedGen);
@@ -443,12 +463,18 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
       if (currentState.operatingMode === 'standalone') {
         state[battleId].active = false;
         state[battleId].paused = false;
+
+        state[battleId].notes = {
+          ...currentState.notes,
+          pre: { ...currentState.notes?.pre, ...notes?.pre },
+          post: { ...currentState.notes?.post, ...notes?.post },
+        };
       }
 
-      endTimer('(done)');
+      endTimer('(done)', battleId);
 
       l.debug(
-        'DONE', action.type, 'from', action.payload?.scope || '(anon)',
+        'DONE', action.type, 'from', scope || '(anon)',
         '\n', 'battleId', battleId || '???',
         '\n', 'payload', action.payload,
         '\n', 'battleState', __DEV__ && current(state)[battleId],
@@ -458,45 +484,43 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
     updateField: (state, action) => {
       const endTimer = runtimer(`calcdexSlice.updateField() via ${action.payload?.scope || '(anon)'}`, l);
 
-      // l.debug(
-      //   'RECV', action.type, 'from', action.payload?.scope || '(anon)',
-      //   '\n', 'battleId', action.payload?.battleId || '???',
-      //   '\n', 'payload', action.payload,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type, 'from', action.payload?.scope || '(anon)',
+        '\n', 'battleId', action.payload?.battleId || '???',
+        '\n', 'payload', action.payload,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
       const {
+        scope,
         battleId,
         field,
-      } = action.payload;
+      } = action.payload || {};
 
       if (!battleId) {
         l.error('Attempted to initialize a CalcdexBattleState with a falsy battleId.');
 
-        return void endTimer('(no battleId)');
+        return void endTimer('(no battleId)', battleId);
       }
 
-      if (!(battleId in state)) {
+      if (!state[battleId]?.battleId) {
         l.error('Could not find a CalcdexBattleState with battleId', battleId);
 
-        return void endTimer('(bad battleId)');
+        return void endTimer('(bad battleId)', battleId, state[battleId]);
       }
 
       // using battleField here as both a pointer and popular reference
-      const battleField = state[battleId].field;
+      const { field: battleField } = state[battleId] || {};
 
       // only spreading this hard cause of what I chose to send as the payload,
       // which is a DeepPartial<CalcdexBattleField>, so even the objects inside are partials!
       // ... need to get some of that expand() util tbh lmao
-      state[battleId].field = {
-        ...battleField,
-        ...field,
-      };
+      state[battleId].field = { ...battleField, ...field };
 
-      endTimer('(done)');
+      endTimer('(done)', battleId);
 
       l.debug(
-        'DONE', action.type, 'from', action.payload?.scope || '(anon)',
+        'DONE', action.type, 'from', scope || '(anon)',
         '\n', 'battleId', battleId || '???',
         '\n', 'payload', action.payload,
         '\n', 'battleState', __DEV__ && current(state)[battleId],
@@ -506,25 +530,25 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
     updatePlayer: (state, action) => {
       const endTimer = runtimer(`calcdexSlice.updatePlayer() via ${action.payload?.scope || '(anon)'}`, l);
 
-      // l.debug(
-      //   'RECV', action.type, 'from', action.payload?.scope || '(anon)',
-      //   '\n', 'battleId', action.payload?.battleId || '???',
-      //   '\n', 'payload', action.payload,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type, 'from', action.payload?.scope || '(anon)',
+        '\n', 'battleId', action.payload?.battleId || '???',
+        '\n', 'payload', action.payload,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
-      const { battleId } = action.payload;
+      const { scope, battleId } = action.payload;
 
       if (!battleId) {
         l.error('Attempted to initialize a CalcdexBattleState with a falsy battleId.');
 
-        return void endTimer('(no battleId)');
+        return void endTimer('(no battleId)', battleId);
       }
 
-      if (!(battleId in state)) {
+      if (!state[battleId]?.battleId) {
         l.error('Could not find a CalcdexBattleState with battleId', battleId);
 
-        return void endTimer('(bad battleId)');
+        return void endTimer('(bad battleId)', battleId, state[battleId]);
       }
 
       if (AllPlayerKeys.every((k) => !Object.keys(action.payload[k] || {}).length)) {
@@ -551,10 +575,10 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         };
       });
 
-      endTimer('(done)');
+      endTimer('(done)', battleId);
 
       l.debug(
-        'DONE', action.type, 'from', action.payload?.scope || '(anon)',
+        'DONE', action.type, 'from', scope || '(anon)',
         '\n', 'battleId', battleId || '???',
         '\n', 'payload', action.payload,
         '\n', 'battleState', __DEV__ && current(state)[battleId],
@@ -564,44 +588,45 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
     updatePokemon: (state, action) => {
       const endTimer = runtimer(`calcdexSlice.updatePokemon() via ${action.payload?.scope || '(anon)'}`, l);
 
-      // l.debug(
-      //   'RECV', action.type, 'from', action.payload?.scope || '(anon)',
-      //   '\n', 'battleId', action.payload?.battleId || '???',
-      //   '\n', 'payload', action.payload,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type, 'from', action.payload?.scope || '(anon)',
+        '\n', 'battleId', action.payload?.battleId || '???',
+        '\n', 'payload', action.payload,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
       const {
+        scope,
         battleId,
         playerKey,
         pokemon,
-      } = action.payload;
+      } = action.payload || {};
 
       if (!battleId) {
         l.error('Attempted to initialize a CalcdexBattleState with a falsy battleId.');
 
-        return void endTimer('(no battleId)');
+        return void endTimer('(no battleId)', battleId);
       }
 
-      if (!(battleId in state)) {
+      if (!state[battleId]?.battleId) {
         l.error('Could not find a CalcdexBattleState with battleId', battleId);
 
-        return void endTimer('(bad battleId)');
+        return void endTimer('(bad battleId)', battleId, state[battleId]);
       }
 
-      const battleState = state[battleId];
+      const { [battleId]: battleState } = state;
 
-      if (!(playerKey in battleState)) {
+      if (!battleState?.[playerKey]?.sideid) {
         l.error(
           'Could not find player', playerKey, 'in state for', battleId,
           '\n', 'pokemon', pokemon,
           '\n', 'battleState', __DEV__ && current(state)[battleId],
         );
 
-        return void endTimer('(bad playerKey)');
+        return void endTimer('(bad playerKey)', playerKey, battleState?.[playerKey]);
       }
 
-      const playerState = battleState[playerKey];
+      const { [playerKey]: playerState } = battleState;
 
       const pokemonId = pokemon?.calcdexId || calcPokemonCalcdexId(pokemon);
       const pokemonStateIndex = playerState.pokemon.findIndex((p) => p.calcdexId === pokemonId);
@@ -628,10 +653,10 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         ...pokemon,
       } as CalcdexPokemon;
 
-      endTimer('(done)');
+      endTimer('(done)', battleId);
 
       l.debug(
-        'DONE', action.type, 'from', action.payload?.scope || '(anon)',
+        'DONE', action.type, 'from', scope || '(anon)',
         '\n', 'battleId', battleId || '???',
         '\n', 'payload', action.payload,
         '\n', 'battleState', __DEV__ && current(state)[battleId],
@@ -639,14 +664,13 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
     },
 
     destroy: (state, action) => {
-      // l.debug(
-      //   'RECV', action.type,
-      //   '\n', 'battleId (payload)', action.payload,
-      //   '\n', 'state', __DEV__ && current(state),
-      // );
+      /* l.debug(
+        'RECV', action.type,
+        '\n', 'battleId (payload)', action.payload,
+        '\n', 'state', __DEV__ && current(state),
+      ); */
 
-      /*
-      if (!action.payload || !(action.payload in state)) {
+      /* if (!action.payload || !(action.payload in state)) {
         if (__DEV__) {
           l.warn(
             'Attempted to destroy a Calcdex that does not exist in state.',
@@ -657,8 +681,7 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         }
 
         return;
-      }
-      */
+      } */
 
       const battleIds = [...(Array.isArray(action.payload) ? action.payload : [action.payload])].filter(Boolean);
 
@@ -689,8 +712,10 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
       }
 
       const {
+        scope,
         battleId,
         newId: newIdFromPayload,
+        returnRef,
         ...additionalProperties
       } = action.payload;
 
@@ -699,7 +724,11 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
       }
 
       // generate a new battleId
-      const newId = newIdFromPayload || uuidv4();
+      let newId = newIdFromPayload || uuidv4();
+
+      while (newId in state) {
+        newId = uuidv4();
+      }
 
       state[newId] = {
         ...cloneBattleState(state[battleId]),
@@ -714,15 +743,14 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         turn: 0,
         rules: {},
         switchPlayers: false,
+        notes: { ...state[battleId].notes },
         cached: null, // initially not saved until manually done so by the user
       };
 
       // update (2024/07/23): leaving the player keys as-is within the data layer; just fixed it visually in SideControls
-      /*
-      if (state[newId].playerKey === 'p2') {
+      /* if (state[newId].playerKey === 'p2') {
         state[newId].opponentKey = 'p1';
-      }
-      */
+      } */
 
       // perform additional processing on the players if this was originally a battle
       if (state[battleId].operatingMode === 'battle') {
@@ -786,10 +814,14 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
         state[newId].field.terrain = null;
       }
 
-      endTimer('(done)');
+      if (typeof returnRef === 'object') {
+        returnRef.battleId = newId;
+      }
+
+      endTimer('(done)', battleId, '->', newId);
 
       l.debug(
-        'DONE', action.type,
+        'DONE', action.type, 'from', scope || '(anon)',
         '\n', 'battleId (payload)', action.payload,
         '\n', 'state', __DEV__ && current(state),
       );
@@ -857,32 +889,31 @@ export const calcdexSlice = createSlice<CalcdexSliceState, CalcdexSliceReducers,
     }),
 });
 
-export const useCalcdexState = () => useSelector(
-  (state) => state?.calcdex,
-);
-
-export const useCalcdexBattleState = (
-  battleId: string,
-) => {
-  const battleState = useSelector((state) => state?.calcdex?.[battleId]);
-
-  return battleState || ({} as CalcdexBattleState);
-};
+export const useCalcdexState = () => useSelector((s) => s?.calcdex);
+export const useCalcdexBattleState = (battleId: string) => useSelector((s) => s?.calcdex?.[battleId]);
 
 export const useCalcdexDuplicator = () => {
   const { t } = useTranslation('honkdex');
+  const instances = useCalcdexState();
   const dispatch = useDispatch();
 
-  return (
+  return React.useCallback((
     instance: PickRequired<Partial<CalcdexBattleState>, 'battleId'> & {
+      scope?: string;
       newId?: string;
+      returnRef?: { battleId?: string; };
     },
   ) => {
     if (!instance?.battleId) {
       return;
     }
 
-    let defaultName = (!!instance.name && t('battle.name.dupe', { name: instance.name })) || null;
+    let defaultName = t('battle.name.dupe', {
+      name: instance.name || instances[instance.battleId]?.name || t(
+        'hellodex:instances.honkdex.untitledLabel',
+        'untitled honk',
+      ),
+    });
 
     if (instance.operatingMode === 'battle') {
       // note: since we're just building the title here, there's really no need to make sure if the user specified they're
@@ -898,10 +929,16 @@ export const useCalcdexDuplicator = () => {
     }
 
     dispatch(calcdexSlice.actions.dupe({
+      scope: `${l.scope}:useCalcdexDuplicator() via ${instance.scope || '(anon)'}`,
       battleId: instance.battleId,
       newId: instance.newId,
       name: null,
       defaultName,
+      returnRef: instance.returnRef,
     }));
-  };
+  }, [
+    dispatch,
+    instances,
+    t,
+  ]);
 };

@@ -1,4 +1,9 @@
-// import { v4 as uuidv4 } from 'uuid';
+/**
+ * @file `content.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
+ */
+
 import {
   type ShowdexEventDetail,
   createShowdexEvent,
@@ -78,7 +83,7 @@ const injectables: ContentInjectable<HTMLElement>[] = [
 
 l.info(
   'Starting Showdex for', env('build-target', 'probably chrome??'),
-  'with extension ID', extensionId, 'and runtime.id', runtime.id,
+  'w/ extension ID', extensionId, '& runtime.id', runtime.id,
 );
 
 l.debug('Injecting the following injectables:', injectables);

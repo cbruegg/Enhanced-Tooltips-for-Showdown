@@ -177,7 +177,15 @@ export const sanitizePokemon = <
         && (pokemon as Partial<Showdown.Pokemon>)?.status
     ) || null,
     dirtyStatus: (pokemon as CalcdexPokemon)?.dirtyStatus || null,
-    turnstatuses: (pokemon as Partial<Showdown.Pokemon>)?.turnstatuses,
+    turnstatuses: (Object.entries(
+      (pokemon as Partial<Showdown.Pokemon>)?.turnstatuses || {},
+    ) as Entries<Showdown.Pokemon['turnstatuses']>).reduce((
+      prev,
+      [effectId, effectState],
+    ) => ({
+      ...prev,
+      ...(Array.isArray(effectState) && { [effectId]: [...effectState] }),
+    }), {} as Showdown.Pokemon['turnstatuses']),
 
     chainMove: (pokemon as CalcdexPokemon)?.chainMove || null,
     chainCounter: (pokemon as CalcdexPokemon)?.chainCounter || 0,

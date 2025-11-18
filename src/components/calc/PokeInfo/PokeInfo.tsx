@@ -1,3 +1,9 @@
+/**
+ * @file `PokeInfo.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.2
+ */
+
 import * as React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import cx from 'classnames';
@@ -112,7 +118,7 @@ export const PokeInfo = ({
     subFormats,
     legacy,
     active: battleActive,
-    paused: battlePaused,
+    // paused: battlePaused,
     gameType,
     defaultLevel,
   } = state;
@@ -422,15 +428,13 @@ export const PokeInfo = ({
       setImportedCount(count);
       importBadgeRef.current?.show();
     } catch (error) {
-      /*
-      if (__DEV__) {
+      /* if (__DEV__) {
         l.error(
           'Failed to import the set for', pokemon?.ident || pokemon?.speciesForme || '???', 'from clipboard:',
           '\n', error,
-          '\n', '(You will only see this error on development.)',
+          '\n', '(you\'ll only see this error in __DEV__)',
         );
-      }
-      */
+      } */
 
       setImportFailedReason(t('poke.info.preset.failedBadge'));
       importFailedBadgeRef.current?.show();
@@ -441,15 +445,29 @@ export const PokeInfo = ({
   const exportFailedBadgeRef = React.useRef<BadgeInstance>(null);
   const [exportedCount, setExportedCount] = React.useState(0);
 
-  const pokePaste = React.useMemo(
-    () => exportPokePaste(pokemon, format),
-    [format, pokemon],
-  );
+  const pokePasteSyntax = React.useMemo(() => (
+    (settings?.presetDisplaySyntax !== 'auto' && settings?.presetDisplaySyntax)
+      || (window.__SHOWDEX_HOST || 'classic')
+  ), [
+    settings?.presetDisplaySyntax,
+  ]);
 
-  const handlePokePasteExport = () => void (async () => {
+  const pokePaste = React.useMemo(() => exportPokePaste(pokemon, {
+    format,
+    syntax: pokePasteSyntax,
+  }), [
+    format,
+    pokemon,
+    pokePasteSyntax,
+  ]);
+
+  const handlePokePasteExport = React.useCallback(() => void (async () => {
     // note: using `gen` instead of `format` (just for what's actually copied to the user's clipboard) to not omit the EVs
     // in Randoms, where they're all (usually) 85, but the PokePaste will omit them when passing the full `format`
-    const fullPaste = exportPokePaste(pokemon, gen);
+    const fullPaste = exportPokePaste(pokemon, {
+      format: gen,
+      syntax: pokePasteSyntax,
+    });
 
     if (!fullPaste) {
       return;
@@ -461,27 +479,34 @@ export const PokeInfo = ({
       setExportedCount(1);
       exportBadgeRef.current?.show();
     } catch (error) {
-      /*
-      if (__DEV__) {
+      /* if (__DEV__) {
         l.error(
           'Failed to export the set for', pokemon?.ident || pokemon?.speciesForme || '???', 'to clipboard:',
           '\n', error,
-          '\n', '(You will only see this error on development.)',
+          '\n', '(you\'ll only see this error in __DEV__)',
         );
-      }
-      */
+      } */
 
       exportFailedBadgeRef.current?.show();
     }
-  })();
+  })(), [
+    gen,
+    pokemon,
+    pokePasteSyntax,
+  ]);
 
-  const handleMultiPokePasteExport = () => void (async () => {
+  const handleMultiPokePasteExport = React.useCallback(() => void (async () => {
     if ((operatingMode === 'battle' && battleActive) || !player?.pokemon?.length) {
       return;
     }
 
     const delimiter = '\n\n' as const;
-    const paste = exportMultiPokePaste(player.pokemon, { format, delimiter });
+    const paste = exportMultiPokePaste(player.pokemon, {
+      format,
+      syntax: pokePasteSyntax,
+      delimiter,
+    });
+
     const count = paste?.split(delimiter).length || 0;
 
     try {
@@ -492,7 +517,13 @@ export const PokeInfo = ({
     } catch (error) {
       exportFailedBadgeRef.current?.show();
     }
-  })();
+  })(), [
+    battleActive,
+    format,
+    operatingMode,
+    player?.pokemon,
+    pokePasteSyntax,
+  ]);
 
   return (
     <div
@@ -780,7 +811,7 @@ export const PokeInfo = ({
                 {t('poke.info.preset.label', 'Set')}
 
                 {
-                  (operatingMode === 'battle' && !battlePaused) &&
+                  (operatingMode === 'battle' && battleActive) &&
                   <ToggleButton
                     className={styles.toggleButton}
                     style={pokemon?.autoPresetId && settings?.nhkoColors?.[0] ? {
@@ -851,7 +882,7 @@ export const PokeInfo = ({
                   />
 
                   {
-                    ((operatingMode === 'standalone' || battlePaused) && (player?.pokemon?.length || 0) > 1) &&
+                    ((operatingMode === 'standalone' || !battleActive) && player?.pokemon?.length > 1) &&
                     <ToggleButton
                       className={cx(styles.toggleButton, styles.exportMultiButton)}
                       label={t('poke.info.preset.exportMultiLabel', 'All')}

@@ -31,9 +31,11 @@ module.exports = {
     { name: 'main' }, // main script (src/main.ts)
 
     { name: 'app' },
+    { name: 'bootdex' },
     { name: 'calcdex' },
     { name: 'hellodex' },
     { name: 'honkdex' },
+    { name: 'notedex' },
     { name: 'teamdex' },
   ],
 

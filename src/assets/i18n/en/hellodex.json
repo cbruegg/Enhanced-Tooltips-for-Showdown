@@ -1,14 +1,15 @@
 {
   "--meta": {
     "name": "hellodex",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "locale": "en",
     "created": "2024-01-05T12:29:07.229Z",
-    "updated": "2024-07-24T17:13:46.115Z"
+    "updated": "2025-09-27T14:03:16.294Z"
   },
 
   "contextMenu": {
     "newHonk": "New Honk",
+    "newNote": "New Note",
     "spectate": "Spectate Battles",
     "settings": "$t(common:labels.setting_other)",
     "close": "$t(common:labels.close)"
@@ -43,7 +44,20 @@
       },
       "orSeparator": "or",
       "newLabel": ["<strong>New</strong>", "<strong>Honk</strong>dex"],
-      "newAria": "Create New $t(common:products.honk_one)"
+      "newAria": "Create New Honk",
+      "untitledLabel": "untitled $t(common:products.honk_one)",
+      "undoLabel": "$t(common:labels.undo)?"
+    },
+    "notedex": {
+      "contextMenu": {
+        "open": "$t(common:labels.open)",
+        "dupe": "$t(common:labels.duplicate)",
+        "remove": "$t(common:labels.delete)"
+      },
+      "newLabel": "<strong>Note</strong>dex",
+      "newAria": "Create New Note",
+      "untitledLabel": "untitled $t(common:products.note_one)",
+      "undoLabel": "$t(instances.honkdex.undoLabel)"
     }
   },
 
@@ -67,6 +81,16 @@
 
   "footer": {
     "created": "created with <love /> by",
+
+    "newHonkdex": {
+      "label": "$t(common:products.honkdex_one)",
+      "tooltip": "$t(instances.honkdex.newAria)"
+    },
+
+    "newNotedex": {
+      "label": "$t(common:products.notedex_one)",
+      "tooltip": "$t(instances.notedex.newAria)"
+    },
 
     "settings": {
       "openLabel": "$t(common:labels.setting_other)",

@@ -81,8 +81,12 @@ export const similarPokemon = <
     return false;
   }
 
+  // note: specifying 'sheet' as the `source` to getPresetFormes() will return the base forme + all possible formes,
+  // e.g., speciesForme = 'Terapagos-Stellar' -> ['Terapagos', 'Terapagos-Terastal', 'Terapagos-Stellar']
+  // vs. not doing so -> ['Terapagos', 'Terapagos-Stellar']
   const fuckedA = normalizeFormes === 'fucked' ? getPresetFormes(formeA, {
     format,
+    source: 'sheet',
   }) : [];
 
   const {
@@ -111,6 +115,7 @@ export const similarPokemon = <
 
   const fuckedB = normalizeFormes === 'fucked' ? getPresetFormes(formeB, {
     format,
+    source: 'sheet',
   }) : [];
 
   return (

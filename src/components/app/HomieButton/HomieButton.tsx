@@ -1,3 +1,9 @@
+/**
+ * @file `HomieButton.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.2.0
+ */
+
 import * as React from 'react';
 import cx from 'classnames';
 import {
@@ -8,10 +14,9 @@ import {
 } from 'date-fns';
 import { Button, Tooltip } from '@showdex/components/ui';
 import { type ShowdexSupporterTierMember, type ShowdexSupporterTierTerm } from '@showdex/interfaces/app';
-import { useColorScheme, useShowdexBundles } from '@showdex/redux/store';
-import { findPlayerTitle } from '@showdex/utils/app';
+import { useColorScheme } from '@showdex/redux/store';
+import { usePlayerTitle } from '@showdex/utils/app';
 import { formatId } from '@showdex/utils/core';
-import { openUserPopup } from '@showdex/utils/host';
 import { pluralize } from '@showdex/utils/humanize';
 import { determineColorScheme } from '@showdex/utils/ui';
 import { MemberIcon } from '../MemberIcon';
@@ -24,7 +29,9 @@ export interface HomieButtonProps {
   homie: ShowdexSupporterTierMember;
   term?: ShowdexSupporterTierTerm;
   showTitles?: boolean;
+  alwaysActive?: boolean;
   updated?: number;
+  onUserPopup?: (username: string) => void;
 }
 
 export const HomieButton = ({
@@ -34,36 +41,46 @@ export const HomieButton = ({
   homie,
   term = 'once',
   showTitles,
+  alwaysActive,
   updated,
+  onUserPopup,
 }: HomieButtonProps): JSX.Element => {
   const colorSchemeFromStore = useColorScheme();
   const colorScheme = colorSchemeFromProps || colorSchemeFromStore;
   const tooltipColorScheme = determineColorScheme(colorScheme, true);
 
-  const bundles = useShowdexBundles();
-  const { name, showdownUser, periods } = { ...homie };
+  const {
+    name,
+    showdownUser,
+    periods,
+  } = homie || {};
 
-  const userTitle = React.useMemo(
-    () => findPlayerTitle(name, { showdownUser, titles: bundles.titles, tiers: bundles.tiers }),
-    [bundles.titles, bundles.tiers, name, showdownUser],
-  );
+  const userTitle = usePlayerTitle(name, { showdownUser });
 
-  const userLabelColor = userTitle?.color?.[colorScheme];
-  const userTooltipLabelColor = userTitle?.color?.[tooltipColorScheme];
+  const {
+    [colorScheme]: userLabelColor,
+    [tooltipColorScheme]: userTooltipLabelColor,
+  } = userTitle?.color || {};
 
   const periodsCount = periods?.length || 0;
   const validPeriods = React.useMemo(() => (periods || []).filter?.((p) => !!p?.[0] && isValid(new Date(p[0]))), [periods]);
   const active = React.useMemo(() => term === 'once' || validPeriods.some((p) => !p[1]), [term, validPeriods]);
 
-  const nameStyle: React.CSSProperties = {
-    ...(showTitles && userLabelColor ? {
+  const nameStyle = React.useMemo<React.CSSProperties>(() => ({
+    ...(showTitles && userLabelColor && {
       color: userLabelColor,
-      textShadow: userTitle.colorGlow ? `0 0 4px ${userLabelColor}` : undefined,
-    } : undefined),
-    ...(active ? undefined : { opacity: 0.56 }),
-  };
+      ...(userTitle?.colorGlow && { textShadow: `0 0 4px ${userLabelColor}` }),
+    }),
+    ...(!active && !alwaysActive && { opacity: 0.64 }),
+  }), [
+    active,
+    alwaysActive,
+    showTitles,
+    userLabelColor,
+    userTitle?.colorGlow,
+  ]);
 
-  const renderedUsername = (
+  const renderedUsername = React.useMemo(() => (
     <>
       <span>{name}</span>
 
@@ -75,9 +92,15 @@ export const HomieButton = ({
         />
       }
     </>
-  );
+  ), [
+    homie,
+    name,
+    showdownUser,
+    showTitles,
+    userTitle?.icon,
+  ]);
 
-  const renderedTooltip = userTitle?.title || validPeriods?.length ? (
+  const renderedTooltip = React.useMemo(() => (userTitle?.title || validPeriods?.length ? (
     <div className={styles.tooltipContent}>
       {
         showTitles &&
@@ -190,11 +213,12 @@ export const HomieButton = ({
                   duration.months = Math.max(duration.months - 12, 0);
                 }
 
+                // warning: implementation of this is dumb af but lazy lol
                 const formatted = formatDuration(duration, {
                   format: ['years', 'months'],
                   zero: false,
                   delimiter: ' & ',
-                }).replace(/(?:^|\x20)1(?=\x20)/, 'a');
+                }).replace(/(?:^|\x20)1(?=\x20)/, 'a').replace('&a', '& a');
 
                 if (!formatted) {
                   return null;
@@ -211,7 +235,22 @@ export const HomieButton = ({
     <div className={styles.tooltipContent}>
       Open <strong>{name}</strong>'s Profile
     </div>
-  ) : null;
+  ) : null), [
+    active,
+    homie,
+    name,
+    periodsCount,
+    showdownUser,
+    showTitles,
+    term,
+    updated,
+    validPeriods,
+    userTitle?.custom,
+    userTitle?.icon,
+    userTitle?.title,
+    userTooltipLabelColor,
+    userTitle?.colorGlow,
+  ]);
 
   return showdownUser ? (
     <Button
@@ -220,7 +259,7 @@ export const HomieButton = ({
       style={{ ...nameStyle, ...style }}
       tooltip={renderedTooltip}
       absoluteHover
-      onPress={() => openUserPopup(name)}
+      onPress={() => void onUserPopup?.(name)}
     >
       {renderedUsername}
     </Button>

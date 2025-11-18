@@ -1,9 +1,14 @@
+/**
+ * @file `teamdexSlice.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.1.3
+ */
+
 import {
   type Draft,
   type PayloadAction,
   type SliceCaseReducers,
   createSlice,
-  current,
 } from '@reduxjs/toolkit';
 import { type CalcdexPokemonPreset } from '@showdex/interfaces/calc';
 import { logger } from '@showdex/utils/debug';
@@ -49,7 +54,7 @@ export interface TeamdexSliceReducers extends SliceCaseReducers<TeamdexSliceStat
 
 const l = logger('@showdex/redux/store/teamdexSlice');
 
-export const teamdexSlice = createSlice<TeamdexSliceState, TeamdexSliceReducers, string>({
+export const teamdexSlice = createSlice<TeamdexSliceState, TeamdexSliceReducers, 'teamdex'>({
   name: 'teamdex',
 
   initialState: {

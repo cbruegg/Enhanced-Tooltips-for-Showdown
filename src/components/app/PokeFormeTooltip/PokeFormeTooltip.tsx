@@ -1,3 +1,9 @@
+/**
+ * @file `PokeFormeTooltip.tsx`
+ * @author Keith Choison <keith@tize.io>
+ * @since 1.0.7
+ */
+
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import cx from 'classnames';
@@ -38,7 +44,7 @@ export const PokeFormeTooltip = ({
   ...props
 }: PokeFormeTooltipProps): JSX.Element => {
   const { t } = useTranslation('pokedex');
-  const dex = getDexForFormat(format);
+  const dex = React.useMemo(() => getDexForFormat(format), [format]);
   const colorScheme = useColorScheme();
 
   const {
@@ -49,24 +55,33 @@ export const PokeFormeTooltip = ({
 
   const altFormesCount = altFormes?.length || 0;
   const formeKey = transformedForme ? 'transformedForme' : 'speciesForme';
-  const currentForme = transformedForme || speciesForme;
 
-  const dexForme = dex.species.get(currentForme);
+  const currentForme = React.useMemo(
+    () => (transformedForme || speciesForme)?.replace(/-Tera$/, ''),
+    [speciesForme, transformedForme],
+  );
+
+  const dexForme = React.useMemo(() => dex.species.get(currentForme), [currentForme, dex]);
   const baseForme = (dexForme?.exists && dexForme.baseSpecies) || null;
-  const tBaseForme = t(`pokedex:species.${formatId(baseForme)}`, baseForme);
+  const tBaseForme = React.useMemo(() => t(`pokedex:species.${formatId(baseForme)}`, baseForme), [baseForme, t]);
 
-  const handleFormePress = (
+  const handleFormePress = React.useCallback((
     forme: string,
   ) => {
     // don't fire the callback if the forme is the same
-    if (currentForme?.replace('-Tera', '') === forme) {
+    if (currentForme === forme) {
       return;
     }
 
     // make sure to close the tooltip once the forme is selected for that good good UX
     onPokemonChange?.({ [formeKey]: forme });
     onRequestClose?.();
-  };
+  }, [
+    currentForme,
+    formeKey,
+    onPokemonChange,
+    onRequestClose,
+  ]);
 
   return (
     <Tooltip
@@ -95,7 +110,7 @@ export const PokeFormeTooltip = ({
               ? t('common:labels.base', tBaseForme)
               : tAltForme.replace(`${tBaseForme}-`, '');
 
-            const selected = currentForme?.replace('-Tera', '') === altForme;
+            const selected = currentForme === altForme;
 
             return (
               <BaseButton

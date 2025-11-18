@@ -1,10 +1,10 @@
 {
   "--meta": {
     "name": "settings",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "locale": "fr",
     "created": "2024-01-08T19:45:21.842Z",
-    "updated": "2024-09-28T22:20:22.835Z"
+    "updated": "2025-09-20T07:14:49.973Z"
   },
 
   "pane": {
@@ -52,6 +52,7 @@
       "secondary": {
         "advanced": "Avancés",
         "behavior": "Comportement",
+        "experimental": "Expérimentaux",
         "interface": "Interface",
         "matchup_one": "Match",
         "matchup_other": "Matchs",
@@ -250,6 +251,29 @@
       }
     },
 
+    "presetDisplaySyntax": {
+      "label": "Afficher les PokéPastes en",
+      "options": {
+        "classic": {
+          "label": "Ancienne syntaxe",
+          "tooltip": "Affiche et exporte les PokéPastes dans l'ancienne syntaxe utilisée dans le client Showdown original avant la réécriture. L'importation de PokéPastes dans la <strong>$t(calcdex.presetDisplaySyntax.options.preact.label)</strong> restera possible."
+        },
+        "preact": {
+          "label": "Nouvelle syntaxe",
+          "tooltip": "Affiche et exporte les PokéPastes dans la nouvelle syntaxe utilisée dans la réécriture du client Showdown. L'importation de PokéPastes dans la <strong>$t(calcdex.presetDisplaySyntax.options.classic.label)</strong> restera possible."
+        },
+        "auto": {
+          "label": "$t(common:labels.auto)",
+          "tooltip": "Affiche et exporte les PokéPastes dans soit la <strong>$t(calcdex.presetDisplaySyntax.options.classic.label)</strong>, soit la <strong>$t(calcdex.presetDisplaySyntax.options.preact.label)</strong>, en fonction du client Showdown détecté. L'importation de PokéPastes dans l'une ou l'autre syntaxe restera possible.<br /><br />(Au fait, vous êtes sur {{host}} !)",
+          "hosts": {
+            "bad": "mauvais client",
+            "classic": "client Showdown original",
+            "preact": "réécriture du client Showdown"
+          }
+        }
+      }
+    },
+
     "maxPresetAge": {
       "label": "Conserver les Sets Pendant",
       "options": {
@@ -435,7 +459,17 @@
 
     "showNonDamageRanges": {
       "label": "Dégâts Nuls",
-      "tooltip": "Affiche les intervalles de dégâts qui sont <strong>$t(common:labels.na)</strong> ou <strong>$t(calcdex:poke.moves.immune)</strong>."
+      "tooltip": "Affiche les intervalles de dégâts qui sont <strong>$t(calcdex:poke.moves.na)</strong> ou <strong>$t(calcdex:poke.moves.immune)</strong>."
+    },
+
+    "includeHazardsDamage": {
+      "label": "Inclure les dangers dans le NHKO",
+      "tooltip": "Inclut les dégâts des dangers du terrain, tels que <em>$t(pokedex:moves.stealthrock)</em>, dans les probabilités de NHKO affichées dans la colonne \"$t(calcdex:poke.moves.nhko)\"."
+    },
+
+    "includeEotDamage": {
+      "label": "Inclure les effets de tour dans le NHKO",
+      "tooltip": "Inclut les dégâts des effets de fin de tour, tels que le statut non volatil $t(pokedex:nonvolatiles.brn.2) &amp; la météo <em>$t(pokedex:weather.sand.label)</em>, dans les probabilités de NHKO affichées dans la colonne \"$t(calcdex:poke.moves.nhko)\".<br /><br />Les effets secondaires, tels que le boost de $t(pokedex:stats.atk.1) du talent <em>$t(pokedex:abilities.guts)</em>, seront toujours pris en compte dans les calculs de dégâts, indépendamment de ce paramètre."
     },
 
     "showTooltips": {
@@ -611,7 +645,17 @@
 
     "alwaysShowGenetics": {
       "label": "Toujours Afficher les Stats",
-      "tooltip": "Affiche toujours les $t(pokedex:stats.base_other.0), $t(pokedex:stats.ivs_other.1) & $t(pokedex:stats.evs_other.1) dans le tableau des stats du Pokémon. Les $t(pokedex:stats.evs_other.1) peuvent toujours être cachés dans les générations anciennes, à moins que le paramètre <em>$t(calcdex.showLegacyEvs.label)</em> de $t(common:products.calcdex_one) ne soit activé.<br /><br />La désactivation rétablira la configuration des paramètres <em>$t(calcdex.showAuthGenetics.label)</em> & <em>$t(calcdex.showPlayerGenetics.label)</em> de $t(common:products.calcdex_one)."
+      "tooltip": "Affiche toujours les $t(pokedex:stats.base_other.0), $t(pokedex:stats.ivs_other.1) & $t(pokedex:stats.evs_other.1) dans le tableau des stats du Pokémon. Les $t(pokedex:stats.evs_other.1) peuvent toujours être cachés dans les générations anciennes, à moins que le paramètre <em>$t(calcdex.showLegacyEvs.label)</em> de $t(common:products.calcdex_one) ne soit activé.<br /><br />La désactivation rétablira la configuration des paramètres <em>$t(calcdex.lockAuthGenetics.label)</em> & <em>$t(calcdex.lockPlayerGenetics.label)</em> de $t(common:products.calcdex_one)."
+    },
+
+    "includeHazardsDamage": {
+      "label": "$t(calcdex.includeHazardsDamage.label)",
+      "tooltip": "$t(calcdex.includeHazardsDamage.tooltip)"
+    },
+
+    "includeEotDamage": {
+      "label": "$t(calcdex.includeEotDamage.label)",
+      "tooltip": "$t(calcdex.includeEotDamage.tooltip)"
     }
   },
 

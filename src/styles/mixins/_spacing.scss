@@ -1,6 +1,8 @@
 ////
 /// @group spacing
-/// @author Keith Choison
+/// @access public
+/// @author Keith Choison <keith@tize.io>
+/// @since 0.1.0
 ////
 
 @use 'functions/list';
@@ -69,36 +71,243 @@
   );
 }
 
+///
+/// @alias margin()
+///
+@mixin m(
+  $a: null,
+  $x: null,
+  $y: null,
+  $t: null,
+  $r: null,
+  $b: null,
+  $l: null,
+) {
+  @include margin(
+    $all: $a,
+    $x: $x,
+    $y: $y,
+    $top: $t,
+    $right: $r,
+    $bottom: $b,
+    $left: $l,
+  );
+}
+
 @mixin margin-xy($x: null, $y: null) {
   @include margin($x: $x, $y: $y);
 }
 
+///
+/// @alias margin-axis()
+///
 @mixin margin-axis($horizontal: null, $vertical: null) {
-  @include margin($x: $horizontal, $y: $vertical);
+  @include margin-xy($x: $horizontal, $y: $vertical);
 }
 
-@mixin margin-center($vertical: null) {
-  @include margin($x: auto, $y: $vertical);
+@mixin margin-center {
+  @include margin($x: auto);
 }
 
-@mixin margin-middle($horizontal: null) {
-  @include margin($x: $horizontal, $y: auto);
+///
+/// @alias margin-center()
+///
+@mixin mx-auto {
+  @include margin-center;
+}
+
+@mixin margin-middle {
+  @include margin($y: auto);
+}
+
+///
+/// @alias margin-middle()
+///
+@mixin my-auto {
+  @include margin-middle;
 }
 
 @mixin margin-all($margin) {
   @include margin($all: $margin);
 }
 
+///
+/// @alias margin-all()
+///
 @mixin margin-square($margin) {
-  @include margin($all: $margin);
+  @include margin-all($margin);
 }
 
 @mixin margin-auto {
-  @include margin($all: auto);
+  @include margin-all(auto);
+}
+
+///
+/// @alias margin-auto()
+///
+@mixin m-auto {
+  @include margin-auto;
 }
 
 @mixin margin-none {
-  @include margin($all: 0);
+  @include margin-all(0);
+}
+
+///
+/// @alias margin-none()
+///
+@mixin m-none {
+  @include margin-none;
+}
+
+///
+/// @alias m-none()
+///
+@mixin m-0 {
+  @include m-none;
+}
+
+@mixin margin-xy($x: null, $y: null) {
+  @include margin($x: $x, $y: $y);
+}
+
+///
+/// @alias margin-xy()
+///
+@mixin margin-axis($vertical: null, $horizontal: null) {
+  @include margin-xy($x: $horizontal, $y: $vertical);
+}
+
+@mixin margin-x($x: null) {
+  @include margin($x: $x);
+}
+
+///
+/// @alias margin-x()
+///
+@mixin mx($x: null) {
+  @include margin-x($x: $x);
+}
+
+@mixin mx-none {
+  @include mx($x: 0);
+}
+
+///
+/// @alias mx-none()
+///
+@mixin mx-0 {
+  @include mx-none;
+}
+
+@mixin margin-y($y: null) {
+  @include margin($y: $y);
+}
+
+///
+/// @alias margin-y()
+///
+@mixin my($y: null) {
+  @include margin-y($y: $y);
+}
+
+@mixin my-none {
+  @include my($y: 0);
+}
+
+///
+/// @alias my-none()
+///
+@mixin my-0 {
+  @include my-none;
+}
+
+@mixin margin-top($top: null) {
+  @include margin($top: $top);
+}
+
+///
+/// @alias margin-top()
+///
+@mixin mt($top: null) {
+  @include margin-top($top);
+}
+
+@mixin mt-none {
+  @include mt(0);
+}
+
+///
+/// @alias mt-none()
+///
+@mixin mt-0 {
+  @include mt-none;
+}
+
+@mixin margin-right($right: null) {
+  @include margin($right: $right);
+}
+
+///
+/// @alias margin-right()
+///
+@mixin mr($right: null) {
+  @include margin-right($right);
+}
+
+@mixin mr-none {
+  @include mr($right: 0);
+}
+
+///
+/// @alias mr-none()
+///
+@mixin mr-0 {
+  @include mr-none;
+}
+
+@mixin margin-bottom($bottom: null) {
+  @include margin($bottom: $bottom);
+}
+
+///
+/// @alias margin-bottom()
+///
+@mixin mb($bottom: null) {
+  @include margin-bottom($bottom: $bottom);
+}
+
+@mixin mb-none {
+  @include mb($bottom: 0);
+}
+
+///
+/// @alias mb-none()
+///
+@mixin mb-0 {
+  @include mb-none;
+}
+
+@mixin margin-left($left: null) {
+  @include margin($left: $left);
+}
+
+///
+/// @alias margin-left()
+///
+@mixin ml($left: null) {
+  @include margin-left($left: $left);
+}
+
+@mixin ml-none {
+  @include ml($left: 0);
+}
+
+///
+/// @alias ml-none()
+///
+@mixin ml-0 {
+  @include ml-none;
 }
 
 // padding
@@ -121,22 +330,197 @@
   );
 }
 
+///
+/// @alias padding()
+///
+@mixin p(
+  $a: null,
+  $x: null,
+  $y: null,
+  $t: null,
+  $r: null,
+  $b: null,
+  $l: null,
+) {
+  @include padding(
+    $all: $a,
+    $x: $x,
+    $y: $y,
+    $top: $t,
+    $right: $r,
+    $bottom: $b,
+    $left: $l,
+  );
+}
+
 @mixin padding-xy($x: null, $y: null) {
   @include padding($x: $x, $y: $y);
 }
 
+///
+/// @alias padding-xy()
+///
 @mixin padding-axis($horizontal: null, $vertical: null) {
-  @include padding($x: $horizontal, $y: $vertical);
+  @include padding-xy($x: $horizontal, $y: $vertical);
 }
 
 @mixin padding-all($padding) {
   @include padding($all: $padding);
 }
 
+///
+/// @alias padding-all()
+///
 @mixin padding-square($padding) {
-  @include padding($all: $padding);
+  @include padding-all($padding);
 }
 
 @mixin padding-none {
-  @include padding($all: 0);
+  @include padding-all(0);
+}
+
+///
+/// @alias padding-none()
+///
+@mixin p-none {
+  @include padding-none;
+}
+
+///
+/// @alias p-none()
+///
+@mixin p-0 {
+  @include p-none;
+}
+
+@mixin padding-x($x: null) {
+  @include padding($x: $x);
+}
+
+///
+/// @alias padding-x()
+///
+@mixin px($x: null) {
+  @include padding-x($x);
+}
+
+@mixin px-none {
+  @include px(0);
+}
+
+///
+/// @alias px-none()
+///
+@mixin px-0 {
+  @include px-none;
+}
+
+@mixin padding-y($y: null) {
+  @include padding($y: $y);
+}
+
+///
+/// @alias padding-y()
+///
+@mixin py($y: null) {
+  @include padding-y($y);
+}
+
+@mixin py-none {
+  @include py(0);
+}
+
+///
+/// @alias py-none()
+///
+@mixin py-0 {
+  @include py-none;
+}
+
+@mixin padding-top($top: null) {
+  @include padding($top: $top);
+}
+
+///
+/// @alias padding-top()
+///
+@mixin pt($top: null) {
+  @include padding-top($top);
+}
+
+@mixin pt-none {
+  @include pt(0);
+}
+
+///
+/// @alias padding-top()
+///
+@mixin pt-0 {
+  @include pt-none;
+}
+
+@mixin padding-right($right: null) {
+  @include padding($right: $right);
+}
+
+///
+/// @alias padding-right()
+///
+@mixin pr($right: null) {
+  @include padding-right($right);
+}
+
+@mixin pr-none {
+  @include pr(0);
+}
+
+///
+/// @alias pr-none()
+///
+@mixin pr-0 {
+  @include pr-none;
+}
+
+@mixin padding-bottom($bottom: null) {
+  @include padding($bottom: $bottom);
+}
+
+///
+/// @alias padding-bottom()
+///
+@mixin pb($bottom: null) {
+  @include padding-bottom($bottom);
+}
+
+@mixin pb-none {
+  @include pb(0);
+}
+
+///
+/// @alias pb-none()
+///
+@mixin pb-0 {
+  @include pb-none;
+}
+
+@mixin padding-left($left: null) {
+  @include padding($left: $left);
+}
+
+///
+/// @alias padding-left()
+///
+@mixin pl($left: null) {
+  @include padding-left($left);
+}
+
+@mixin pl-none {
+  @include pl(0);
+}
+
+///
+/// @alias pl-none()
+///
+@mixin pl-0 {
+  @include pl-none;
 }

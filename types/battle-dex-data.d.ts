@@ -1,3 +1,11 @@
+/**
+ * @file `battle-dex-data.d.ts` - Adapted from `pokemon-showdown-client/play.pokemonshowdown.com/src/battle-dex-data.ts`.
+ * @author Keith Choison <keith@tize.io>
+ * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license MIT
+ * @since 0.1.0
+ */
+
 declare namespace Showdown {
   type StatName =
     | 'hp'
@@ -63,6 +71,13 @@ declare namespace Showdown {
     | 'Fairy'
     | 'Stellar'
     | '???';
+
+  type StatusName =
+    | 'par'
+    | 'psn'
+    | 'frz'
+    | 'slp'
+    | 'brn';
 
   type GenderName = 'M' | 'F' | 'N';
 }

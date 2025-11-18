@@ -1,7 +1,13 @@
+/**
+ * @file `useSmogonMatchup.ts`
+ * @author Keith Choison <keith@tize.io>
+ * @since 0.1.2
+ */
+
 import * as React from 'react';
-import { type GameType, type MoveName } from '@smogon/calc';
-import { type ShowdexCalcdexSettings } from '@showdex/interfaces/app';
-import { type CalcdexBattleField, type CalcdexPlayer, type CalcdexPokemon } from '@showdex/interfaces/calc';
+import { type MoveName } from '@smogon/calc';
+import { type CalcdexBattleState } from '@showdex/interfaces/calc';
+import { useShowdexSettings } from '@showdex/redux/store';
 import { type CalcdexMatchupResult, calcSmogonMatchup } from './calcSmogonMatchup';
 
 export type SmogonMatchupHookCalculator = (
@@ -16,36 +22,19 @@ export type SmogonMatchupHookCalculator = (
  * @since 0.1.2
  */
 export const useSmogonMatchup = (
-  format: string,
-  gameType: GameType,
-  playerPokemon: CalcdexPokemon,
-  opponentPokemon: CalcdexPokemon,
-  player?: CalcdexPlayer,
-  opponent?: CalcdexPlayer,
-  allPlayers?: CalcdexPlayer[],
-  field?: CalcdexBattleField,
-  settings?: ShowdexCalcdexSettings,
-): SmogonMatchupHookCalculator => React.useCallback<SmogonMatchupHookCalculator>((
-  playerMove,
-) => calcSmogonMatchup(
-  format,
-  gameType,
-  playerPokemon,
-  opponentPokemon,
-  playerMove,
-  player,
-  opponent,
-  allPlayers,
-  field,
-  settings,
-), [
-  allPlayers,
-  field,
-  format,
-  gameType,
-  opponent,
-  opponentPokemon,
-  player,
-  playerPokemon,
-  settings,
-]);
+  state: CalcdexBattleState,
+  config?: Omit<Parameters<typeof calcSmogonMatchup>[2], 'settings'>,
+): SmogonMatchupHookCalculator => {
+  const settings = useShowdexSettings();
+
+  return React.useCallback<SmogonMatchupHookCalculator>((
+    playerMove,
+  ) => calcSmogonMatchup(state, playerMove, {
+    ...config,
+    settings,
+  }), [
+    config,
+    settings,
+    state,
+  ]);
+};

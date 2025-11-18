@@ -77,7 +77,7 @@ $shadow: (
 
       &::before {
         background-color: map.get($shadow, hover, background-color, light);
-        box-shadow: map.get($shadow, hover, background-color, light);
+        box-shadow: map.get($shadow, hover, box-shadow, light);
       }
     }
 
@@ -86,7 +86,7 @@ $shadow: (
 
       &::before {
         background-color: map.get($shadow, hover, background-color, dark);
-        box-shadow: map.get($shadow, hover, background-color, dark);
+        box-shadow: map.get($shadow, hover, box-shadow, dark);
       }
     }
   }
@@ -97,7 +97,7 @@ $shadow: (
 
       &::before {
         background-color: map.get($shadow, active, background-color, light);
-        box-shadow: map.get($shadow, active, background-color, light);
+        box-shadow: map.get($shadow, active, box-shadow, light);
       }
     }
 
@@ -106,7 +106,7 @@ $shadow: (
 
       &::before {
         background-color: map.get($shadow, active, background-color, dark);
-        box-shadow: map.get($shadow, active, background-color, dark);
+        box-shadow: map.get($shadow, active, box-shadow, dark);
       }
     }
   }

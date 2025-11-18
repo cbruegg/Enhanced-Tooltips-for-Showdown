@@ -1,9 +1,7 @@
 /**
- * client-team.d.ts
- *
- * Provides team typings for the live PS client running on Backbone.js.
- *
+ * @file `client-team.d.ts` - Provides team typings for the live PS client running on Backbone.js.
  * @author Keith Choison <keith@tize.io>
+ * @since 0.1.0
  */
 
 declare namespace Showdown {

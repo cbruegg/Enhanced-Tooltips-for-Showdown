@@ -5,7 +5,10 @@ import { env } from '@showdex/utils/core';
  *
  * @since 0.1.0
  */
-export const printBuildInfo = (): string => env(
-  'build-name',
-  `showdex-vX.X.X-bX${__DEV__ ? '-dev' : ''}.chrome`,
-);
+export const printBuildInfo = (): string => [
+  env(
+    'build-name',
+    `showdex-vX.X.X-bX${__DEV__ ? '-dev' : ''}.unknown`,
+  ),
+  window.__SHOWDEX_HOST,
+].filter(Boolean).join('@');
