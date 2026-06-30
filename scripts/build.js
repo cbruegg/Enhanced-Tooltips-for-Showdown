@@ -21,9 +21,14 @@ console.log('env:', env);
 console.log('entry:', config.entry);
 console.log('output.path:', config.output.path);
 
-webpack(config, (err) => {
+webpack(config, (err, stats) => {
   if (err) {
     console.error(err);
+    process.exit(1);
+  }
+
+  if (stats?.hasErrors()) {
+    console.error(stats.toString({ all: false, errors: true, colors: true }));
     process.exit(1);
   }
 

@@ -227,6 +227,7 @@ const resolve = {
   fallback: { 'path': false, 'crypto': false, 'fs': false },
   alias: {
     '@showdex': path.join(__dirname, 'src'),
+    'process/browser': 'process/browser.js',
   },
 
   extensions: [
@@ -504,7 +505,7 @@ if (finalEnv.BUILD_TARGET === 'standalone') {
 
 const plugins = [
   new webpack.ProvidePlugin({
-    process: 'process/browser',
+    process: 'process/browser.js',
 }),
   new webpack.ProgressPlugin(),
   new webpack.DefinePlugin(webpackEnv),
