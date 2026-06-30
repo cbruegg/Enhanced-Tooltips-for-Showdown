@@ -7,10 +7,12 @@ import { mergeRevealedMoves, sanitizePokemon } from '@showdex/utils/battle';
 import { calcPokemonSpreadStats, populateStatsTable } from '@showdex/utils/calc';
 import { formatId } from '@showdex/utils/core';
 // import { logger } from '@showdex/utils/debug';
+import { PokemonStatNames } from '@showdex/consts/dex';
 import {
   detectGenFromFormat,
   detectLegacyGen,
   determineDefaultLevel,
+  evToStatPoint,
   legalLockedFormat,
 } from '@showdex/utils/dex';
 import { detectCompletePreset } from './detectCompletePreset';
@@ -83,6 +85,19 @@ export const applyPreset = (
     ivs: populateStatsTable(preset.ivs, { spread: 'iv', format }),
     evs: populateStatsTable(preset.evs, { spread: 'ev', format }),
   };
+
+  // convert standard EVs to Champions stat points (PS rule: 1st pt = 4 EVs, the rest 8 -> pts = (EV+4)/8).
+  // keep fractional ("floating") points -- calcPokemonStat()'s champions branch (max(2*pts-1, 0)) consumes
+  // them exactly, so rounding here would drift the damage calc.
+  if (format?.includes('champions') && output.evs) {
+    const hasStandardEvs = PokemonStatNames.some((s) => (output.evs[s] || 0) > 32);
+
+    if (hasStandardEvs) {
+      for (const stat of PokemonStatNames) {
+        output.evs[stat] = evToStatPoint(output.evs[stat] || 0);
+      }
+    }
+  }
 
   if (usage?.calcdexId) {
     output.usageId = usage.calcdexId;

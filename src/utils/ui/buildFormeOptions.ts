@@ -7,6 +7,7 @@ import {
   getDexForFormat,
   guessTableFormatKey,
   guessTableFormatSlice,
+  parseBattleFormat,
 } from '@showdex/utils/dex';
 import { percentage } from '@showdex/utils/humanize';
 import { type CalcdexPokemonUsageAltSorter, detectUsageAlt, flattenAlt } from '@showdex/utils/presets';
@@ -29,6 +30,17 @@ export const buildFormeOptions = (
     usageAlts?: CalcdexPokemonUsageAlt<string>[];
     usageFinder?: (value: string) => string;
     usageSorter?: CalcdexPokemonUsageAltSorter<string>;
+    /**
+     * All formes present in the currently-loaded Randoms sets (gen-agnostic).
+     *
+     * * When non-empty (and `format` is a Randoms format), they're grouped together under a single "Pool" group
+     *   instead of being scattered across tier groups -- handy for seeing which Pokemon actually have sets in the
+     *   format (most useful for Champions, where not every OU mon has one).
+     * * Empty (the default) falls back to the usual tier-based grouping, so this is a no-op outside Randoms.
+     *
+     * @since 1.4.0
+     */
+    poolFormes?: string[];
     translate?: (value: string) => string;
     translateHeader?: (value: string) => string;
   },
@@ -156,6 +168,7 @@ export const buildFormeOptions = (
     usageAlts,
     usageFinder: findUsagePercent,
     usageSorter,
+    poolFormes,
     translate: translateFromConfig,
     translateHeader: translateHeaderFromConfig,
   } = config || {};
@@ -218,6 +231,40 @@ export const buildFormeOptions = (
         };
       }),
     });
+  }
+
+  // (Randoms only) collect every forme present in the currently-loaded sets into a single "Pool" group, so it's
+  // obvious which Pokemon actually have sets in this format -- most useful for Champions, where not every OU mon
+  // has one. formes not in the pool fall through to their normal tier groups below (the filterFormes exclusion
+  // keeps them from appearing twice). no pool -> this is skipped entirely & we render tiers as usual.
+  if (format.includes('random') && poolFormes?.length) {
+    const poolFormeNames = poolFormes.map((forme) => {
+      const { exists, name: formeName } = dex.species.get(forme) || {};
+
+      if (!exists || filterFormes.includes(formeName) || formeName.endsWith('-Tera')) {
+        return null;
+      }
+
+      filterFormes.push(formeName);
+
+      return formeName;
+    }).filter(Boolean).sort();
+
+    if (poolFormeNames.length) {
+      // label the group with the format's clean label (e.g. 'Randoms') when FormatLabels knows it; otherwise
+      // parseBattleFormat() falls back to the raw base (e.g. 'championsrandombattle'), which is too messy to show
+      // as a heading, so we use the localized 'Pool' instead
+      const { base: formatBase, label: formatLabel } = parseBattleFormat(format);
+      const poolGroupLabel = (!!formatLabel && formatLabel !== formatBase) ? formatLabel : translateHeader('Pool');
+
+      options.push({
+        label: poolGroupLabel,
+        options: poolFormeNames.map((name) => ({
+          label: translate(name),
+          value: name,
+        })),
+      });
+    }
   }
 
   const tierMap: Record<string, string[]> = {

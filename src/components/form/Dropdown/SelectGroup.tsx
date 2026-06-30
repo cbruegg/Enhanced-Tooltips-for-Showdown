@@ -15,8 +15,6 @@ export type SelectGroupProps<
 }>;
 */
 
-/* eslint-disable @typescript-eslint/indent */
-
 export const SelectGroup = <
   Option extends DropdownOption,
   Multi extends boolean,
@@ -30,7 +28,7 @@ export const SelectGroup = <
   innerProps,
   selectProps,
   children,
-}: GroupProps<Option, Multi, Group>): JSX.Element => (
+}: GroupProps<Option, Multi, Group>): React.JSX.Element => (
   <>
     <div
       className={cx(styles.optionItem, styles.group, className)}
@@ -51,5 +49,3 @@ export const SelectGroup = <
     {children}
   </>
 );
-
-/* eslint-enable @typescript-eslint/indent */

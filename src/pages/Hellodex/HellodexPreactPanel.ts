@@ -76,6 +76,7 @@ export class HellodexPreactPanel extends PSRoomPanel<HellodexPreactRoom> {
       onRequestCalcdex: (id) => void Manager?.openCalcdex(id),
       onRequestHonkdex: (id) => void Manager?.openHonkdex(id),
       onRequestNotedex: (id) => void Manager?.openNotedex(id),
+      onRequestDevdex: () => void Manager?.openDevdex(),
       onCloseCalcdex: (id) => void Manager?.closeCalcdex(id),
       onRemoveHonkdex: (id) => void Manager?.destroyHonkdex(id),
       onRemoveNotedex: (id) => void Manager?.destroyNotedex(id),

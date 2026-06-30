@@ -12,6 +12,7 @@
     "saving": "$t(common:labels.saving)...",
     "saved": "$t(common:labels.saved)",
     "dupeHonkdex": "$t(common:labels.duplicate)",
+    "dumpBugReport": "Dump Bug Report",
     "openHellodex": "$t(common:products.hellodex_one)",
     "close": "$t(common:labels.close)"
   },

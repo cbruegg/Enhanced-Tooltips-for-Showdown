@@ -1,4 +1,4 @@
-import { type BaseQueryApi } from '@reduxjs/toolkit/dist/query';
+import { type BaseQueryApi } from '@reduxjs/toolkit/query';
 import { type PkmnApiSmogonPresetRequest, type PkmnApiSmogonFormatPresetResponse } from '@showdex/interfaces/api';
 import { type CalcdexPokemonPreset } from '@showdex/interfaces/calc';
 import { type RootState } from '@showdex/redux/store';
@@ -7,8 +7,6 @@ import { logger, runtimer } from '@showdex/utils/debug';
 import { readBundlesDb } from '@showdex/utils/storage';
 
 const l = logger('@showdex/redux/factories/buildBundleQuery()');
-
-/* eslint-disable @typescript-eslint/indent */
 
 /**
  * RTK Query factory for fetching `CalcdexPokemonPreset[]`'s from a locally bundled `ShowdexPresetsBundle`.
@@ -128,5 +126,3 @@ export const buildBundleQuery = (
     return { data: output };
   };
 };
-
-/* eslint-enable @typescript-eslint/indent */

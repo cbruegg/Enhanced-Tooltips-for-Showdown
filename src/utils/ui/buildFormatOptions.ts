@@ -87,12 +87,13 @@ export const buildFormatOptions = (
 
   const initialSections: string[] = genFormats
     .reduce((prev, format) => {
-      // `column` is 1-indexed (i.e., starts with column 1, not 0)
       if (!format?.column || !format.section || prev.includes(format.section)) {
         return prev;
       }
 
-      prev.splice(format.column, 0, format.section);
+      // keep PS's natural section order (first-appearance in the format list) so e.g. "Champions" lands right
+      // after "S/V Doubles" like in the PS client, instead of `column`-splicing them into a scrambled order
+      prev.push(format.section);
 
       return prev;
     }, [] as string[])

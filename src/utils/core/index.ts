@@ -1,5 +1,6 @@
 export * from './clamp';
 export * from './clipboard';
+export * from './dumpPayload';
 export * from './createShowdexEvent';
 export * from './dedupeArray';
 export * from './diffArrays';

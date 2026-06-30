@@ -44,6 +44,7 @@ export interface CalcdexPokeContextValue extends Omit<CalcdexContextValue, 'pres
   formeUsages: CalcdexPokemonUsageAlt<string>[];
   formeUsageFinder: (value: string) => string;
   formeUsageSorter: CalcdexPokemonUsageAltSorter<string>;
+  formePool: string[]; // for Randoms in the Honkdex: all formes in the loaded sets (else [] -> tier grouping)
   matchups: CalcdexMatchupResult[];
 }
 
@@ -80,6 +81,7 @@ export const CalcdexPokeContext = React.createContext<CalcdexPokeContextValue>({
   formeUsages: [],
   formeUsageFinder: () => null,
   formeUsageSorter: () => 0,
+  formePool: [],
 
   matchups: [],
 });

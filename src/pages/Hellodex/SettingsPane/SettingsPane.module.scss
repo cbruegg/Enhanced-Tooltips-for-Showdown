@@ -159,12 +159,12 @@ $close-icon-size: 28px;
   }
 }
 
-.importTooltip {
-  position: relative;
-
-  .importBadge {
-    @include position.absolute($top: -16px, $left: 50%);
-  }
+// overlaid directly on the import/export/defaults buttons (mimics PokeInfo's preset badges) instead of
+// living inside the button tooltip — floats just above the button when shown imperatively via its ref
+.importBadge {
+  @include position.absolute($top: -22px, $left: 50%);
+  white-space: nowrap;
+  z-index: 8;
 }
 
 .closePlaceholder {

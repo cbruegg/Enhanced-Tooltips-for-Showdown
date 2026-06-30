@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import cx from 'classnames';
 import { useColorScheme } from '@showdex/redux/store';
-import { determineColorScheme } from '@showdex/utils/ui';
+import { determineColorScheme, parseHotkeyCombo } from '@showdex/utils/ui';
 import { type BaseTextFieldProps, BaseTextField } from '../TextField';
 import styles from './ValueField.module.scss';
 
@@ -92,8 +92,6 @@ export interface ValueFieldProps extends BaseTextFieldProps<number> {
   onContextMenu?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-/* eslint-disable @typescript-eslint/indent -- this rule is broken af. see Issue #1824 in the typescript-eslint GitHub repo. */
-
 export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
   className,
   style,
@@ -112,7 +110,7 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
   disabled,
   onContextMenu,
   ...props
-}: ValueFieldProps, forwardedRef): JSX.Element => {
+}: ValueFieldProps, forwardedRef): React.JSX.Element => {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useImperativeHandle(
@@ -248,7 +246,7 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
 
     const currentValue = Number(input?.value ?? inputValue) || 0;
 
-    switch (handler.key) {
+    switch (parseHotkeyCombo(handler)) {
       case 'up': {
         handleChange(
           currentValue + Math.abs(step),
@@ -299,7 +297,7 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
     }
   }, {
     enabled: !disabled,
-    enableOnTags: active ? ['INPUT'] : undefined,
+    enableOnFormTags: active ? ['INPUT'] : undefined,
   }, [
     active,
     input?.value,
@@ -357,6 +355,7 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
         )}
         input={{
           // type: 'number',
+          name: '',
           value: inputValue,
           onChange: handleChange,
           onFocus: handleFocus,
@@ -367,5 +366,3 @@ export const ValueField = React.forwardRef<HTMLInputElement, ValueFieldProps>(({
     </div>
   );
 });
-
-/* eslint-enable @typescript-eslint/indent */

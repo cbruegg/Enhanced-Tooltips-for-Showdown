@@ -62,6 +62,16 @@ export const guessTableFormatKey = (
     return null;
   }
 
+  // Champions (incl. NatDex Champions) species -- e.g. the Mega formes -- live in their own 'champions'
+  // teambuilder table (built by the client w/ genStr 'champions'), so the forme dropdown must source from it
+  if (format.includes('champions')) {
+    const key = 'champions' as Showdown.BattleTeambuilderTableFormat;
+
+    if (key in BattleTeambuilderTable) {
+      return key;
+    }
+  }
+
   // first sniff out any special formats, like gen8bdsp & gen9dlc1
   const knownFormat = KnownFormats.find(([regex]) => regex.test(format));
 

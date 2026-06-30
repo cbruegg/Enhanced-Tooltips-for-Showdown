@@ -28,8 +28,6 @@ export interface RackGridProps<
 
 // const l = logger('@showdex/components/layout/RackGrid');
 
-/* eslint-disable @typescript-eslint/indent */
-
 export const RackGrid = React.forwardRef<HTMLDivElement, RackGridProps<React.ReactNode>>(<
   TItem extends React.ReactNode,
 >({
@@ -44,7 +42,7 @@ export const RackGrid = React.forwardRef<HTMLDivElement, RackGridProps<React.Rea
   children,
   renderItem,
   ...props
-}: RackGridProps<TItem>, forwardedRef: React.ForwardedRef<HTMLDivElement>): JSX.Element => {
+}: RackGridProps<TItem>, forwardedRef: React.ForwardedRef<HTMLDivElement>): React.JSX.Element => {
   // const snapToRackGrid = React.useMemo(
   //   () => createSnapModifier(gridSize + gridGap),
   //   [gridSize, gridGap],
@@ -94,5 +92,3 @@ export const RackGrid = React.forwardRef<HTMLDivElement, RackGridProps<React.Rea
     </SortableContext>
   );
 });
-
-/* eslint-enable @typescript-eslint/indent */

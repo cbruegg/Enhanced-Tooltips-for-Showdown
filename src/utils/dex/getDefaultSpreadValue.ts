@@ -19,6 +19,7 @@ import { detectLegacyGen } from './detectLegacyGen';
  * getDefaultSpreadValue('ev', 'gen1randombattle'); // 252 (via CALCDEX_POKEMON_PRESET_DEFAULT_RANDOMS_LEGACY_EV)
  * getDefaultSpreadValue('ev', 'gen9ou'); // 0 (via CALCDEX_POKEMON_PRESET_DEFAULT_EV)
  * getDefaultSpreadValue('ev', 'gen9randombattle'); // 85 (via CALCDEX_POKEMON_PRESET_DEFAULT_RANDOMS_EV)
+ * getDefaultSpreadValue('ev', 'gen9championsrandombattle'); // 0 (Champions stat points, NOT the randoms 85)
  * ```
  * @since 1.1.7
  */
@@ -32,7 +33,11 @@ export const getDefaultSpreadValue = (
   }
 
   const legacy = detectLegacyGen(format);
-  const randoms = typeof format === 'string' && format.includes('random');
+
+  // note: Champions formats (e.g. 'gen9championsrandombattle') match .includes('random') but use stat points,
+  // whose unallocated slots default to 0 -- NOT the randoms neutral 85 -- so they must NOT be treated as randoms
+  const champions = typeof format === 'string' && format.includes('champions');
+  const randoms = !champions && typeof format === 'string' && format.includes('random');
 
   // blech
   const baseEnvKey = 'calcdex-pokemon-preset-default'

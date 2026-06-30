@@ -1,14 +1,13 @@
 import path from 'path';
 import webpack from 'webpack';
 import WebpackDevServer from 'webpack-dev-server';
-import { buildTargets, config, env } from '../webpack.config';
+import { buildTargets, config, env } from '../webpack.config.js';
 
 if (!env.PACKAGE_VERSION) {
-  console.error('Please run this script through npm or yarn.');
+  console.error('Please run this script through pnpm.');
   process.exit(1);
 }
 
-process.env.BABEL_ENV = 'development';
 process.env.NODE_ENV = 'development';
 
 if (!buildTargets.includes(env.BUILD_TARGET)) {
@@ -33,7 +32,7 @@ const url = `${host}:${port}`;
 
     allowedHosts: 'all',
     client: false,
-    https: false,
+    server: 'http',
     hot: 'only', // default: true
     liveReload: false, // default: true
 

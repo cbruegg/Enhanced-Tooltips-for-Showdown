@@ -31,6 +31,7 @@ import {
   useHonkdexSettings,
   useNotedexDuplicator,
   useNotedexState,
+  useShowdexSettings,
   useUpdateSettings,
 } from '@showdex/redux/store';
 import { usePlayerTitle } from '@showdex/utils/app';
@@ -56,6 +57,7 @@ export interface HellodexProps {
   onRequestCalcdex?: (battleId: string) => void;
   onRequestHonkdex?: (instanceId?: string) => void;
   onRequestNotedex?: (instanceId?: string) => void;
+  onRequestDevdex?: () => void;
   onCloseCalcdex?: (battleId: string) => void;
   onRemoveHonkdex?: (instanceId: string) => void;
   onRemoveNotedex?: (instanceId: string) => void;
@@ -70,6 +72,7 @@ const forumUrl = env('hellodex-forum-url');
 const repoUrl = env('hellodex-repo-url');
 const communityUrl = env('hellodex-community-url');
 const notedexEnabled = env.bool('notedex-enabled');
+const devdexEnabled = env.bool('teledex-enabled');
 
 const l = logger('@showdex/pages/Hellodex');
 
@@ -79,10 +82,11 @@ export const Hellodex = ({
   onRequestCalcdex,
   onRequestHonkdex,
   onRequestNotedex,
+  onRequestDevdex,
   onCloseCalcdex,
   onRemoveHonkdex,
   onRemoveNotedex,
-}: HellodexProps): JSX.Element => {
+}: HellodexProps): React.JSX.Element => {
   const { t } = useTranslation('hellodex');
   const contentRef = React.useRef<HTMLDivElement>(null);
   const instanceRefs = React.useRef<Record<string, InstanceButtonRef>>({});
@@ -96,6 +100,7 @@ export const Hellodex = ({
 
   const rand = React.useRef(Math.random());
   const colorTheme = useColorTheme();
+  const showdexSettings = useShowdexSettings();
   const settings = useHellodexSettings();
   const calcdexSettings = useCalcdexSettings();
   const honkdexSettings = useHonkdexSettings();
@@ -466,6 +471,24 @@ export const Hellodex = ({
                       <Trans
                         t={t}
                         i18nKey="instances.notedex.newLabel"
+                        shouldUnescape
+                      />
+                    </GradientButton>
+                  }
+
+                  {
+                    devdexEnabled && showdexSettings?.developerMode &&
+                    <GradientButton
+                      className={cx(styles.instanceButton, styles.newInstanceButton)}
+                      display="block"
+                      aria-label={t('instances.devdex.newAria')}
+                      hoverScale={1}
+                      onPress={() => void onRequestDevdex?.()}
+                    >
+                      <i className="fa fa-terminal" />
+                      <Trans
+                        t={t}
+                        i18nKey="instances.devdex.newLabel"
                         shouldUnescape
                       />
                     </GradientButton>

@@ -47,7 +47,13 @@ export const sortPresetsByFormat = (
 
   const priorityIndex = (
     labelParts: string[],
-  ) => indexMatch(labelParts, FormatSortPriorities);
+  ) => (
+    // Champions formats sort as their own group right under OU -- special-cased because their labels (e.g.
+    // "Champions OU") contain a tier word that'd otherwise match a higher-priority entry like 'ou'
+    labelParts?.includes('champions')
+      ? indexMatch(['champions'], FormatSortPriorities)
+      : indexMatch(labelParts, FormatSortPriorities)
+  );
 
   return (a, b) => {
     if (!a?.calcdexId || !b?.calcdexId) {

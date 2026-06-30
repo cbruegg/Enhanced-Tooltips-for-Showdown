@@ -2,8 +2,6 @@ import * as React from 'react';
 import Svg from 'react-inlinesvg';
 // import { QRCodeCanvas } from 'qrcode.react';
 import cx from 'classnames';
-import FileSaver from 'file-saver';
-import LzString from 'lz-string';
 import { GradientButton } from '@showdex/components/app';
 import { type ErrorBoundaryComponentProps, BuildInfo } from '@showdex/components/debug';
 import {
@@ -16,12 +14,15 @@ import {
 } from '@showdex/components/ui';
 import { useCalcdexBattleState } from '@showdex/redux/store';
 import {
+  dumpPayloadToClipboard,
+  dumpPayloadToFile,
   env,
   getResourceUrl,
   nonEmptyObject,
-  writeClipboardText,
 } from '@showdex/utils/core';
-import { logger, sanitizeStackTrace, wtf } from '@showdex/utils/debug';
+import {
+ logger, sanitizeStackTrace, teledex, wtf,
+} from '@showdex/utils/debug';
 // import { dehydrateCalcdex } from '@showdex/utils/hydro';
 import styles from './CalcdexErrorBoundary.module.scss';
 
@@ -46,7 +47,7 @@ export const CalcdexErrorBoundary = ({
   style,
   error,
   battleId,
-}: CalcdexErrorBoundaryProps): JSX.Element => {
+}: CalcdexErrorBoundaryProps): React.JSX.Element => {
   // const colorScheme = useColorScheme();
 
   const state = useCalcdexBattleState(battleId);
@@ -80,6 +81,7 @@ export const CalcdexErrorBoundary = ({
 
     state,
     dumper: l.scope,
+    teledex: teledex.tail(200),
     created: new Date().toISOString(),
   })) || null, [
     error,
@@ -93,36 +95,25 @@ export const CalcdexErrorBoundary = ({
 
   const handlePayloadCopy = () => void (async () => {
     try {
-      await writeClipboardText(JSON.stringify(payload));
+      await dumpPayloadToClipboard(payload);
       copiedBadgeRef.current?.show();
     } catch (err) {
       if (__DEV__) {
-        l.error(
-          'Failed to write error payload to clipboard:',
-          '\n', err,
-          '\n', '(You will only see this error on development.)',
-        );
+        l.error('Failed to write error payload to clipboard:', '\n', err);
       }
 
       copiedFailedBadgeRef.current?.show();
     }
   })();
 
-  const handlePayloadDownload = () => {
-    const compressed = LzString.compressToUint8Array(JSON.stringify(payload));
-    const blob = new Blob([compressed]);
-
-    FileSaver.saveAs(blob, [
-      env('build-name'),
-      calcdexName.toLowerCase(),
-      [
-        state?.battleId || state?.format,
-        `t${new Date(payload.created).valueOf().toString(16).toUpperCase()}`,
-      ].filter(Boolean).join('-'),
-      'bin',
-      'lz',
-    ].filter(Boolean).join('.'));
-  };
+  const handlePayloadDownload = () => void dumpPayloadToFile(payload, [
+    env('build-name'),
+    calcdexName.toLowerCase(),
+    [
+      state?.battleId || state?.format,
+      `t${new Date(payload.created).valueOf().toString(16).toUpperCase()}`,
+    ].filter(Boolean).join('-'),
+  ]);
 
   return (
     <div
@@ -204,7 +195,7 @@ export const CalcdexErrorBoundary = ({
             >
               <Scrollable className={styles.errorStackContainer}>
                 <div className={styles.errorStack}>
-                  {sanitizedStack || error}
+                  {sanitizedStack || error?.toString()}
                 </div>
               </Scrollable>
 

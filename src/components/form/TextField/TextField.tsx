@@ -25,7 +25,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(({
   disabled,
   onContextMenu,
   ...props
-}: TextFieldProps, forwardedRef): JSX.Element => {
+}: TextFieldProps, forwardedRef): React.JSX.Element => {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   useTextFieldHandle(
@@ -56,7 +56,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(({
       offset={[0, 10]}
       delay={[0, 50]}
       trigger="focusin"
-      disabled={disabled && !tooltip}
+      disabled={disabled || !tooltip}
     >
       <div
         className={cx(
@@ -74,7 +74,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(({
         })}
       >
         <BaseTextField
-          inputRef={inputRef}
+          ref={inputRef}
           {...props}
           inputClassName={cx(
             styles.input,

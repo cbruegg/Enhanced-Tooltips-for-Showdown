@@ -277,13 +277,6 @@ export const hydrateSettings = (
           break;
         }
 
-        /**
-         * @todo remove this once developer features are added
-         */
-        if (hydratedKey === 'developerMode') {
-          break;
-        }
-
         settings[hydratedKey] = hydrateValue(dehydratedValue);
 
         break;

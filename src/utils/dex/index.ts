@@ -34,3 +34,5 @@ export * from './notFullyEvolved';
 export * from './parseBattleFormat';
 export * from './shouldIgnoreItem';
 export * from './toggleableAbility';
+export * from './convertStatPoints';
+export * from './isMegaStone';

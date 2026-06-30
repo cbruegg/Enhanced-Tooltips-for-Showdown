@@ -40,6 +40,9 @@ export const guessServerSpread = (
     ? detectGenFromFormat(format, env.int<GenerationNum>('calcdex-default-gen'))
     : format;
 
+  // Champions uses stat points (0-32, step 1) & a fixed 31 IV instead of EVs (0-252, step 4)
+  const isChampions = typeof format === 'string' && format.includes('champions');
+
   if (detectLegacyGen(gen)) {
     if (__DEV__) {
       l.warn(
@@ -141,10 +144,10 @@ export const guessServerSpread = (
       }
 
       // don't say I didn't warn ya!
-      for (let iv = 31; iv >= 0; iv--) { // update (2022/10/18): fuck it we're trying them all
-        for (let ev = 0; ev <= 252; ev += 4) { // try 252 to 0 in multiples of 4
+      for (let iv = 31; iv >= (isChampions ? 31 : 0); iv--) { // update (2022/10/18): fuck it we're trying them all
+        for (let ev = 0; ev <= (isChampions ? 32 : 252); ev += (isChampions ? 1 : 4)) { // pts 0-32 (champs) else EVs
           calculatedStats[stat] = calcPokemonStat(
-            gen,
+            isChampions ? format : gen, // pass the format string so the Champions stat formula is used
             stat,
             baseStats[stat],
             iv,

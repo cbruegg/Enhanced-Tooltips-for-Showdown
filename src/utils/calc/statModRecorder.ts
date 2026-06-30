@@ -143,20 +143,39 @@ export const statModRecorder = (
 
     const parIndex = speedMods.findIndex((m) => m?.dict === 'nonvolatiles' && m.label === 'Paralysis');
     const parMod = parIndex > -1 ? speedMods.splice(parIndex, 1)[0] : null;
+
+    // update (2025/04/14): separate stat stage boosts from other speed mods — PS applies stages via
+    // Math.floor(stat * numerator / denominator), not through the 4096-based chainMods/pokeRound
+    // system, which can cause off-by-ones when pokeRound rounds up at fractional parts > 0.5
+    // (e.g., speed 196 w/ -1 stage: pokeRound gives 131, PS gives 130) (fixes doshidak/showdex#258)
+    const boostIndex = speedMods.findIndex((m) => m?.dict === 'boost');
+    const boostMod = boostIndex > -1 ? speedMods.splice(boostIndex, 1)[0] : null;
+
+    // apply stat stage boost first via integer fraction math (matching PS)
+    let spe = initialSpeed;
+
+    if (boostMod?.modifier && boostMod.modifier !== 1) {
+      const stage = parseInt(boostMod.label, 10);
+
+      if (stage) {
+        const abs = Math.abs(stage);
+
+        spe = stage > 0
+          ? Math.floor(spe * (2 + abs) / 2)
+          : Math.floor(spe * 2 / (2 + abs));
+      }
+    }
+
+    // apply remaining speed mods (items, abilities, field effects) via chainMods/pokeRound
     const speedModValues = speedMods.map((m) => Math.floor((m?.modifier || 1) * 4096)).filter(Boolean);
 
-    let spe = OF32(pokeRound((initialSpeed * chainMods(speedModValues, 410, 131172)) / 4096));
+    if (speedModValues.length) {
+      spe = OF32(pokeRound((spe * chainMods(speedModValues, 410, 131172)) / 4096));
+    }
 
     if (parMod?.modifier) {
       spe = Math.floor(OF32(spe * (parMod.modifier * 100)) / 100);
     }
-
-    /*
-    return {
-      ...otherStats,
-      spe: speedValue % 1 > 0.5 ? Math.ceil(speedValue) : Math.floor(speedValue),
-    };
-    */
 
     return { ...otherStats, spe };
   };

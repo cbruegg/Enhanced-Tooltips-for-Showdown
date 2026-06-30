@@ -236,8 +236,15 @@ export const calcSmogonMatchup = (
     // which is separate from 'N/A' damage (e.g., status moves).
     // typically occurs when the opposing Pokemon is immune to the damaging move,
     // like using Earthquake against a Lando-T, which is immune due to its Flying type.
-    if (__DEV__ && !(error as Error)?.message?.includes('=== 0')) {
-      l.error(
+    if (!(error as Error)?.message?.includes('=== 0')) {
+      // concise + prod-captured (warn -> info+) so a real fraud-calc exception surfaces in a bug report
+      l.warn(
+        'Calc exception:', (error as Error)?.message || String(error),
+        '|', playerMove, 'from', playerPokemon?.speciesForme || '???', 'vs', opponentPokemon?.speciesForme || '???',
+      );
+
+      // the full object dump stays at debug -> dev console + developerMode-only capture
+      l.debug(
         'Exception while calculating the damage for', playerMove,
         'from', playerPokemon.speciesForme, 'against', opponentPokemon.speciesForme,
         '\n', 'gameType', gameType, 'gen', dex.num,
@@ -248,7 +255,6 @@ export const calcSmogonMatchup = (
         '\n', 'opponent', opponent,
         '\n', 'field', field,
         '\n', 'settings', settings,
-        '\n', '(you\'ll only see this error in __DEV__)',
         '\n', error,
       );
     }

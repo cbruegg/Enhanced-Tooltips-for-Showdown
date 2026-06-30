@@ -14,6 +14,7 @@ export * from './guessTeambuilderPreset';
 export * from './importMultiPokePastes';
 export * from './importPokePaste';
 export * from './parseUsageSpread';
+export * from './presetFormatMatches';
 export * from './processUsageAlts';
 export * from './selectPokemonPresets';
 export * from './sortPresetsByFormat';

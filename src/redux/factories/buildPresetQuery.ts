@@ -34,6 +34,7 @@ const FormatOnlyKeywords: string[] = [
 const IgnoredFormatKeywords: string[] = [
   'blitz', // e.g., 'gen9randombattleblitz' -> 'gen9randombattle'
   'mayhem', // e.g., 'gen9randombattlemayhem' -> 'gen9randombattle'
+  'sharedpower(?:b\\d+p\\d+)?', // e.g. 'gen9randombattlesharedpowerb12p6' / 'gen9sharedpowerrandombattle' -> 'gen9randombattle' (Shared Power mod reuses the base randbats sets)
   'monotype', // e.g., 'gen9monotyperandombattle' -> 'gen9randombattle'
   'nodmax', // e.g., 'gen8randombattlenodmax' -> 'gen8randombattle'
   'regulation[a-z]$', // e.g., 'gen9battlestadiumsinglesregulationd' -> 'gen9battlestadiumsingles'
@@ -96,8 +97,6 @@ const formatEndpointFormat = (
 
   return replacements;
 };
-
-/* eslint-disable @typescript-eslint/indent */
 
 /**
  * RTK Query factory for fetching `CalcdexPokemonPreset`'s, or if available & still fresh,
@@ -217,5 +216,3 @@ export const buildPresetQuery = <
     return { data: output };
   };
 };
-
-/* eslint-enable @typescript-eslint/indent */

@@ -10,6 +10,7 @@
   "contextMenu": {
     "switchSides": "Switch Players",
     "convertHonk": "Convert to Honk",
+    "dumpBugReport": "Dump Bug Report",
     "openHellodex": "$t(common:products.hellodex_one)",
     "closeOverlay": "$t(common:labels.close)",
     "closeTab": "Close Tab"
@@ -176,6 +177,11 @@
         "activeTooltip": "Deactivate <strong>$t(pokedex:ultimates.z.0)</strong>",
         "inactiveTooltip": "Activate <strong>$t(pokedex:ultimates.z.0)</strong>"
       },
+      "mega": {
+        "label": "$t(pokedex:ultimates.mega.2)",
+        "activeTooltip": "Revert to <strong>{{forme}}</strong>",
+        "inactiveTooltip": "$t(pokedex:ultimates.mega.1) to <strong>{{forme}}</strong>"
+      },
 
       "dmax": {
         "label": "{{ultimate}}",
@@ -270,6 +276,8 @@
       "evs": {
         "aria": "{{stat}} $t(pokedex:stats.evs_one.1) for {{pokemon}}",
         "label": "$t(pokedex:stats.evs_one.1)<smol>s</smol>",
+        "championsLabel": "SP<smol>s</smol>",
+        "championsAria": "{{stat}} Stat Points for {{pokemon}}",
         "stat_one": "$t(pokedex:stats.evs_one.1)",
         "stat_other": "$t(pokedex:stats.evs_other.1)",
         "validatedTooltip": "nice",

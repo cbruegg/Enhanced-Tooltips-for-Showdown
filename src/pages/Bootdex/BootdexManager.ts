@@ -8,12 +8,14 @@ import { type GenerationNum } from '@smogon/calc';
 import { logger, wtf } from '@showdex/utils/debug';
 import { BootdexAdapter } from './BootdexAdapter';
 import { type CalcdexBootstrappableLike } from '../Calcdex/CalcdexBootstrappable';
+import { type DevdexBootstrappableLike } from '../Devdex/DevdexBootstrappable';
 import { type HonkdexBootstrappableLike } from '../Honkdex/HonkdexBootstrappable';
 import { type NotedexBootstrappableLike } from '../Notedex/NotedexBootstrappable';
 import { type BootdexBootstrappableLike } from './BootdexBootstrappable';
 
 export interface BootdexManagerBootstrappers {
   calcdex: CalcdexBootstrappableLike;
+  devdex: DevdexBootstrappableLike;
   hellodex: BootdexBootstrappableLike;
   honkdex: HonkdexBootstrappableLike;
   notedex: NotedexBootstrappableLike;
@@ -26,6 +28,7 @@ export class BootdexManager {
   public static readonly Adapter = BootdexAdapter;
   private static readonly __bootstrappers: BootdexManagerBootstrappers = {
     calcdex: null,
+    devdex: null,
     hellodex: null,
     honkdex: null,
     notedex: null,
@@ -100,6 +103,15 @@ export class BootdexManager {
    */
   public static closeHellodex(): void {
     new (this.named('hellodex'))().close();
+  }
+
+  /**
+   * Opens the singleton Devdex tab.
+   *
+   * @since 1.2.5
+   */
+  public static openDevdex(): void {
+    new (this.named('devdex'))().open();
   }
 
   /**

@@ -1,0 +1,234 @@
+///
+/// @group Devdex
+/// @access private
+/// @author Keith Choison <keith@tize.io>
+/// @since 1.2.5
+///
+
+@use 'config/colors';
+@use 'functions/color';
+@use 'mixins/flex';
+@use 'mixins/font';
+@use 'mixins/position';
+@use 'mixins/spacing';
+@use 'mixins/transition';
+
+.container {
+  // inherits PageContainer layout (already position: absolute — do NOT override its position here,
+  // or its abs-fill .content collapses to nothing; the FABs anchor to this positioned container fine)
+}
+
+// flex column so the toolbar stays fixed up top while .log scrolls on its own
+.content {
+  @include flex.col-stretch;
+}
+
+.buildInfo {
+  z-index: 6;
+}
+
+// fixed header (lives above the scrolling .log) — mirrors the Honkdex/Notedex toolbar styling
+.toolbar {
+  @include flex.row-between;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  column-gap: 16px;
+  row-gap: 8px;
+  @include spacing.mx(12px);
+  @include spacing.mt(12px);
+  @include spacing.p($x: 16px, $y: 12px);
+  z-index: 5;
+}
+
+.filters {
+  @include flex.row-start;
+  column-gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.actions {
+  @include flex.row-start;
+  align-items: center;
+  column-gap: 12px;
+}
+
+.actionButton {
+  font-size: 8px;
+
+  i {
+    line-height: 11px;
+  }
+}
+
+.log {
+  @include flex.col-stretch;
+  flex: 1;
+  min-height: 0;
+  // full-bleed so the scrollbar hugs the panel's right edge; insets come from padding (not margins)
+  overflow-y: auto;
+  padding: 8px 8px 12px 12px;
+  font-family: monospace;
+  font-size: 11px;
+  line-height: 16px;
+  // query the log's own width (not the viewport) so a narrow panel drops the msg onto its own line below
+  container-type: inline-size;
+}
+
+// narrow panel: the ts/level/scope no longer fit beside the msg, so wrap the msg onto its own full line
+@container (max-width: 600px) {
+  // `.row .msg` (2 classes) so it beats `.msg { flex: 1 }` (which sets flex-basis: 0%) regardless of the
+  // source order — a bare `.msg` here loses the cascade to the later flex shorthand & never wraps
+  .row .msg {
+    flex-basis: 100%;
+  }
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  @include spacing.py(2px);
+  // scheme-aware separators/hover (the panel bg flips with the Showdown color scheme)
+  border-bottom: 1px solid rgba(colors.$white, 0.04);
+
+  [data-showdex-scheme='light'] & {
+    border-bottom-color: rgba(colors.$black, 0.06);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.expandable {
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(colors.$white, 0.03);
+
+      [data-showdex-scheme='light'] & {
+        background-color: rgba(colors.$black, 0.03);
+      }
+    }
+  }
+}
+
+.ts {
+  color: colors.$gray;
+  flex-shrink: 0;
+  user-select: none;
+
+  [data-showdex-scheme='light'] & {
+    color: color.shade(colors.$gray, 18%);
+  }
+}
+
+.level {
+  flex-shrink: 0;
+  width: 42px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+// fixed-width scope column; truncated at the start (in JS) since they're all `@showdex/…`
+.scope {
+  flex-shrink: 0;
+  width: 24ch;
+  overflow: hidden;
+  white-space: nowrap;
+  color: colors.$gray;
+  cursor: help;
+
+  [data-showdex-scheme='light'] & {
+    color: color.shade(colors.$gray, 18%);
+  }
+}
+
+.msg {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: colors.$gray-lighter;
+
+  // gray-lighter is near-white -> unreadable on a light-scheme panel; use a dark gray instead
+  [data-showdex-scheme='light'] & {
+    color: color.shade(colors.$gray, 32%);
+  }
+}
+
+// collapsed-but-long: keep it to a single truncated line until expanded
+.row.expandable:not(.open) .msg {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// expanded: drop the full message onto its own line, wrapping freely
+.row.open .msg {
+  flex-basis: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+// per-level color classes
+.silly {
+  .level { color: colors.$gray; }
+}
+
+.debug {
+  .level { color: colors.$cyan; }
+}
+
+.verbose {
+  .level { color: color.shade(colors.$cyan, 30%); }
+}
+
+.info {
+  .level { color: colors.$blue; }
+}
+
+.success {
+  .level { color: colors.$green; }
+}
+
+.warn {
+  .level { color: colors.$orange; }
+}
+
+.error {
+  .level { color: colors.$red; }
+}
+
+// translucent scroll FABs near the right scrollbar
+.fabs {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  @include flex.col-start;
+  row-gap: 8px;
+  z-index: 7;
+}
+
+.fab {
+  @include flex.center;
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+  color: colors.$white;
+  background-color: rgba(colors.$black, 0.4);
+  border: 1px solid rgba(colors.$white, 0.15);
+  border-radius: 50%;
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  @include transition.apply(background-color, opacity);
+  opacity: 0.65;
+
+  &:hover {
+    opacity: 1;
+    background-color: rgba(colors.$black, 0.6);
+  }
+}

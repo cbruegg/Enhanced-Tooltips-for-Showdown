@@ -4,8 +4,6 @@ import type { ClearIndicatorProps, GroupBase } from 'react-select';
 import type { DropdownOption } from './Dropdown';
 import styles from './Dropdown.module.scss';
 
-/* eslint-disable @typescript-eslint/indent */
-
 export const SelectClearIndicator = <
   Option extends DropdownOption,
   Multi extends boolean,
@@ -15,7 +13,7 @@ export const SelectClearIndicator = <
   isFocused,
   innerProps,
   children,
-}: ClearIndicatorProps<Option, Multi, Group>): JSX.Element => (
+}: ClearIndicatorProps<Option, Multi, Group>): React.JSX.Element => (
   <div
     className={cx(
       styles.indicator,
@@ -28,5 +26,3 @@ export const SelectClearIndicator = <
     {children || <i className="fa fa-close" />}
   </div>
 );
-
-/* eslint-enable @typescript-eslint/indent */

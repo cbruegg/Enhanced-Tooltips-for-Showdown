@@ -12,6 +12,7 @@ import { createMetaDb } from './createMetaDb';
 import { createNotesDb } from './createNotesDb';
 import { createPresetsDb } from './createPresetsDb';
 import { createSettingsDb } from './createSettingsDb';
+import { createTeledexDb } from './createTeledexDb';
 import { migrateSettingsDb } from './migrateSettingsDb';
 import { updateMetaDb } from './updateMetaDb';
 
@@ -99,6 +100,7 @@ export const openIndexedDb = (): Promise<IDBDatabase> => new Promise((
     createPresetsDb(db);
     createHonksDb(db);
     createNotesDb(db);
+    createTeledexDb(db);
 
     l.verbose(
       'req.onupgradeneeded()', 'Upgrade complete.',

@@ -13,8 +13,6 @@ export type SelectPlaceholderProps<
   selectProps: SelectProps<Option, Multi, Group>;
 }>;
 
-/* eslint-disable @typescript-eslint/indent */
-
 export const SelectPlaceholder = <
   Option extends DropdownOption,
   Multi extends boolean,
@@ -25,7 +23,7 @@ export const SelectPlaceholder = <
   innerProps,
   // selectProps,
   children,
-}: SelectPlaceholderProps<Option, Multi, Group>): JSX.Element => (
+}: SelectPlaceholderProps<Option, Multi, Group>): React.JSX.Element => (
   <div
     className={cx(
       styles.placeholder,
@@ -37,5 +35,3 @@ export const SelectPlaceholder = <
     {children}
   </div>
 );
-
-/* eslint-enable @typescript-eslint/indent */

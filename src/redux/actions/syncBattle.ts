@@ -67,6 +67,10 @@ export const SyncBattleActionType = 'calcdex:sync' as const;
 
 const l = logger('@showdex/redux/actions/syncBattle()');
 
+// throttle: syncBattle() runs per protocol message, so the info milestone below only fires on a TURN change
+// (keyed by battleId). bounded so a long session can't grow it unboundedly (on overflow we just reset).
+const lastSyncedTurn = new Map<string, number>();
+
 /**
  * Syncs the Showdown `battle` state with an existing `CalcdexBattleState`.
  *
@@ -1401,6 +1405,23 @@ export const syncBattle = createAsyncThunk<CalcdexBattleState, SyncBattlePayload
   // (which may result in reaching React's maximum update depth)
   if (battleNonce) {
     battleState.battleNonce = battleNonce;
+  }
+
+  // concise, object-free sync milestone (prod-captured, once per turn) so a bug report can timeline the battle:
+  // format, turn, & each active player's revealed-mon count. e.g. "Synced gen9championsrandombattle turn 5 | p1:4 p2:3"
+  const syncedTurn = battle?.turn ?? -1;
+
+  if (lastSyncedTurn.get(battleId) !== syncedTurn) {
+    if (lastSyncedTurn.size > 200) { lastSyncedTurn.clear(); }
+    lastSyncedTurn.set(battleId, syncedTurn);
+
+    l.info(
+      'Synced', battleState.format, 'turn', syncedTurn,
+      '|', AllPlayerKeys
+        .filter((k) => battleState[k]?.active)
+        .map((k) => `${k}:${battleState[k]?.pokemon?.length || 0}`)
+        .join(' '),
+    );
   }
 
   endTimer(

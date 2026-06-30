@@ -29,6 +29,7 @@ import { type CalcdexMoveOverride, type CalcdexPokemon } from '@showdex/interfac
 import { useColorScheme, useColorTheme, useGlassyTerrain } from '@showdex/redux/store';
 import { detectToggledMove } from '@showdex/utils/battle';
 import { calcMoveHitBasePowers, getMoveOverrideDefaults, hasMoveOverrides } from '@showdex/utils/calc';
+import { getDexForFormat, hasMegaForme, isMegaStone } from '@showdex/utils/dex';
 import {
   clamp,
   formatId,
@@ -52,7 +53,7 @@ const l = logger('@showdex/components/calc/PokeMoves');
 export const PokeMoves = ({
   className,
   style,
-}: PokeMovesProps): JSX.Element => {
+}: PokeMovesProps): React.JSX.Element => {
   const { t } = useTranslation('calcdex');
 
   const {
@@ -114,7 +115,7 @@ export const PokeMoves = ({
   ]);
 
   const moveOptionsFilter = React.useMemo(
-    () => createAliasFilter(t('pokedex:moveAliases', { returnObjects: true })),
+    () => createAliasFilter(t('pokedex:moveAliases', { returnObjects: true }) as Record<string, string>),
     [t],
   );
 
@@ -125,7 +126,8 @@ export const PokeMoves = ({
 
   const showTeraToggle = !!pokemon?.speciesForme
     && !rules?.tera
-    && gen > 8;
+    && gen > 8
+    && !format?.includes('champions');
 
   const disableTeraToggle = !pokemon?.speciesForme
     || (!pokemon.teraType && !pokemon.dirtyTeraType)
@@ -141,6 +143,25 @@ export const PokeMoves = ({
     && (nationalDexFormat || (gen === 8 && !format?.includes('bdsp')));
 
   const disableMaxToggle = !pokemon?.speciesForme;
+
+  // Mega button: shows when the mon can Mega Evolve in this format (holds a Mega stone whose resulting forme
+  // exists in altFormes -- which is format-aware, e.g. Champions/NatDex), or is already Mega'd (to revert).
+  // megaForme doubles as the toggle TARGET: the Mega forme when off, or the base species when reverting.
+  const megaActive = hasMegaForme(pokemon?.speciesForme);
+  const megaItem = pokemon?.dirtyItem ?? pokemon?.item;
+  const megaStone = isMegaStone(megaItem);
+  const megaFormes = (pokemon?.altFormes || []).filter(hasMegaForme);
+  // when not Mega'd: if holding a Mega stone, target the matching Mega forme -- X/Y disambiguated by the stone's
+  // suffix (e.g. Charizardite X -> Charizard-Mega-X), else the lone Mega forme. when Mega'd: revert to the base.
+  const stoneSuffix = megaStone ? (formatId(megaItem).match(/([xy])$/)?.[1] || null) : null;
+  const megaForme = (megaActive
+    ? getDexForFormat(format)?.species.get(pokemon.speciesForme)?.baseSpecies
+    : (megaStone && megaFormes.length
+      ? (megaFormes.find((f) => (f.match(/-Mega-([XY])$/i)?.[1]?.toLowerCase() || null) === stoneSuffix) || megaFormes[0])
+      : null)
+  ) || null;
+
+  const showMegaToggle = !!pokemon?.speciesForme && !!megaForme;
 
   // nice one me 10/10
   const showFaintCounter = !!pokemon?.speciesForme && (
@@ -425,6 +446,35 @@ export const PokeMoves = ({
         }
 
         {
+          showMegaToggle &&
+          <ToggleButton
+            className={cx(
+              styles.toggleButton,
+              styles.ultButton,
+              (showTeraToggle || showZToggle || showMaxToggle) && styles.lessSpacing,
+            )}
+            label={t('poke.moves.mega.label', 'MEGA')}
+            tooltip={(
+              <Trans
+                t={t}
+                i18nKey={`poke.moves.mega.${megaActive ? '' : 'in'}activeTooltip`}
+                parent="div"
+                className={styles.descTooltip}
+                shouldUnescape
+                values={{ forme: megaForme }}
+              />
+            )}
+            tooltipDisabled={!settings?.showUiTooltips}
+            primary
+            active={megaActive}
+            disabled={!pokemon?.speciesForme}
+            onPress={() => updatePokemon({
+              speciesForme: megaForme,
+            }, `${l.scope}:ToggleButton~Mega:onPress()`)}
+          />
+        }
+
+        {
           !!pokemon?.speciesForme &&
           <ToggleButton
             className={cx(styles.toggleButton, styles.editButton)}
@@ -467,9 +517,9 @@ export const PokeMoves = ({
               <div className={styles.moveProperty}>
                 <ValueField
                   className={styles.valueField}
-                  label={t('poke.moves.editor.faintCounter.aria', { pokemon: friendlyPokemonName }) as React.ReactNode}
+                  label={t('poke.moves.editor.faintCounter.aria', { pokemon: friendlyPokemonName }) as string}
                   hideLabel
-                  hint={pokemon.dirtyFaintCounter ?? (pokemon.faintCounter || 0)}
+                  hint={String(pokemon.dirtyFaintCounter ?? (pokemon.faintCounter || 0))}
                   fallbackValue={pokemon.faintCounter || 0}
                   min={0}
                   max={(
@@ -482,6 +532,7 @@ export const PokeMoves = ({
                   shiftStep={2}
                   clearOnFocus
                   absoluteHover
+                  meta={{}}
                   input={{
                     name: `${l.scope}:${pokemonKey}:FaintCounter`,
                     value: pokemon.dirtyFaintCounter ?? (pokemon.faintCounter || 0),
@@ -490,6 +541,8 @@ export const PokeMoves = ({
                         ? null
                         : value,
                     }, `${l.scope}:ValueField~FaintCounter:input.onChange()`),
+                    onBlur: () => void 0,
+                    onFocus: () => void 0,
                   }}
                 />
 
@@ -759,8 +812,8 @@ export const PokeMoves = ({
                 aria-label={t('poke.moves.slot.aria', {
                   count: i + 1,
                   pokemon: friendlyPokemonName,
-                }) as React.ReactNode}
-                hint={t('poke.moves.slot.hint') as React.ReactNode}
+                }) as string}
+                hint={t('poke.moves.slot.hint') as string}
                 optionTooltip={PokeMoveOptionTooltip}
                 optionTooltipProps={{
                   format,
@@ -769,13 +822,16 @@ export const PokeMoves = ({
                   field,
                   hidden: !settings?.showMoveTooltip,
                 }}
+                meta={{}}
                 input={{
                   name: `${l.scope}:${pokemonKey}:Moves:${i}`,
                   value: moveName,
                   onChange: (name: MoveName) => handleMoveChange(name, i),
+                  onBlur: () => void 0,
+                  onFocus: () => void 0,
                 }}
                 options={moveOptions}
-                noOptionsMessage={t('poke.moves.slot.empty') as React.ReactNode}
+                noOptionsMessage={t('poke.moves.slot.empty') as string}
                 filterOption={moveOptionsFilter}
                 disabled={!pokemon?.speciesForme}
               />
@@ -785,6 +841,7 @@ export const PokeMoves = ({
               <TableGridItem className={styles.editorItem}>
                 <div className={styles.editorLeft}>
                   <PokeTypeField
+                    meta={{}}
                     input={{
                       name: `${l.scope}:${pokemonKey}:MoveOverrides:${moveName}:Type`,
                       value: moveOverrides.type,
@@ -793,6 +850,8 @@ export const PokeMoves = ({
                           [moveName]: { type: value },
                         },
                       }, `${l.scope}:PokeTypeField:input.onChange()`),
+                      onBlur: () => void 0,
+                      onFocus: () => void 0,
                     }}
                   />
 
@@ -800,15 +859,18 @@ export const PokeMoves = ({
                     ariaLabel={t('poke.moves.editor.category.aria', {
                       move: moveName,
                       pokemon: friendlyPokemonName,
-                    }) as React.ReactNode}
+                    }) as string}
                     overrideLabel={(dynamicCategoryMove && !hasOverrides && t('common:labels.auto', 'Auto') as string) || null}
                     format={format}
+                    meta={{}}
                     input={{
                       name: `${l.scope}:${pokemonKey}:MoveOverrides:${moveName}:Category`,
                       value: moveOverrides,
                       onChange: (value: Partial<CalcdexMoveOverride>) => updatePokemon({
                         moveOverrides: { [moveName]: value },
                       }, `${l.scope}:MoveCategoryField:input.onChange()`),
+                      onBlur: () => void 0,
+                      onFocus: () => void 0,
                     }}
                     nullable={dynamicCategoryMove}
                     readOnly={moveOverrides.category === 'Status'}
@@ -868,15 +930,16 @@ export const PokeMoves = ({
                         label={t('poke.moves.editor.hits.aria', {
                           move: moveName,
                           pokemon: friendlyPokemonName,
-                        }) as React.ReactNode}
+                        }) as string}
                         hideLabel
-                        hint={moveOverrides.hits}
+                        hint={String(moveOverrides.hits)}
                         fallbackValue={moveDefaults.hits}
                         min={moveDefaults.minHits === moveDefaults.hits ? 1 : moveDefaults.minHits}
                         max={moveDefaults.maxHits}
                         step={1}
                         clearOnFocus
                         absoluteHover
+                        meta={{}}
                         input={{
                           name: `${l.scope}:${pokemonKey}:MoveOverrides:${moveName}:Hits`,
                           value: moveOverrides.hits,
@@ -891,6 +954,8 @@ export const PokeMoves = ({
                               },
                             },
                           }, `${l.scope}:ValueField~Hits:input.onChange()`),
+                          onBlur: () => void 0,
+                          onFocus: () => void 0,
                         }}
                       />
 
@@ -912,7 +977,7 @@ export const PokeMoves = ({
                               hit: j + 1,
                               hits: moveOverrides.hits,
                               pokemon: friendlyPokemonName,
-                            }) as React.ReactNode}
+                            }) as string}
                             hideLabel
                             hint={(moveOverrides.hitBasePowers[j] ?? defaultHitBp ?? fallbackBasePower).toString()}
                             fallbackValue={defaultHitBp ?? fallbackBasePower}
@@ -922,9 +987,12 @@ export const PokeMoves = ({
                             shiftStep={10}
                             clearOnFocus
                             absoluteHover
+                            meta={{}}
                             input={{
                               name: `${l.scope}:${pokemonKey}:MoveOverrides:${moveName}:HitBasePowers:${j}`,
                               value: moveOverrides.hitBasePowers[j] ?? defaultHitBp,
+                              onBlur: () => void 0,
+                              onFocus: () => void 0,
                               onChange: (value: number) => updatePokemon({
                                 moveOverrides: {
                                   [moveName]: {
@@ -952,7 +1020,7 @@ export const PokeMoves = ({
                           label={t('poke.moves.editor.bp.aria', {
                             move: moveName,
                             pokemon: friendlyPokemonName,
-                          }) as React.ReactNode}
+                          }) as string}
                           hideLabel
                           hint={String(moveOverrides[basePowerKey] || t('common:labels.auto', 'Auto')).toUpperCase()}
                           fallbackValue={fallbackBasePower}
@@ -962,6 +1030,7 @@ export const PokeMoves = ({
                           shiftStep={10}
                           clearOnFocus
                           absoluteHover
+                          meta={{}}
                           input={{
                             name: `${l.scope}:${pokemonKey}:MoveOverrides:${moveName}:BasePower`,
                             value: moveOverrides[basePowerKey],
@@ -970,6 +1039,8 @@ export const PokeMoves = ({
                                 [moveName]: { [basePowerKey]: clamp(0, value, 999) },
                               },
                             }, `${l.scope}:ValueField~BasePower:input.onChange()`),
+                            onBlur: () => void 0,
+                            onFocus: () => void 0,
                           }}
                         />
 
@@ -1044,15 +1115,16 @@ export const PokeMoves = ({
                         label={t('poke.moves.editor.hits.aria', {
                           move: moveName,
                           pokemon: friendlyPokemonName,
-                        }) as React.ReactNode}
+                        }) as string}
                         hideLabel
-                        hint={moveOverrides.hits}
+                        hint={String(moveOverrides.hits)}
                         fallbackValue={moveDefaults.hits}
                         min={moveDefaults.minHits === moveDefaults.hits ? 1 : moveDefaults.minHits}
                         max={moveDefaults.maxHits}
                         step={1}
                         clearOnFocus
                         absoluteHover
+                        meta={{}}
                         input={{
                           name: `${l.scope}:${pokemonKey}:MoveOverrides:${moveName}:Hits`,
                           value: moveOverrides.hits,
@@ -1067,6 +1139,8 @@ export const PokeMoves = ({
                               },
                             },
                           }, `${l.scope}:ValueField~Hits:input.onChange()`),
+                          onBlur: () => void 0,
+                          onFocus: () => void 0,
                         }}
                       />
 

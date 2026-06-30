@@ -43,6 +43,10 @@ export const determineDefaultLevel = (
     return env.int('calcdex-pokemon-default-vgc-level');
   }
 
+  if (formatBase.includes('champions')) {
+    return env.int('calcdex-pokemon-default-vgc-level'); // 50
+  }
+
   if (formatBase.includes('lc')) {
     return env.int('calcdex-pokemon-default-lc-level');
   }

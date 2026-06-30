@@ -4,8 +4,6 @@ import type { GroupBase, IndicatorSeparatorProps } from 'react-select';
 import type { DropdownOption } from './Dropdown';
 import styles from './Dropdown.module.scss';
 
-/* eslint-disable @typescript-eslint/indent */
-
 export const SelectIndicatorSeparator = <
   Option extends DropdownOption,
   Multi extends boolean,
@@ -14,7 +12,7 @@ export const SelectIndicatorSeparator = <
   className,
   isDisabled,
   innerProps,
-}: IndicatorSeparatorProps<Option, Multi, Group>): JSX.Element => (
+}: IndicatorSeparatorProps<Option, Multi, Group>): React.JSX.Element => (
   <span
     className={cx(
       styles.indicatorSeparator,
@@ -24,5 +22,3 @@ export const SelectIndicatorSeparator = <
     {...innerProps}
   />
 );
-
-/* eslint-enable @typescript-eslint/indent */

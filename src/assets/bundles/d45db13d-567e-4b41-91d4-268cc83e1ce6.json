@@ -770,7 +770,7 @@
         "teraTypes": "Ground"
       }
     },
-    "Lycanroc": {
+    "Lycanroc-Midday": {
       "Endeavor Sash": {
         "level": 50,
         "evs": {
@@ -1530,6 +1530,28 @@
         ]
       }
     },
+    "Lucario": {
+      "Tera Stellar Sash Offense": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 4,
+          "spe": 252
+        },
+        "nature": "Jolly",
+        "item": "Focus Sash",
+        "moves": [
+          "Close Combat",
+          "Meteor Mash",
+          "Extreme Speed",
+          "Detect"
+        ],
+        "teraTypes": "Stellar"
+      }
+    },
     "Armarouge": {
       "Life Orb Trick Room": {
         "level": 50,
@@ -1920,7 +1942,7 @@
         "teraTypes": "Psychic"
       }
     },
-    "Dudunsparce-Big": {
+    "Dudunsparce-Three-Segment": {
       "Rattled WP Tera Psychic": {
         "level": 50,
         "evs": {
@@ -5262,6 +5284,26 @@
           "Sacred Sword"
         ],
         "teraTypes": "Stellar"
+      },
+      "Mont's Worlds T4 AV Support": {
+        "level": 50,
+        "evs": {
+          "hp": 36,
+          "atk": 100,
+          "def": 4,
+          "spa": 0,
+          "spd": 116,
+          "spe": 252
+        },
+        "nature": "Jolly",
+        "item": "Assault Vest",
+        "moves": [
+          "Ice Spinner",
+          "Sucker Punch",
+          "Ruination",
+          "Icy Wind"
+        ],
+        "teraTypes": "Poison"
       }
     },
     "Ting-Lu": {
@@ -5809,26 +5851,6 @@
       }
     },
     "Basculegion": {
-      "Scarf Adaptability": {
-        "level": 50,
-        "evs": {
-          "hp": 0,
-          "atk": 252,
-          "def": 0,
-          "spa": 0,
-          "spd": 4,
-          "spe": 252
-        },
-        "nature": "Adamant",
-        "ability": "Adaptability",
-        "item": "Choice Scarf",
-        "moves": [
-          "Wave Crash",
-          "Last Respects",
-          "Flip Turn",
-          "Aqua Jet"
-        ]
-      },
       "Banded Swift Swim": {
         "level": 50,
         "evs": {
@@ -5842,6 +5864,47 @@
         "nature": "Adamant",
         "ability": "Swift Swim",
         "item": "Choice Band",
+        "moves": [
+          "Wave Crash",
+          "Last Respects",
+          "Flip Turn",
+          "Aqua Jet"
+        ]
+      },
+      "Tera Ghost Sash Adaptability": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 4,
+          "spe": 252
+        },
+        "nature": "Adamant",
+        "ability": "Adaptability",
+        "item": "Focus Sash",
+        "moves": [
+          "Liquidation",
+          "Last Respects",
+          "Protect",
+          "Aqua Jet"
+        ],
+        "teraTypes": "Ghost"
+      },
+      "Scarf Adaptability": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 4,
+          "spe": 252
+        },
+        "nature": "Adamant",
+        "ability": "Adaptability",
+        "item": "Choice Scarf",
         "moves": [
           "Wave Crash",
           "Last Respects",
@@ -5877,6 +5940,26 @@
       }
     },
     "Sneasler": {
+      "Swords Dance Grassy Seed Acrobatics": {
+        "level": 50,
+        "evs": {
+          "hp": 172,
+          "atk": 92,
+          "def": 108,
+          "spa": 0,
+          "spd": 4,
+          "spe": 132
+        },
+        "nature": "Adamant",
+        "item": "Grassy Seed",
+        "moves": [
+          "Acrobatics",
+          "Close Combat",
+          "Swords Dance",
+          "Protect"
+        ],
+        "teraTypes": "Flying"
+      },
       "Tera Dark Unburden Dark Move": {
         "level": 50,
         "evs": {
@@ -6364,7 +6447,7 @@
       }
     },
     "Articuno-Galar": {
-      "Jamie Boyt's Gda\u0144sk T16 Tera Ground": {
+      "Jamie Boyt's Gdańsk T16 Tera Ground": {
         "level": 50,
         "evs": {
           "hp": 252,
@@ -6913,7 +6996,7 @@
         "teraTypes": "Flying"
       }
     },
-    "Urshifu": {
+    "Urshifu-Single Strike": {
       "Offensive Focus Sash": {
         "level": 50,
         "evs": {
@@ -8041,29 +8124,51 @@
       }
     },
     "Ursaluna-Bloodmoon": {
-      "Trick Room Offense": {
+      "Leftovers Yawn": {
         "level": 50,
         "evs": {
-          "hp": 244,
+          "hp": 164,
           "atk": 0,
-          "def": 0,
-          "spa": 252,
-          "spd": 12,
-          "spe": 0
+          "def": 4,
+          "spa": 36,
+          "spd": 164,
+          "spe": 140
         },
         "ivs": {
-          "atk": 0,
-          "spe": 0
+          "atk": 0
         },
-        "nature": "Quiet",
-        "item": "Life Orb",
+        "nature": "Modest",
+        "item": "Leftovers",
+        "moves": [
+          "Earth Power",
+          "Blood Moon",
+          "Yawn",
+          "Protect"
+        ],
+        "teraTypes": "Electric"
+      },
+      "Tera Water AV": {
+        "level": 50,
+        "evs": {
+          "hp": 148,
+          "atk": 0,
+          "def": 12,
+          "spa": 116,
+          "spd": 180,
+          "spe": 52
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Assault Vest",
         "moves": [
           "Hyper Voice",
           "Earth Power",
           "Blood Moon",
           "Vacuum Wave"
         ],
-        "teraTypes": "Normal"
+        "teraTypes": "Water"
       },
       "Modest Turbo Bear": {
         "level": 50,
@@ -8126,6 +8231,30 @@
         },
         "nature": "Modest",
         "item": "Assault Vest",
+        "moves": [
+          "Hyper Voice",
+          "Earth Power",
+          "Blood Moon",
+          "Vacuum Wave"
+        ],
+        "teraTypes": "Normal"
+      },
+      "Trick Room Offense": {
+        "level": 50,
+        "evs": {
+          "hp": 244,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 12,
+          "spe": 0
+        },
+        "ivs": {
+          "atk": 0,
+          "spe": 0
+        },
+        "nature": "Quiet",
+        "item": "Life Orb",
         "moves": [
           "Hyper Voice",
           "Earth Power",
@@ -10221,7 +10350,7 @@
         "teraTypes": "Fairy"
       }
     },
-    "Zacian": {
+    "Zacian-Crowned": {
       "Tera Fairy Fast Offense": {
         "level": 50,
         "evs": {
@@ -10262,7 +10391,7 @@
         "teraTypes": "Ground"
       }
     },
-    "Zamazenta": {
+    "Zamazenta-Crowned": {
       "Michael Kelsch's 24 Worlds T4 Max Speed": {
         "level": 50,
         "evs": {
@@ -10741,6 +10870,579 @@
           "Flamethrower",
           "Calm Mind"
         ]
+      }
+    },
+    "Mew": {
+      "Transform Imprison": {
+        "level": 50,
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 0,
+          "spa": 0,
+          "spd": 4,
+          "spe": 252
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Timid",
+        "item": "Focus Sash",
+        "moves": [
+          "Transform",
+          "Imprison",
+          "Trick Room",
+          "Protect"
+        ],
+        "teraTypes": "Ghost"
+      }
+    },
+    "Jirachi": {
+      "Scarf Hax Spam": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 4,
+          "spe": 252
+        },
+        "nature": "Jolly",
+        "item": "Choice Scarf",
+        "moves": [
+          "Iron Head",
+          "Zen Headbutt",
+          "Body Slam",
+          "U-turn"
+        ],
+        "teraTypes": "Water"
+      }
+    },
+    "Deoxys-Attack": {
+      "Sash Mixed Psy Spam": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 4,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Hasty",
+        "item": "Focus Sash",
+        "moves": [
+          "Expanding Force",
+          "Psycho Boost",
+          "Superpower",
+          "Dark Pulse"
+        ]
+      }
+    },
+    "Deoxys-Defense": {
+      "Stored Power Sponge": {
+        "level": 50,
+        "evs": {
+          "hp": 244,
+          "atk": 0,
+          "def": 156,
+          "spa": 4,
+          "spd": 100,
+          "spe": 4
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Calm",
+        "item": "Leftovers",
+        "moves": [
+          "Stored Power",
+          "Recover",
+          "Cosmic Power",
+          "Double Team"
+        ],
+        "teraTypes": "Dark"
+      }
+    },
+    "Deoxys-Speed": {
+      "Modest Specs Psy Spam": {
+        "level": 50,
+        "evs": {
+          "hp": 4,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 0,
+          "spe": 252
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Choice Specs",
+        "moves": [
+          "Expanding Force",
+          "Psycho Boost",
+          "Dark Pulse",
+          "Icy Wind"
+        ]
+      }
+    },
+    "Manaphy": {
+      "Tail Glow Heart Swap": {
+        "level": 50,
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 4,
+          "spe": 0
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Leftovers",
+        "moves": [
+          "Scald",
+          "Dazzling Gleam",
+          "Tail Glow",
+          "Heart Swap"
+        ],
+        "teraTypes": "Grass"
+      }
+    },
+    "Darkrai": {
+      "Dark Void has returned": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 4,
+          "spe": 252
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Timid",
+        "item": "Focus Sash",
+        "moves": [
+          "Dark Pulse",
+          "Sludge Bomb",
+          "Dark Void",
+          "Icy Wind"
+        ],
+        "teraTypes": "Ghost"
+      }
+    },
+    "Shaymin-Sky": {
+      "Sash STABs Tailwind": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 4,
+          "spe": 252
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Timid",
+        "item": "Focus Sash",
+        "moves": [
+          "Seed Flare",
+          "Air Slash",
+          "Tailwind",
+          "Protect"
+        ],
+        "teraTypes": "Ghost"
+      }
+    },
+    "Arceus": {
+      "Extreme Killer": {
+        "level": 50,
+        "evs": {
+          "hp": 252,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 0,
+          "spe": 4
+        },
+        "nature": "Adamant",
+        "item": "Clear Amulet",
+        "moves": [
+          "Extreme Speed",
+          "Shadow Claw",
+          "Swords Dance",
+          "Stomping Tantrum"
+        ],
+        "teraTypes": "Ghost"
+      },
+      "Fairy CM": {
+        "level": 50,
+        "evs": {
+          "hp": 148,
+          "atk": 0,
+          "def": 0,
+          "spa": 164,
+          "spd": 0,
+          "spe": 196
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Pixie Plate",
+        "moves": [
+          "Judgment",
+          "Earth Power",
+          "Calm Mind",
+          "Flamethrower"
+        ],
+        "teraTypes": "Ground"
+      },
+      "Ground CM": {
+        "level": 50,
+        "evs": {
+          "hp": 180,
+          "atk": 0,
+          "def": 0,
+          "spa": 188,
+          "spd": 0,
+          "spe": 140
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Earth Plate",
+        "moves": [
+          "Judgment",
+          "Ice Beam",
+          "Calm Mind",
+          "Dazzling Gleam"
+        ],
+        "teraTypes": "Fairy"
+      },
+      "Water CM": {
+        "level": 50,
+        "evs": {
+          "hp": 212,
+          "atk": 0,
+          "def": 156,
+          "spa": 92,
+          "spd": 4,
+          "spe": 44
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Splash Plate",
+        "moves": [
+          "Judgment",
+          "Ice Beam",
+          "Calm Mind",
+          "Protect"
+        ],
+        "teraTypes": "Grass"
+      },
+      "Fire Support": {
+        "level": 50,
+        "evs": {
+          "hp": 220,
+          "atk": 0,
+          "def": 0,
+          "spa": 156,
+          "spd": 0,
+          "spe": 132
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Flame Plate",
+        "moves": [
+          "Judgment",
+          "Heat Wave",
+          "Earth Power",
+          "Tailwind"
+        ],
+        "teraTypes": "Water"
+      },
+      "Dark Perish Support": {
+        "level": 50,
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 156,
+          "spa": 0,
+          "spd": 100,
+          "spe": 0
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Bold",
+        "item": "Dread Plate",
+        "moves": [
+          "Foul Play",
+          "Snarl",
+          "Perish Song",
+          "Protect"
+        ],
+        "teraTypes": "Fairy"
+      },
+      "Ghost TR Support": {
+        "level": 50,
+        "evs": {
+          "hp": 132,
+          "atk": 0,
+          "def": 4,
+          "spa": 252,
+          "spd": 4,
+          "spe": 116
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Spooky Plate",
+        "moves": [
+          "Judgment",
+          "Dazzling Gleam",
+          "Trick Room",
+          "Will-O-Wisp"
+        ],
+        "teraTypes": "Fairy"
+      },
+      "Fighting Body Press": {
+        "level": 50,
+        "evs": {
+          "hp": 244,
+          "atk": 0,
+          "def": 188,
+          "spa": 0,
+          "spd": 76,
+          "spe": 0
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Bold",
+        "item": "Fist Plate",
+        "moves": [
+          "Body Press",
+          "Dark Pulse",
+          "Iron Defense",
+          "Recover"
+        ],
+        "teraTypes": "Fire"
+      }
+    },
+    "Keldeo": {
+      "Life Orb Coaching": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 4,
+          "spe": 252
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Timid",
+        "item": "Life Orb",
+        "moves": [
+          "Secret Sword",
+          "Muddy Water",
+          "Coaching",
+          "Protect"
+        ],
+        "teraTypes": "Stellar"
+      }
+    },
+    "Meloetta": {
+      "Mixed Life Orb": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 132,
+          "def": 0,
+          "spa": 124,
+          "spd": 0,
+          "spe": 252
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Naive",
+        "item": "Life Orb",
+        "moves": [
+          "Relic Song",
+          "Close Combat",
+          "Tera Blast",
+          "Protect"
+        ],
+        "teraTypes": "Ghost"
+      }
+    },
+    "Diancie": {
+      "Diamond Storm Body Press": {
+        "level": 50,
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 252,
+          "spa": 0,
+          "spd": 4,
+          "spe": 0
+        },
+        "nature": "Impish",
+        "item": "Leftovers",
+        "moves": [
+          "Diamond Storm",
+          "Body Press",
+          "Play Rough",
+          "Protect"
+        ],
+        "teraTypes": "Grass"
+      }
+    },
+    "Hoopa-Unbound": {
+      "Mixed Attacker TR": {
+        "level": 50,
+        "evs": {
+          "hp": 252,
+          "atk": 252,
+          "def": 0,
+          "spa": 4,
+          "spd": 0,
+          "spe": 0
+        },
+        "ivs": {
+          "spe": 0
+        },
+        "nature": "Brave",
+        "item": "Life Orb",
+        "moves": [
+          "Hyperspace Fury",
+          "Expanding Force",
+          "Gunk Shot",
+          "Trick Room"
+        ],
+        "teraTypes": "Poison"
+      }
+    },
+    "Volcanion": {
+      "Assault Vest Offense": {
+        "level": 50,
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 4,
+          "spe": 0
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Modest",
+        "item": "Assault Vest",
+        "moves": [
+          "Steam Eruption",
+          "Heat Wave",
+          "Earth Power",
+          "Overheat"
+        ],
+        "teraTypes": "Ground"
+      }
+    },
+    "Magearna": {
+      "TR Life Orb": {
+        "level": 50,
+        "evs": {
+          "hp": 252,
+          "atk": 0,
+          "def": 0,
+          "spa": 252,
+          "spd": 4,
+          "spe": 0
+        },
+        "ivs": {
+          "atk": 0,
+          "spe": 0
+        },
+        "nature": "Quiet",
+        "item": "Life Orb",
+        "moves": [
+          "Flash Cannon",
+          "Dazzling Gleam",
+          "Fleur Cannon",
+          "Trick Room"
+        ],
+        "teraTypes": "Water"
+      }
+    },
+    "Zarude": {
+      "Sun Offensive Support": {
+        "level": 50,
+        "evs": {
+          "hp": 0,
+          "atk": 252,
+          "def": 0,
+          "spa": 0,
+          "spd": 4,
+          "spe": 252
+        },
+        "nature": "Jolly",
+        "item": "Leftovers",
+        "moves": [
+          "Solar Blade",
+          "Knock Off",
+          "U-turn",
+          "Jungle Healing"
+        ],
+        "teraTypes": "Water"
+      }
+    },
+    "Pecharunt": {
+      "Poison Gas Hex": {
+        "level": 50,
+        "evs": {
+          "hp": 220,
+          "atk": 0,
+          "def": 4,
+          "spa": 4,
+          "spd": 252,
+          "spe": 28
+        },
+        "ivs": {
+          "atk": 0
+        },
+        "nature": "Calm",
+        "item": "Leftovers",
+        "moves": [
+          "Malignant Chain",
+          "Hex",
+          "Poison Gas",
+          "Parting Shot"
+        ],
+        "teraTypes": "Dark"
       }
     }
   }

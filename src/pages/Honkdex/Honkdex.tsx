@@ -21,7 +21,8 @@ import { Composer } from '@showdex/components/form';
 import { PageContainer, PiconRackProvider, PiconRackSortableContext } from '@showdex/components/layout';
 import { ContextMenu, useContextMenu } from '@showdex/components/ui';
 import { useCalcdexDuplicator } from '@showdex/redux/store';
-import { logger } from '@showdex/utils/debug';
+import { env } from '@showdex/utils/core';
+import { logger, teledex } from '@showdex/utils/debug';
 import { useRandomUuid } from '@showdex/utils/hooks';
 import styles from './Honkdex.module.scss';
 
@@ -37,7 +38,7 @@ export const Honkdex = ({
   onRequestHellodex,
   onRequestHonkdex,
   onLeaveRoom,
-}: HonkdexProps): JSX.Element => {
+}: HonkdexProps): React.JSX.Element => {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   useCalcdexSize(containerRef);
@@ -96,12 +97,15 @@ export const Honkdex = ({
           <Composer
             hint={t('notedex:editor.hint', 'Type something...')}
             initialEditorState={notes?.pre?.editorState}
+            meta={{}}
             input={{
               name: `${l.scope}:${battleId}:Notes:Pre:EditorState`,
               value: notes?.pre?.editorState,
               onChange: (value: string) => void debouncyUpdateBattle({
                 notes: { pre: { editorState: value } },
               }, `${l.scope}:${battleId}:Notes:Pre:EditorState~Composer:input.onChange()`),
+              onBlur: () => void 0,
+              onFocus: () => void 0,
             }}
           />
         }
@@ -135,12 +139,15 @@ export const Honkdex = ({
           <Composer
             hint={t('notedex:editor.hint', 'Type something...')}
             initialEditorState={notes?.post?.editorState}
+            meta={{}}
             input={{
               name: `${l.scope}:${battleId}:Notes:Post:EditorState`,
               value: notes?.post?.editorState,
               onChange: (value: string) => void debouncyUpdateBattle({
                 notes: { post: { editorState: value } },
               }, `${l.scope}:${battleId}:Notes:Post:EditorState~Composer:input.onChange()`),
+              onBlur: () => void 0,
+              onFocus: () => void 0,
             }}
           />
         }
@@ -178,6 +185,16 @@ export const Honkdex = ({
                 dupeCalcdex({ ...state, newId });
                 onRequestHonkdex(newId);
               }),
+            },
+          },
+          {
+            key: 'dump-teledex',
+            entity: 'item',
+            props: {
+              label: t('contextMenu.dumpBugReport', 'Dump Bug Report'),
+              icon: 'fa-bug',
+              hidden: !env.bool('teledex-enabled'),
+              onPress: hideAfter(() => void teledex.flush({ to: 'file' })),
             },
           },
           {

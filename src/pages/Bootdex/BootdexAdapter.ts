@@ -13,7 +13,7 @@ import {
 } from '@showdex/redux/store';
 import { bakeBakedexBundles, loadI18nextLocales } from '@showdex/utils/app';
 import { nonEmptyObject } from '@showdex/utils/core';
-import { logger } from '@showdex/utils/debug';
+import { logger, teledex } from '@showdex/utils/debug';
 import {
   openIndexedDb,
   readHonksDb,
@@ -55,6 +55,8 @@ export abstract class BootdexAdapter {
         ...settings,
         locale: settings.locale || this.i18next?.language || 'en', // fucc it yolo
       }));
+
+      teledex.setDeveloperMode(settings?.developerMode ?? false);
     }
 
     void bakeBakedexBundles({ db: this.db, store: this.store });

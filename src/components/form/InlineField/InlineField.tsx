@@ -4,6 +4,7 @@ import cx from 'classnames';
 import type { FieldRenderProps } from 'react-final-form';
 import { useColorScheme } from '@showdex/redux/store';
 import { nonEmptyObject } from '@showdex/utils/core';
+import { parseHotkeyCombo } from '@showdex/utils/ui';
 import styles from './InlineField.module.scss';
 
 export interface InlineFieldProps extends FieldRenderProps<string, HTMLSpanElement> {
@@ -45,7 +46,7 @@ export const InlineField = React.forwardRef<HTMLSpanElement, InlineFieldProps>((
   meta,
   disabled,
   onContextMenu,
-}: InlineFieldProps, forwardedRef): JSX.Element => {
+}: InlineFieldProps, forwardedRef): React.JSX.Element => {
   const colorScheme = useColorScheme();
   const containerRef = React.useRef<HTMLSpanElement>(null);
 
@@ -94,7 +95,7 @@ export const InlineField = React.forwardRef<HTMLSpanElement, InlineFieldProps>((
     e?.preventDefault?.();
     e?.stopImmediatePropagation?.();
 
-    switch (handler.key) {
+    switch (parseHotkeyCombo(handler)) {
       // revert to the initial value
       case 'esc': {
         containerRef.current.innerText = initialValue.current;

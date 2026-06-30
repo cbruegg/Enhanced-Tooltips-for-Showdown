@@ -75,8 +75,6 @@ export interface SegmentedProps<
   disabled?: boolean;
 }
 
-/* eslint-disable @typescript-eslint/indent */
-
 export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(<
   TValue extends TextFieldValue = string,
   Multi extends boolean = false,
@@ -96,7 +94,7 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(<
   unique,
   input,
   disabled,
-}: SegmentedProps<TValue, Multi>, forwardedRef: React.ForwardedRef<HTMLDivElement>): JSX.Element => {
+}: SegmentedProps<TValue, Multi>, forwardedRef: React.ForwardedRef<HTMLDivElement>): React.JSX.Element => {
   const colorScheme = useColorScheme();
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -264,5 +262,3 @@ export const Segmented = React.forwardRef<HTMLDivElement, SegmentedProps>(<
     </>
   );
 });
-
-/* eslint-enable @typescript-eslint/indent */

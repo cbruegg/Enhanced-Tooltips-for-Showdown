@@ -36,7 +36,7 @@ export const findPlayerTitle = (
     return null;
   }
 
-  const matchedTitle = (titles || []).find((t) => (
+  const matchesUser = (t: ShowdexPlayerTitle) => (
     showdownUser
       ? t.userIds.map((id) => (Array.isArray(id) ? id[0] : id))
       : t.supporterId
@@ -48,7 +48,23 @@ export const findPlayerTitle = (
           .filter(Boolean)
           || []
         : []
-  ).includes(userId));
+  ).includes(userId);
+
+  // when a user is assigned to multiple titles (e.g. a donor who's also a patron, like James G), pick by
+  // precedence: special/custom titles > Patreon (higher tier first) > donor (Paid Pal)
+  const titleRank = (t: ShowdexPlayerTitle) => {
+    switch (t?.supporterId) {
+      case 'patreon-tier-03': return 3;
+      case 'patreon-tier-02': return 2;
+      case 'patreon-tier-01': return 1;
+      case 'donor': return 0;
+      default: return 4; // non-supporter (special/custom) titles outrank supporter ones
+    }
+  };
+
+  const [matchedTitle] = (titles || [])
+    .filter(matchesUser)
+    .sort((a, b) => titleRank(b) - titleRank(a));
 
   if (!matchedTitle) {
     return null;

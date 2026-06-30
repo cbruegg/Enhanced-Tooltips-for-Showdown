@@ -65,7 +65,9 @@ export const guessTeambuilderPreset = (
   // update (2023/01/04): not checking teraType since we'll go off of what the server reports anyway
   const candidates = pokemonPresets.filter((p) => (
     (legacy || p.ability === pokemon.ability) // abilities aren't supported in legacy gens
-      && (gen === 1 || p.item === pokemon.item) // items are supported in gens 2+
+      // items are supported in gens 2+; also accept a consumed item (e.g. a popped Focus Sash reports item ''
+      // but keeps the original in prevItem), else the spread falls back to guessing from scratch
+      && (gen === 1 || p.item === pokemon.item || (!!pokemon.prevItem && p.item === pokemon.prevItem))
       && p.moves.every((m) => moves.includes(m))
       // && (!p.teraTypes?.length || !teraType || flattenAlts(p.teraTypes).includes(teraType))
   ));

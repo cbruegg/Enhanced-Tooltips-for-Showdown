@@ -85,6 +85,7 @@ export const PokemonPseudoToggleAbilities: AbilityName[] = [
  * @since 0.1.2
  */
 export const PokemonPassiveToggleAbilities: AbilityName[] = [
+  'Analytic', // if enabled, user is declaring they moved last (1.3x base power boost)
   'Flash Fire', // Fire immunity always applies; Fire-type boost applies when toggled on
   // 'Intimidate', // applies the ATK reduction within `boosts`, so no need to "toggle" this
   'Minus',

@@ -3,8 +3,6 @@ import type { GroupBase, MultiValueRemoveProps } from 'react-select';
 import type { DropdownOption } from './Dropdown';
 import styles from './Dropdown.module.scss';
 
-/* eslint-disable @typescript-eslint/indent */
-
 export const SelectMultiValueRemove = <
   Option extends DropdownOption,
   Multi extends boolean,
@@ -12,7 +10,7 @@ export const SelectMultiValueRemove = <
 >({
   innerProps,
   children,
-}: MultiValueRemoveProps<Option, Multi, Group>): JSX.Element => (
+}: MultiValueRemoveProps<Option, Multi, Group>): React.JSX.Element => (
   <div
     className={styles.remove}
     {...innerProps}
@@ -20,5 +18,3 @@ export const SelectMultiValueRemove = <
     {children || <i className="fa fa-close" />}
   </div>
 );
-
-/* eslint-disable @typescript-eslint/indent */

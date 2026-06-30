@@ -71,7 +71,8 @@ export const runtimer = (
       const { duration = -420.69 } = measurement;
 
       // note: no point in going beyond 1 sig fig for `duration` (hundreths+ digits are 0's)
-      l.info(
+      // debug (not info) so the routine per-mutation timing doesn't flood the dev-mode buffer/IDB mirror
+      l.debug(
         scope || '???', 'took', duration.toFixed(1), 'ms',
         // 'to execute',
         // '\n', 'execution performance rating (by SPE):',

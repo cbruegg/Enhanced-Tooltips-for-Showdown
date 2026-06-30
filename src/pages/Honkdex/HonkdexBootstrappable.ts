@@ -29,8 +29,6 @@ const defaultFormat = env('honkdex-default-format');
 // hence it's also the initial value during state initialization
 const maxPokemon = env.int('honkdex-player-min-pokemon', 0);
 
-/* eslint-disable @typescript-eslint/indent */
-
 export const MixinHonkdexBootstrappable = <
   TBootstrappable extends typeof BootdexBootstrappable,
 >(
@@ -43,15 +41,22 @@ export const MixinHonkdexBootstrappable = <
 
     public constructor(
       instanceId = uuidv4(),
-      gen = defaultGen,
-      format = defaultFormat,
+      gen?: GenerationNum,
+      format?: string,
     ) {
       super();
 
       this.instanceId = instanceId;
-      this.gen = gen;
-      this.format = getGenfulFormat(gen, format);
 
+      // Check if state exists for this ID
+      const state = this.calcdexState;
+
+      // Prioritize passed values, then state values. Otherwise, use the default.
+      this.gen = gen ?? state?.gen ?? defaultGen;
+      const targetFormat = format ?? state?.format ?? defaultFormat;
+      this.format = getGenfulFormat(this.gen, targetFormat);
+
+      // Now perform the sanity check
       if (this.calcdexState?.battleId && this.calcdexState.gen !== this.gen) {
         this.instanceId = uuidv4();
       }
@@ -142,8 +147,6 @@ export const MixinHonkdexBootstrappable = <
 
   return HonkdexBootstrappableMixin;
 };
-
-/* eslint-enable @typescript-eslint/indent */
 
 export abstract class HonkdexBootstrappable extends MixinHonkdexBootstrappable(BootdexBootstrappable) {
   public static override readonly scope = l.scope;

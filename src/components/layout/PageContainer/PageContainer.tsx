@@ -12,6 +12,8 @@ import styles from './PageContainer.module.scss';
 
 export interface PageContainerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'prefix' | 'suffix'> {
   contentRef?: React.RefObject<HTMLDivElement>;
+  /** Reference to the actual scrolling element (SimpleBar content wrapper) — for programmatic scroll. */
+  scrollRef?: React.Ref<HTMLDivElement>;
   name?: string;
   className?: string;
   style?: React.CSSProperties;
@@ -27,6 +29,7 @@ export interface PageContainerProps extends Omit<React.HTMLAttributes<HTMLDivEle
 
 export const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps>(({
   contentRef,
+  scrollRef,
   name,
   className,
   style,
@@ -39,7 +42,7 @@ export const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps
   contentScrollable,
   children,
   ...props
-}, forwardedRef): JSX.Element => {
+}, forwardedRef): React.JSX.Element => {
   const colorScheme = useColorScheme();
   const colorTheme = useColorTheme();
   const glassyTerrain = useGlassyTerrain();
@@ -64,6 +67,7 @@ export const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps
       {contentScrollable ? (
         <Scrollable
           contentRef={contentRef}
+          scrollRef={scrollRef}
           className={cx(styles.content, contentClassName)}
           style={contentStyle}
           contentClassName={scrollableContentClassName}

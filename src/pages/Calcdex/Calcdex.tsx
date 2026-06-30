@@ -28,6 +28,8 @@ import {
   useShowdexBundles,
 } from '@showdex/redux/store';
 import { findPlayerTitle } from '@showdex/utils/app';
+import { env } from '@showdex/utils/core';
+import { teledex } from '@showdex/utils/debug';
 import { useMobileViewport, useRandomUuid } from '@showdex/utils/hooks';
 import styles from './Calcdex.module.scss';
 
@@ -47,7 +49,7 @@ export const Calcdex = ({
   onSwitchViewpoint,
   onCloseOverlay,
   onLeaveRoom,
-}: CalcdexProps): JSX.Element => {
+}: CalcdexProps): React.JSX.Element => {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   useCalcdexSize(containerRef);
@@ -268,6 +270,16 @@ export const Calcdex = ({
                 dupeCalcdex({ ...state, newId });
                 onRequestHonkdex(newId);
               }),
+            },
+          },
+          {
+            key: 'dump-teledex',
+            entity: 'item',
+            props: {
+              label: t('contextMenu.dumpBugReport', 'Dump Bug Report'),
+              icon: 'fa-bug',
+              hidden: !env.bool('teledex-enabled'),
+              onPress: hideAfter(() => void teledex.flush({ to: 'file' })),
             },
           },
           {

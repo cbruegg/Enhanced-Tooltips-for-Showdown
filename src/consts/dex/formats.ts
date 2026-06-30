@@ -10,6 +10,7 @@ import { eacute, times } from '@showdex/consts/core';
 export const FormatLabels: Record<string, string> = {
   '1v1': '1v1',
   '12switch': '1-2 Switch',
+  '1v1factory': '1v1 Factory',
   '2v2doubles': '2v2 Doubles',
   '350cup': '350 Cup',
   '3v3singles': '3v3 Singles',
@@ -19,6 +20,7 @@ export const FormatLabels: Record<string, string> = {
   aaaubers: 'AAA Ubers',
   aaauu: 'AAA UU',
   adv200: 'ADV 200',
+  adv200doubles: 'ADV 200 Doubles',
   almostanyability: 'AAA',
   alphabetcup: 'Alphabet Cup',
   alternatium: 'Alternatium',
@@ -50,16 +52,30 @@ export const FormatLabels: Record<string, string> = {
   bdspru: 'BDSP RU',
   bdspubers: 'BDSP Ubers',
   bdspuu: 'BDSP UU',
+  biomechmons: 'Bio Mech Mons',
   blueberryprologue: 'Blueberry Prologue',
   bonustype: 'Bonus Type',
   brokencup: 'Broken Cup',
   bss: 'BSS',
   bssfactory: 'BSS Factory',
+  bw1ou: 'BW1 OU',
   camomons: 'Camomons',
   cap: 'CAP', // CreateAPokemon (no cap, always factual)
   cap1v1: 'CAP 1v1',
   caplc: 'CAP LC',
   caprandombattle: 'CAP Randoms',
+  ccapm2025: 'CCAPM2025',
+  ccapm2025randombattle: 'CCAPM2025 Randoms',
+  championsou: 'Champions OU',
+  championsuu: 'Champions UU',
+  championsbss: 'Champions BSS',
+  championsvgc2026: 'Champions VGC 2026',
+  championsdraft: 'Champions Draft',
+  championsnatdexdraft: 'Champions NatDex Draft',
+  championscustomgame: 'Champions Customs',
+  championsdoublescustomgame: 'Champions Doubles Customs',
+  championsrandombattle: 'Champions Randoms',
+  champions4v4doublesuu: 'Champions 4v4 Doubles UU',
   categoryswap: 'Category Swap',
   challengecup: 'Challenge Cup',
   challengecup1v1: 'Challenge Cup 1v1',
@@ -92,12 +108,14 @@ export const FormatLabels: Record<string, string> = {
   franticfusions: 'Frantic Fusions',
   freeforall: 'FFA',
   freeforallrandombattle: 'FFA Randoms',
+  frlgou: 'FRLG OU',
   fullpotential: 'Full Potential',
   galardexdraft: 'Galar Draft',
   gbusingles: 'GBU Singles',
   godlygift: 'Godly Gift',
   hackmonscup: 'Hackmons Cup',
   hoenngaiden: 'Hoenn Gaiden',
+  hoennstadium: 'Hoenn Stadium',
   inheritance: 'Inheritance',
   inverse: 'Inverse',
   japaneseou: 'Japanese OU',
@@ -109,12 +127,15 @@ export const FormatLabels: Record<string, string> = {
   letsgoou: 'LGPE OU', // LetsGoPikachuEevee
   letsgorandombattle: 'LGPE Randoms',
   linked: 'Linked',
+  livepatchbattlesver100: 'Live Patch Battles',
+  megainvasionrandombattle: 'Mega Invasion Randoms',
   megasrevisited: 'Megas Revisited',
   metronomebattle: 'Metronome',
   mixandmega: 'Mix & Mega',
   moderngen1: 'Modern RBY',
   moderngen2: 'Modern GSC',
   monkeyspawrandombattle: 'Monkey\'s Paw Randoms',
+  monocolor: 'Monocolor',
   monothreatbug: 'Monothreat Bug',
   monothreatdark: 'Monothreat Dark',
   monothreatdragon: 'Monothreat Dragon',
@@ -185,6 +206,7 @@ export const FormatLabels: Record<string, string> = {
   pikacup: 'Pika Cup',
   pokebilities: `Pok${eacute}bilities`,
   pokebilitiesaaa: `Pok${eacute}bilities AAA`,
+  pokebilitiesbh: `Pok${eacute}bilities BH`,
   pokecup: `Pok${eacute} Cup`,
   pokemoves: 'Pokemoves',
   proteanpalace: 'Protean Palace',
@@ -212,10 +234,12 @@ export const FormatLabels: Record<string, string> = {
   stabmons: 'STABmons', // SameTypeAttackBonus
   stabmonsmixandmega: 'STABmons Mix & Mega',
   stadiumou: 'Stadium OU',
+  stadiumrentals: 'Stadium Rentals',
   superstaffbros4: 'SSB4',
   superstaffbrosultimate: 'SSB Ultimate', // not to be confused w/ the one that has Final Destination LOL
   tagteamsingles: 'Tag Team Singles',
   teradonation: 'Tera Donation',
+  teraoverride: 'Tera Override',
   terapreviewdraft: 'Tera Draft',
   terapreviewnatdexdraft: 'NatDex Tera Draft',
   terapreviewpaldeadexdraft: 'Paldea Tera Draft',
@@ -233,6 +257,7 @@ export const FormatLabels: Record<string, string> = {
   ultimatefinale: 'Ultimate Finale',
   unknown: '???',
   uu: 'UU', // UnderUsed
+  uubl: 'UUBL',
   vaporemons: 'VaporeMons',
   vgc2009: 'VGC 2009', // VideoGameChampionships
   vgc2010: 'VGC 2010',
@@ -252,6 +277,8 @@ export const FormatLabels: Record<string, string> = {
   vgc2024: 'VGC 2024',
   vgc2025: 'VGC 2025', // update (2024/09/28): ambitious?
   voltturnmayhem: 'Volt Turn Mayhem',
+  woomod: 'woomod',
+  woomodrandombattle: 'woomod Randoms',
   zu: 'ZU', // ZeroUsed
 };
 
@@ -269,6 +296,7 @@ export const FormatSuffixes: [test: RegExp, replacement: string][] = [
   [/unrated/, 'Unrated'],
   [/^dlc(\d)/, 'DLC $1'],
   [/series(\d+)/, 'Series $1'],
+  [/regm([a-z])/, 'Reg M-$1'],
   [/reg([a-z])(?!lation)/, 'Reg $1'],
   [/regulation([a-z])/, 'Reg $1'],
   [/muk$/, `${times} Muk`], // saw a "[Gen 2] UU (+ Muk)" lol
@@ -289,6 +317,7 @@ export const DoublesFormatMatchers: RegExp[] = [
   /partnersincrime/,
   /triples/,
   /vgc\d{2,4}/,
+  /championsvgc/,
 ];
 
 /**
@@ -427,6 +456,7 @@ export const LegalLockedFormats: (string | RegExp)[] = [
   /battlespot/, // e.g., 'battlespotsingles', 'battlespotdoubles'
   /battlestadium/, // e.g., 'battlestadiumsingles', 'battlestadiumdoublesseries13',
   /^bdsp/, // e.g., 'bdspou'
+  /^champions/, // e.g., 'championsou', 'championsvgc2026'
   'computergeneratedteams',
   'doubleslc',
   'doublesou',
@@ -467,6 +497,8 @@ export const LegalLockedFormats: (string | RegExp)[] = [
  */
 export const FormatSortPriorities: string[] = [
   'ou',
+  'champions', // note: ranked right under OU per request; sortPresetsByFormat() special-cases the match so a
+  // "Champions OU" label doesn't get swallowed by the 'ou' entry above (see its priorityIndex())
   'uu',
   'ubers',
   'ru',

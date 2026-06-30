@@ -125,7 +125,7 @@
 
     "developerMode": {
       "label": "Mode Développeur",
-      "tooltip": "<em>Ceci est une fonctionnalité prévue.</em><br /><em>Si vous êtes un geek, restez à l'écoute !</em>"
+      "tooltip": "<em>Déverrouille les outils de développement.</em><br /><em>Active le panneau Devdex &amp; la capture complète des logs Teledex en mode débogage.</em>"
     }
   },
 

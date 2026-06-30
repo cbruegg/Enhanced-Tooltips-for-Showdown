@@ -9,6 +9,7 @@ import {
 import { type CalcdexPokemonPreset } from '@showdex/interfaces/calc';
 import { buildBundleQuery, buildPresetQuery, createTagProvider } from '@showdex/redux/factories';
 import {
+  transformBundlePresetResponse,
   transformFormatPresetResponse,
   transformFormatStatsResponse,
   transformPresetResponse,
@@ -24,7 +25,7 @@ export const presetApi = pkmnApi.injectEndpoints({
 
   endpoints: (build) => ({
     pokemonBundledPreset: build.query<CalcdexPokemonPreset[], PkmnApiSmogonPresetRequest>({
-      queryFn: buildBundleQuery(transformFormatPresetResponse),
+      queryFn: buildBundleQuery(transformBundlePresetResponse),
       providesTags: createTagProvider(PokemonReduxTagType.Preset),
     }),
 

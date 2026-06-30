@@ -58,7 +58,7 @@ export const CalcdexPokeProvider = ({
   playerKey,
   movesCount = 4,
   children,
-}: CalcdexPokeProviderProps): JSX.Element => {
+}: CalcdexPokeProviderProps): React.JSX.Element => {
   const ctx = React.useContext(CalcdexContext);
 
   const {
@@ -284,6 +284,14 @@ export const CalcdexPokeProvider = ({
     playerPokemon,
   ]);
 
+  // the pool of all formes available in the currently-loaded Randoms sets (for the forme dropdown's "pool"
+  // group). empty for non-Randoms formats (or before presets load), so buildFormeOptions falls back to tiers.
+  const formePool = React.useMemo(() => (
+    format?.includes('random') && allPresets?.length
+      ? [...new Set(allPresets.map((p) => p?.speciesForme).filter(Boolean))]
+      : []
+  ), [allPresets, format]);
+
   const value = React.useMemo<CalcdexPokeContextValue>(() => ({
     ...ctx,
 
@@ -308,6 +316,7 @@ export const CalcdexPokeProvider = ({
     formeUsages,
     formeUsageFinder,
     formeUsageSorter,
+    formePool,
 
     matchups,
   }), [
@@ -316,6 +325,7 @@ export const CalcdexPokeProvider = ({
     allUsages,
     ctx,
     formatLabelMap,
+    formePool,
     formeUsageFinder,
     formeUsages,
     formeUsageSorter,
