@@ -1,6 +1,6 @@
 {
   "name": "pokemon-showdown-enhanced-tooltips-safari",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Displays additional information on tooltips of Pokémon Showdown. Additionally it provides a damage calculator.",
   "author": "Various Authors",
   "license": "AGPL-3.0",
@@ -85,6 +85,7 @@
     "@lexical/markdown": "^0.42.0",
     "@lexical/react": "^0.42.0",
     "@lexical/rich-text": "^0.42.0",
+    "@lexical/table": "^0.42.0",
     "@react-hook/size": "^2.1.2",
     "@react-spring/web": "^10.0.3",
     "@reduxjs/toolkit": "^2.11.2",
@@ -105,7 +106,6 @@
     "lz-string": "^1.5.0",
     "pino": "^10.3.1",
     "prismjs": "^1.30.0",
-    "process": "^0.11.10",
     "qs": "^6.11.2",
     "react": "^19.2.4",
     "react-contexify": "^6.0.0",

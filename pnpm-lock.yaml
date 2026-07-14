@@ -10,7 +10,7 @@ overrides:
 
 patchedDependencies:
   '@smogon/calc@0.11.0':
-    hash: 0dece061076a58127e999094f7421990a7942c07cbcefc4cd83f933eb0f5e320
+    hash: fe8a35412966b2f1c52815bbe00337cb9d9bf2d4501190780ede222624c6f4dd
     path: patches/@smogon__calc@0.11.0.patch
   react-select@5.10.2:
     hash: b14e475136570b990ec7cc0641bb319ead87d9d1bf4fb127e28746c39066844e
@@ -50,6 +50,9 @@ importers:
       '@lexical/rich-text':
         specifier: ^0.42.0
         version: 0.42.0
+      '@lexical/table':
+        specifier: ^0.42.0
+        version: 0.42.0
       '@react-hook/size':
         specifier: ^2.1.2
         version: 2.1.2(react@19.2.4)
@@ -61,7 +64,7 @@ importers:
         version: 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@smogon/calc':
         specifier: ^0.11.0
-        version: 0.11.0(patch_hash=0dece061076a58127e999094f7421990a7942c07cbcefc4cd83f933eb0f5e320)
+        version: 0.11.0(patch_hash=fe8a35412966b2f1c52815bbe00337cb9d9bf2d4501190780ede222624c6f4dd)
       '@tippyjs/react':
         specifier: ^4.2.6
         version: 4.2.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -110,9 +113,6 @@ importers:
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
-      process:
-        specifier: ^0.11.10
-        version: 0.11.10
       qs:
         specifier: ^6.11.2
         version: 6.15.0
@@ -3489,10 +3489,6 @@ packages:
   process-warning@5.0.0:
     resolution: {integrity: sha512-a39t9ApHNx2L4+HBnQKqxxHNs1r7KF+Intd8Q/g1bUh6q0WIp9voPXJ/x0j+ZL45KF1pJd9+q2jLIRMfvEshkA==}
 
-  process@0.11.10:
-    resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
-    engines: {node: '>= 0.6.0'}
-
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
 
@@ -5406,7 +5402,7 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@smogon/calc@0.11.0(patch_hash=0dece061076a58127e999094f7421990a7942c07cbcefc4cd83f933eb0f5e320)':
+  '@smogon/calc@0.11.0(patch_hash=fe8a35412966b2f1c52815bbe00337cb9d9bf2d4501190780ede222624c6f4dd)':
     dependencies:
       '@types/node': 18.19.130
 
@@ -7991,8 +7987,6 @@ snapshots:
   process-nextick-args@2.0.1: {}
 
   process-warning@5.0.0: {}
-
-  process@0.11.10: {}
 
   prop-types@15.8.1:
     dependencies:
