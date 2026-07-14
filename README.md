@@ -36,10 +36,9 @@ This repository incorporates code from multiple plugins:
 ### Local Development
 
 ```bash
-brew install node@18
-brew unlink node@18 # to not let it be the default on the system
-export PATH="/opt/homebrew/Cellar/node@18/18.20.8/bin:$PATH"
-yarn install && yarn build:chrome
+brew install node@24 pnpm
+export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
+pnpm install && pnpm build:chrome
 ```
 
 This will create a `dist/` folder. The XCode project in `src/safari` references files from the dist folder and can then be used to build the Safari extension. After that, make sure to configure Safari to allow unsigned extensions and enable the extension in Safari's preferences.
