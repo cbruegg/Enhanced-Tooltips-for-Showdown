@@ -1,8 +1,8 @@
 var DATA = {};
 
 var SUPPORTED = [
-  'gen9randombattle', 'gen9unratedrandombattle', 'gen9randomdoublesbattle',
-  'gen8randombattlenodmax', 'gen8randombattle', 'gen8randomdoublesbattle', 'gen8bdsprandombattle',
+  'gen9randombattle', 'gen9randomdoublesbattle', 'gen9babyrandombattle',
+  'gen8randombattle', 'gen8randomdoublesbattle', 'gen8bdsprandombattle',
   'gen7randombattle', 'gen7letsgorandombattle', 'gen7randomdoublesbattle',
   'gen6randombattle', 'gen5randombattle', 'gen4randombattle', 'gen3randombattle',
   'gen2randombattle', 'gen1randombattle',
@@ -29,7 +29,7 @@ if (TOOLTIP) {
             var pokemon = json[name];
             // Zoroark has an actual level but the "Illusion Level Mod" means the server will lie
             // about its level making it difficult to find. Instead we special case things here and
-            // below to always just set Zororak's level to 0 for searching (the actual clientPokemon
+            // below to always just set Zoroark's level to 0 for searching (the actual clientPokemon
             // level gets used for computing stats)
             if (name.startsWith('Zoroark')) pokemon.level = 0;
             data[pokemon.level] = data[pokemon.level] || {};
@@ -193,7 +193,7 @@ if (TOOLTIP) {
         ('ivs' in data && statName in data.ivs) || ('evs' in data && statName in data.evs);
       var statLabel = gen === 1 && statName === 'spa' ? 'spc' : statName;
       buf += statName === 'atk' ? '<small>' : '<small> / ';
-      buf += '' + BattleText[statLabel].statShortName + '&nbsp;</small>';
+      buf += '' + BattleTextParser.statShortName(statLabel) + '&nbsp;</small>';
       var italic = !known && (statName === 'atk' || statName === 'spe');
       buf += (italic ? '<i>' : '') + stats[statName] + (italic ? '</i>' : '');
     }
