@@ -284,7 +284,7 @@ export const MixinCalcdexBootstrappable = <
             '\n', 'state', '(prev)', this.battleState,
           );
 
-          this.close();
+          this.closeCalcdex();
         }
 
         return void this.endTimer('(game over)');
@@ -645,7 +645,14 @@ export const MixinCalcdexBootstrappable = <
     public abstract open(): void;
 
     /**
-     * Closes the Calcdex (& its associated client battle room, if applicable).
+     * Closes the Calcdex panel tab without closing its associated client battle room.
+     *
+     * @since 1.4.2
+     */
+    public abstract closeCalcdex(): void;
+
+    /**
+     * Closes the Calcdex and its associated client battle room when applicable.
      *
      * @since 1.3.0
      */
